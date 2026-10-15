@@ -1,0 +1,805 @@
+/* Polices : chargées via <link> dans nuxt.config.ts (plus d'@import bloquant). */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --tikeo-orange: 255 122 0;
+  --tikeo-orange-dark: 214 102 0; /* même teinte que --tikeo-orange, luminosité réduite */
+  /* Contraste WCAG AA : #FF7A00 sur blanc ne fait que 2,6:1 (minimum 4,5:1).
+     « strong » = MÊME teinte, plus foncée (5,1:1 avec du texte blanc) : utilisée
+     pour les boutons orange et le texte orange sur fond clair. L'orange de
+     marque #FF7A00 reste utilisé pour les aplats décoratifs, dégradés, bordures. */
+  --tikeo-orange-strong: 176 84 0;
+  --tikeo-orange-strong-hover: 146 68 0;
+  --tikeo-on-orange: 255 255 255; /* couleur du texte posé sur un fond orange */
+  --tikeo-blue: 0 87 184;
+  --tikeo-blue-dark: 18 59 102;
+  --tikeo-surface: 255 255 255;
+  --tikeo-surface-alt: 243 245 249;
+  --tikeo-border: 237 239 243;
+  --tikeo-text-primary: 17 24 39;
+  --tikeo-text-secondary: 75 85 99;
+  /* Courbe unique pour toutes les animations du site : démarre vite, finit
+     en douceur (proche d'un "ease-out-expo") — un mouvement net et affirmé
+     plutôt qu'un fondu mou, réutilisé partout pour une sensation cohérente. */
+  --ease-tikeo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark {
+  --tikeo-orange: 255 138 26;
+  /* Thème sombre : l'orange clair se lit bien sur fond sombre, mais le texte
+     posé DESSUS doit être sombre (blanc sur #FF8A1A = 2,3:1). */
+  --tikeo-orange-strong: 255 138 26;
+  --tikeo-orange-strong-hover: 255 158 66;
+  --tikeo-on-orange: 17 24 39;
+  --tikeo-blue: 84 154 234;
+  --tikeo-blue-dark: 173 209 250;
+  --tikeo-surface: 26 28 34;
+  --tikeo-surface-alt: 15 17 21;
+  --tikeo-border: 46 49 58;
+  --tikeo-text-primary: 243 244 246;
+  --tikeo-text-secondary: 156 163 175;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
+  /* overflow-x: clip (et non "hidden") : "hidden" force overflow-y à
+     passer en "auto" côté navigateur dès que overflow-x n'est plus
+     "visible", ce qui casse position:sticky (header qui ne se
+     réaffiche plus après un scroll, notamment sous Safari). */
+  overflow-x: clip;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-tikeo-gray-light text-tikeo-black antialiased transition-colors duration-200;
+  font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  overflow-x: clip;
+  max-width: 100vw;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: 'Bricolage Grotesque', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
+/* Barre de défilement discrète pour les carrousels horizontaux */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Transition douce entre les pages (voir nuxt.config.ts > app.pageTransition).
+   mode "out-in" : la page sortante disparaît avant que la nouvelle apparaisse,
+   pour éviter tout chevauchement/scroll bizarre pendant la transition. */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.32s var(--ease-tikeo), transform 0.32s var(--ease-tikeo);
+}
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+/* Mobile : pas de halo bleu disgracieux au tap, et un léger retour visuel
+   (scale) sur les éléments interactifs pour un ressenti plus "app native". */
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+@media (hover: none) {
+  a:active,
+  button:active {
+    transform: scale(0.97);
+  }
+}
+
+/* Respecte les personnes qui désactivent les animations dans leur OS */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focus clavier visible (accessibilité) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgb(var(--tikeo-orange-strong));
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------
+   Préférences d'affichage (Paramètres > Affichage et accessibilité).
+   Les classes sont posées sur <html> par app.vue (useUiPrefs).
+   ------------------------------------------------------------------ */
+html.ui-text-sm { font-size: 93.75%; }
+html.ui-text-lg { font-size: 112.5%; }
+html.ui-text-xl { font-size: 125%; }
+
+html.ui-reduce-motion *,
+html.ui-reduce-motion *::before,
+html.ui-reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Contraste élevé : textes plus foncés, bordures bien visibles. */
+html.ui-contrast {
+  --tikeo-text-secondary: 31 41 55;
+  --tikeo-border: 148 156 170;
+}
+html.dark.ui-contrast {
+  --tikeo-text-secondary: 209 213 219;
+  --tikeo-border: 110 116 130;
+}
+html.ui-contrast a:not([class*='btn']):not([class*='bg-']) {
+  text-decoration-line: underline;
+  text-underline-offset: 3px;
+}
+
+/* Économiseur de données : pas d'animations d'arrière-plan décoratives. */
+html.ui-data-saver .tk-deco {
+  display: none !important;
+}
+
+/* Effet « flash » : met brièvement en évidence un bloc (ancres, champ à compléter). */
+@keyframes tk-flash {
+  0% { box-shadow: 0 0 0 0 rgb(var(--tikeo-orange) / 0.55); }
+  60% { box-shadow: 0 0 0 10px rgb(var(--tikeo-orange) / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(var(--tikeo-orange) / 0); }
+}
+.tk-flash {
+  animation: tk-flash 0.9s var(--ease-tikeo) 2;
+  outline: 2px solid rgb(var(--tikeo-orange));
+  outline-offset: 2px;
+}
+
+/* Petit « pop » quand une pastille est sélectionnée. */
+@keyframes tk-pop {
+  0% { transform: scale(0.9); }
+  55% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+.tk-pop {
+  animation: tk-pop 0.32s var(--ease-tikeo);
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-none px-5 py-2.5 text-sm font-semibold shadow-card active:translate-y-0;
+    background-color: rgb(var(--tikeo-orange-strong));
+    color: rgb(var(--tikeo-on-orange));
+    transition: transform 0.2s var(--ease-tikeo), box-shadow 0.2s var(--ease-tikeo), background-color 0.15s ease;
+  }
+  .btn-primary:hover {
+    background-color: rgb(var(--tikeo-orange-strong-hover));
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px -8px rgb(0 0 0 / 0.25);
+  }
+  .btn-primary:active {
+    transform: scale(0.95);
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-none border border-tikeo-blue px-5 py-2.5 text-sm font-semibold text-tikeo-blue hover:bg-tikeo-blue hover:text-white active:translate-y-0;
+    transition: transform 0.2s var(--ease-tikeo), box-shadow 0.2s var(--ease-tikeo), background-color 0.15s ease, color 0.15s ease;
+  }
+  .btn-secondary:hover {
+    transform: translateY(-3px);
+  }
+  .btn-secondary:active {
+    transform: scale(0.95);
+  }
+  .card {
+    @apply rounded-card bg-tikeo-surface shadow-card;
+    transition: transform 0.3s var(--ease-tikeo), box-shadow 0.3s var(--ease-tikeo);
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 32px -12px rgb(0 0 0 / 0.25);
+  }
+  .input-field {
+    @apply w-full rounded-none border border-tikeo-border bg-tikeo-surface px-4 py-2.5 text-sm text-tikeo-black placeholder:text-gray-400 focus:border-tikeo-orange focus:outline-none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .input-field:focus {
+    box-shadow: 0 0 0 3px rgb(var(--tikeo-orange) / 0.15);
+  }
+
+  /* Boutons « maison » de la page d'accueil, réutilisés partout :
+     .btn-ink   = bouton encre (devient orange en thème sombre) ;
+     .btn-brand = aplat orange de marque, texte encre (lisible partout). */
+  .btn-ink {
+    @apply inline-flex h-11 items-center justify-center gap-2 bg-tikeo-ink px-5 text-sm font-bold text-white transition-colors duration-200 hover:bg-[#FF7A00] hover:text-tikeo-ink dark:bg-[#FF7A00] dark:text-tikeo-ink dark:hover:bg-white;
+  }
+  .btn-brand {
+    @apply inline-flex h-12 items-center justify-center gap-2 bg-[#FF7A00] px-7 text-sm font-bold text-tikeo-ink transition-colors duration-200 hover:bg-[#FF9A3D] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  /* Lignes du tiroir mobile : icône carrée, texte net, chevron discret. */
+  .drawer-row {
+    @apply flex items-center gap-3.5 px-5 py-3 text-[15px] font-semibold text-tikeo-black transition-colors duration-150 active:bg-tikeo-surface-alt;
+  }
+  .drawer-icon {
+    @apply flex h-10 w-10 shrink-0 items-center justify-center bg-tikeo-surface-alt text-tikeo-black;
+  }
+
+  /* ---- Espace « Mon compte » : mêmes briques que l'accueil / page événement ---- */
+  .acc-panel {
+    @apply border border-tikeo-border bg-tikeo-surface shadow-card;
+  }
+  .acc-h2 {
+    @apply font-display text-xl font-extrabold tracking-tight text-tikeo-black md:text-2xl;
+  }
+  .acc-label {
+    @apply text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text;
+  }
+  .acc-empty {
+    @apply flex flex-col items-center gap-3 border border-dashed border-tikeo-border bg-tikeo-surface px-6 py-12 text-center;
+  }
+  .acc-tag {
+    @apply inline-flex items-center px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide;
+  }
+  .acc-link {
+    @apply text-sm font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[6px] transition-colors hover:text-tikeo-orange;
+  }
+  .acc-btn-ghost {
+    @apply inline-flex h-10 items-center justify-center gap-2 border border-tikeo-border bg-tikeo-surface px-4 text-sm font-semibold text-tikeo-black transition-colors duration-200 hover:border-tikeo-ink disabled:cursor-not-allowed disabled:opacity-50 dark:hover:border-[#FF7A00];
+  }
+  .acc-btn-danger {
+    @apply inline-flex h-10 items-center justify-center gap-2 border border-tikeo-error/40 px-4 text-sm font-semibold text-tikeo-error transition-colors hover:bg-tikeo-error hover:text-white disabled:opacity-50;
+  }
+  .acc-alert-error {
+    @apply border-l-4 border-tikeo-error bg-tikeo-error/10 px-4 py-2.5 text-sm text-tikeo-error;
+  }
+  .acc-alert-success {
+    @apply border-l-4 border-tikeo-success bg-tikeo-success/10 px-4 py-2.5 text-sm text-tikeo-success;
+  }
+  .acc-alert-info {
+    @apply border-l-4 border-tikeo-blue bg-tikeo-blue/10 px-4 py-2.5 text-sm text-tikeo-blue;
+  }
+  /* Champs des pages d'authentification et de paiement */
+  .field-input {
+    @apply h-12 w-full border border-tikeo-border bg-tikeo-surface px-4 text-[15px] text-tikeo-black transition-colors duration-200 placeholder:text-tikeo-gray-text/60 focus:border-[#FF7A00] focus:outline-none;
+  }
+  .field-input:focus {
+    box-shadow: 0 0 0 3px rgb(255 122 0 / 0.18);
+  }
+
+  /* ---- Espace organisateur : mêmes briques que le site visiteur ---- */
+  .org-panel {
+    @apply border border-tikeo-border bg-tikeo-surface shadow-card;
+  }
+  .org-card-hover {
+    transition: transform 0.3s var(--ease-tikeo), box-shadow 0.3s var(--ease-tikeo), border-color 0.2s ease;
+  }
+  .org-card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 32px -14px rgb(14 34 64 / 0.28);
+    border-color: rgb(255 122 0 / 0.55);
+  }
+  /* Bouton-icône carré (Modifier, Dupliquer, Statistiques…) avec infobulle */
+  .org-icon-btn {
+    @apply relative inline-flex h-10 w-10 items-center justify-center border border-tikeo-border bg-tikeo-surface text-tikeo-black disabled:cursor-not-allowed disabled:opacity-50;
+    transition: transform 0.2s var(--ease-tikeo), background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .org-icon-btn:hover:not(:disabled) {
+    @apply border-tikeo-ink bg-tikeo-ink text-white dark:border-[#FF7A00] dark:bg-[#FF7A00] dark:text-tikeo-ink;
+    transform: translateY(-2px);
+  }
+  .org-icon-btn:active:not(:disabled) {
+    transform: scale(0.92);
+  }
+  .org-icon-btn.is-danger:hover:not(:disabled) {
+    @apply border-tikeo-error bg-tikeo-error text-white dark:border-tikeo-error dark:bg-tikeo-error dark:text-white;
+  }
+  .org-icon-btn.is-success {
+    @apply border-tikeo-success bg-tikeo-success text-white;
+  }
+  .org-icon-btn > svg {
+    transition: transform 0.3s var(--ease-tikeo);
+  }
+  .org-icon-btn:hover:not(:disabled) > svg {
+    transform: scale(1.12);
+  }
+  /* Infobulle : apparaît au survol et au focus clavier */
+  .org-tip::after {
+    content: attr(data-tip);
+    @apply pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 whitespace-nowrap bg-tikeo-ink px-2 py-1 text-[11px] font-semibold text-white opacity-0 dark:bg-white dark:text-tikeo-ink;
+    transform: translate(-50%, 4px);
+    transition: opacity 0.18s ease, transform 0.22s var(--ease-tikeo);
+  }
+  .org-tip:hover::after,
+  .org-tip:focus-visible::after {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  @media (hover: none) {
+    .org-tip::after {
+      display: none;
+    }
+  }
+  /* Pastille de statut */
+  .org-status {
+    @apply inline-flex items-center gap-1.5 px-2 py-1 text-[11px] font-bold uppercase tracking-wide;
+  }
+  .org-status::before {
+    content: '';
+    @apply h-1.5 w-1.5 rounded-full bg-current;
+  }
+  .org-status.is-live::before {
+    animation: org-pulse 1.8s ease-out infinite;
+  }
+  .org-skeleton {
+    @apply border border-tikeo-border bg-tikeo-surface-alt;
+    background-image: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.55) 50%, transparent 70%);
+    background-size: 220% 100%;
+    animation: org-shimmer 1.4s linear infinite;
+  }
+  .dark .org-skeleton {
+    background-image: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.06) 50%, transparent 70%);
+  }
+
+  /* Lignes du menu mobile (compte + navigation) : badge d'icône, texte
+     clair, chevron discret — pour un rendu "app pro" plutôt qu'une liste
+     de liens brute. Voir components/AppHeader.vue. */
+  .mobile-menu-row {
+    @apply flex items-center gap-3 px-4 py-3.5 text-[15px] font-medium text-tikeo-black transition-colors duration-150 active:bg-tikeo-surface-alt;
+  }
+  .mobile-menu-icon {
+    @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-tikeo-surface-alt text-tikeo-gray-text;
+  }
+  .mobile-menu-chevron {
+    @apply h-4 w-4 shrink-0 text-tikeo-border;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E");
+    mask-repeat: no-repeat;
+    mask-position: center;
+    background-color: currentColor;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Contraste (WCAG AA) — thème clair
+   ------------------------------------------------------------------
+   Les classes Babicho (bg-tikeo-orange, text-tikeo-orange…) sont utilisées
+   partout ; plutôt que d'éditer chaque page, on les fait pointer vers la
+   variante « strong » (même teinte, plus foncée) tant que le fond est
+   clair. Les variantes avec opacité (bg-tikeo-orange/10…) ne sont pas
+   concernées : elles servent de teinte de fond, pas de texte. */
+:root:not(.dark) .bg-tikeo-orange {
+  background-color: rgb(var(--tikeo-orange-strong));
+}
+:root:not(.dark) .hover\:bg-tikeo-orange-dark:hover {
+  background-color: rgb(var(--tikeo-orange-strong-hover));
+}
+:root:not(.dark) .text-tikeo-orange,
+:root:not(.dark) .\!text-tikeo-orange,
+:root:not(.dark) .hover\:text-tikeo-orange:hover,
+:root:not(.dark) .group:hover .group-hover\:text-tikeo-orange {
+  color: rgb(var(--tikeo-orange-strong));
+}
+/* Thème sombre : texte sombre sur les aplats orange clairs. */
+.dark .bg-tikeo-orange.text-white {
+  color: rgb(var(--tikeo-on-orange));
+}
+
+/* ------------------------------------------------------------------
+   Animations de l'espace organisateur
+   ------------------------------------------------------------------ */
+@keyframes org-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes org-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes org-shimmer {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+@keyframes org-pulse {
+  0% {
+    box-shadow: 0 0 0 0 currentColor;
+  }
+  70% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+@keyframes org-line {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+/* Apparition en cascade : style="--i: n" sur chaque élément */
+.org-rise {
+  opacity: 0;
+  animation: org-rise 0.6s var(--ease-tikeo) forwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+.org-pop {
+  opacity: 0;
+  animation: org-pop 0.45s var(--ease-tikeo) forwards;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+.org-line {
+  transform-origin: left;
+  animation: org-line 0.8s var(--ease-tikeo) 0.15s both;
+}
+/* Transition de liste (TransitionGroup name="org-list") */
+.org-list-enter-active,
+.org-list-leave-active {
+  transition: opacity 0.35s var(--ease-tikeo), transform 0.35s var(--ease-tikeo);
+}
+.org-list-enter-from {
+  opacity: 0;
+  transform: translateY(14px);
+}
+.org-list-leave-to {
+  opacity: 0;
+  transform: translateX(-24px);
+}
+.org-list-leave-active {
+  position: absolute;
+  width: 100%;
+}
+.org-list-move {
+  transition: transform 0.4s var(--ease-tikeo);
+}
+/* Fondu rapide (changement d'onglet, bulles) */
+.org-fade-enter-active,
+.org-fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.25s var(--ease-tikeo);
+}
+.org-fade-enter-from,
+.org-fade-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+/* ------------------------------------------------------------------
+   Administration : habillage commun des pages existantes
+   ------------------------------------------------------------------
+   Le gabarit (layouts/admin.vue) affiche déjà le titre de la page dans un
+   bandeau encre ; le <h1> propre à la page reste dans le DOM (accessibilité,
+   SEO interne) mais devient visuellement masqué. Tableaux et largeurs sont
+   harmonisés ici pour que toutes les pages partagent le même rythme. */
+.admin-main.has-hero h1 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.admin-main > .max-w-4xl,
+.admin-main > .max-w-5xl,
+.admin-main > .max-w-6xl,
+.admin-main > .max-w-tikeo-container {
+  max-width: 76rem;
+}
+@media (min-width: 768px) {
+  .admin-main > .max-w-4xl,
+  .admin-main > .max-w-5xl,
+  .admin-main > .max-w-6xl,
+  .admin-main > .max-w-tikeo-container,
+  .admin-main > .max-w-3xl,
+  .admin-main > .max-w-2xl {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+.admin-main > * {
+  animation: org-rise 0.5s var(--ease-tikeo) both;
+}
+.admin-main table {
+  border-collapse: separate;
+  border-spacing: 0;
+  background: rgb(var(--tikeo-surface));
+}
+.admin-main table thead th {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.admin-main table tbody tr {
+  transition: background-color 0.15s ease;
+}
+.admin-main table tbody tr:hover {
+  background-color: rgb(var(--tikeo-surface-alt) / 0.7);
+}
+.admin-main .overflow-x-auto {
+  box-shadow: 0 1px 2px rgba(14, 34, 64, 0.05);
+}
+
+/* Administration : infobulles des boutons-icônes à GAUCHE du bouton quand
+   ils sont dans un tableau défilant (sinon le conteneur les rogne) */
+.admin-main .overflow-x-auto .org-tip::after {
+  bottom: auto;
+  left: auto;
+  right: 100%;
+  top: 50%;
+  margin: 0 8px 0 0;
+  transform: translate(4px, -50%);
+}
+.admin-main .overflow-x-auto .org-tip:hover::after,
+.admin-main .overflow-x-auto .org-tip:focus-visible::after {
+  transform: translate(0, -50%);
+}
+/* Tons des pastilles de statut (StatusPill) */
+.pill-success { @apply bg-tikeo-success/10 text-tikeo-success; }
+.pill-warning { @apply bg-[#FF7A00]/15 text-[#B45309] dark:text-[#FFB066]; }
+.pill-error { @apply bg-tikeo-error/10 text-tikeo-error; }
+.pill-info { @apply bg-tikeo-blue/10 text-tikeo-blue; }
+.pill-neutral { @apply bg-tikeo-surface-alt text-tikeo-gray-text; }
+/* Barre d'outils des listes admin (recherche + filtres) */
+.admin-toolbar { @apply mb-5 flex flex-col gap-3 sm:flex-row sm:items-center; }
+.admin-search { @apply relative min-w-0 flex-1; }
+.admin-search > svg { @apply pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-tikeo-gray-text; }
+.admin-search > input { @apply h-11 w-full border border-tikeo-border bg-tikeo-surface pl-10 pr-3 text-sm text-tikeo-black placeholder:text-tikeo-gray-text/60 focus:border-[#FF7A00] focus:outline-none; }
+.admin-chip { @apply inline-flex h-9 items-center gap-1.5 border border-tikeo-border bg-tikeo-surface px-3 text-xs font-bold text-tikeo-black transition-colors hover:border-tikeo-ink dark:hover:border-[#FF7A00]; }
+.admin-chip.is-active { @apply border-tikeo-ink bg-tikeo-ink text-white dark:border-[#FF7A00] dark:bg-[#FF7A00] dark:text-tikeo-ink; }
+
+/* ==================================================================
+   Animations au scroll (plugins/reveal.ts : v-reveal, v-stagger, v-parallax)
+   ------------------------------------------------------------------
+   Principe : tant que l'élément n'est pas à l'écran il est invisible
+   (.rv) ; quand il entre, la directive pose .rv-in et l'animation joue.
+   `animation-fill-mode: backwards` : l'état de départ est tenu pendant
+   le délai, puis l'élément retrouve ses propres styles (donc les effets
+   de survol des cartes continuent de fonctionner après l'entrée).
+   Variables réglables par élément : --rv-d (délai), --rv-t (durée),
+   --rv-st (pas de la cascade).
+   ================================================================== */
+:root {
+  --rv-t: 0.85s;
+  --rv-st: 80ms;
+}
+
+/* 1) État de départ (avant d'entrer à l'écran) */
+.rv:not(.rv-in),
+[data-stagger]:not(.rv-in) > * {
+  opacity: 0;
+}
+
+/* 2) Effets : chaque effet ne fait que fixer l'origine du mouvement */
+.rv,
+[data-stagger] > * {
+  --rv-x: 0px;
+  --rv-y: 34px;
+  --rv-s: 1;
+  --rv-b: 0px;
+}
+.rv-down,
+[data-stagger='down'] > * { --rv-y: -34px; }
+.rv-left,
+[data-stagger='left'] > * { --rv-x: -56px; --rv-y: 0px; }
+.rv-right,
+[data-stagger='right'] > * { --rv-x: 56px; --rv-y: 0px; }
+.rv-zoom,
+[data-stagger='zoom'] > * { --rv-s: 0.86; --rv-y: 14px; }
+.rv-blur,
+[data-stagger='blur'] > * { --rv-b: 14px; --rv-y: 20px; }
+
+@keyframes rv-move {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--rv-x), var(--rv-y), 0) scale(var(--rv-s));
+    filter: blur(var(--rv-b));
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+}
+/* Rebond : arrive un peu trop loin puis se pose (pastilles, icônes, logos) */
+@keyframes rv-pop {
+  0% { opacity: 0; transform: scale(0.5) translateY(10px); }
+  60% { opacity: 1; transform: scale(1.08) translateY(0); }
+  100% { opacity: 1; transform: scale(1); }
+}
+/* Carte qui se redresse, comme un billet posé sur la table */
+@keyframes rv-flip {
+  from { opacity: 0; transform: perspective(900px) translateY(24px) rotateX(16deg); transform-origin: 50% 100%; }
+  to { opacity: 1; transform: perspective(900px) translateY(0) rotateX(0); transform-origin: 50% 100%; }
+}
+/* Rideau : l'affiche se dévoile de bas en haut */
+@keyframes rv-wipe {
+  from { opacity: 1; clip-path: inset(100% 0 0 0); transform: translateY(18px) scale(1.02); }
+  to { opacity: 1; clip-path: inset(0 0 0 0); transform: translateY(0) scale(1); }
+}
+/* Titre : balayage de gauche à droite (le trait de plume) */
+@keyframes rv-title {
+  from { opacity: 0; clip-path: inset(-0.1em 100% -0.2em 0); transform: translateX(-26px); }
+  to { opacity: 1; clip-path: inset(-0.1em -0.5em -0.2em 0); transform: translateX(0); }
+}
+
+/* Montée : un objet (le téléphone) surgit du bas en se redressant */
+@keyframes rv-rise {
+  from { opacity: 0; transform: translate3d(0, 120px, 0) rotate(5deg) scale(0.92); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) rotate(0) scale(1); }
+}
+
+/* 3) Déclenchement : élément seul… */
+.rv-in {
+  animation: rv-move var(--rv-t) var(--ease-tikeo) var(--rv-d, 0ms) backwards;
+}
+.rv-in.rv-pop { animation-name: rv-pop; animation-timing-function: cubic-bezier(0.34, 1.4, 0.64, 1); }
+.rv-in.rv-flip { animation-name: rv-flip; }
+.rv-in.rv-wipe { animation-name: rv-wipe; animation-duration: 1.1s; }
+.rv-in.rv-title { animation-name: rv-title; animation-duration: 1s; }
+.rv-in.rv-rise { animation-name: rv-rise; animation-duration: 1.2s; }
+
+/* …ou enfants d'une cascade (délai = rang × pas, plafonné à 12 rangs) */
+[data-stagger].rv-in > * {
+  animation: rv-move var(--rv-t) var(--ease-tikeo) calc(var(--rv-d, 0ms) + var(--i, 0) * var(--rv-st)) backwards;
+}
+[data-stagger='pop'].rv-in > * { animation-name: rv-pop; animation-timing-function: cubic-bezier(0.34, 1.4, 0.64, 1); }
+[data-stagger='flip'].rv-in > * { animation-name: rv-flip; }
+[data-stagger='wipe'].rv-in > * { animation-name: rv-wipe; animation-duration: 1.1s; }
+
+[data-stagger] > :nth-child(1) { --i: 0; }
+[data-stagger] > :nth-child(2) { --i: 1; }
+[data-stagger] > :nth-child(3) { --i: 2; }
+[data-stagger] > :nth-child(4) { --i: 3; }
+[data-stagger] > :nth-child(5) { --i: 4; }
+[data-stagger] > :nth-child(6) { --i: 5; }
+[data-stagger] > :nth-child(7) { --i: 6; }
+[data-stagger] > :nth-child(8) { --i: 7; }
+[data-stagger] > :nth-child(9) { --i: 8; }
+[data-stagger] > :nth-child(10) { --i: 9; }
+[data-stagger] > :nth-child(11) { --i: 10; }
+[data-stagger] > :nth-child(n + 12) { --i: 11; }
+
+/* Déjà dépassé au chargement : affichage direct */
+.rv-now,
+[data-stagger].rv-now > * {
+  animation: none !important;
+  opacity: 1;
+}
+
+/* Mobile : mouvements plus courts et plus rapides (écran étroit, doigt en
+   plein scroll : on veut de la fluidité, pas de longs trajets). */
+@media (max-width: 767px) {
+  :root {
+    --rv-t: 0.7s;
+    --rv-st: 60ms;
+  }
+  .rv,
+  [data-stagger] > * { --rv-y: 24px; }
+  .rv-left,
+  [data-stagger='left'] > * { --rv-x: -32px; --rv-y: 0px; }
+  .rv-right,
+  [data-stagger='right'] > * { --rv-x: 32px; --rv-y: 0px; }
+  .rv-down,
+  [data-stagger='down'] > * { --rv-y: -24px; }
+}
+
+/* Sans JavaScript, ou « réduire les animations » : tout est visible, immobile */
+@media (scripting: none) {
+  .rv:not(.rv-in),
+  [data-stagger]:not(.rv-in) > * { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rv:not(.rv-in),
+  [data-stagger]:not(.rv-in) > * { opacity: 1; }
+  .rv-in,
+  [data-stagger].rv-in > * { animation: none !important; }
+}
+html.ui-reduce-motion .rv:not(.rv-in),
+html.ui-reduce-motion [data-stagger]:not(.rv-in) > * { opacity: 1; }
+html.ui-reduce-motion .rv-in,
+html.ui-reduce-motion [data-stagger].rv-in > * { animation: none !important; }
+
+/* ------------------------------------------------------------------
+   Briques réutilisables
+   ------------------------------------------------------------------ */
+
+/* Trait orange sous un titre : se dessine quand le titre apparaît */
+.rv-underline {
+  background-image: linear-gradient(90deg, #ff7a00, #0057b8);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 3px;
+  padding-bottom: 0.18em;
+  transition: background-size 0.9s var(--ease-tikeo) 0.35s;
+}
+.rv-in .rv-underline,
+.rv-in.rv-underline { background-size: 100% 3px; }
+
+/* Ligne qui se trace du haut vers le bas (étapes numérotées) */
+.rv-draw {
+  transform-origin: top;
+  transform: scaleY(0);
+  transition: transform 1.2s var(--ease-tikeo) 0.2s;
+}
+.rv-in .rv-draw,
+.rv-in.rv-draw { transform: scaleY(1); }
+
+/* Flottement lent (décor, pastilles du téléphone) */
+@keyframes tk-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -10px, 0); }
+}
+.tk-float { animation: tk-float 5s ease-in-out infinite; }
+.tk-float-slow { animation: tk-float 7s ease-in-out -2s infinite; }
+
+/* Halo qui pulse (cloche de notification, badge « live ») */
+@keyframes tk-ping {
+  0% { transform: scale(1); opacity: 0.7; }
+  80%, 100% { transform: scale(2.6); opacity: 0; }
+}
+.tk-ping::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: tk-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Reflet qui traverse un bouton (appel à l'action) */
+@keyframes tk-shine {
+  0% { transform: translateX(-130%) skewX(-20deg); }
+  60%, 100% { transform: translateX(260%) skewX(-20deg); }
+}
+.tk-shine { position: relative; overflow: hidden; }
+.tk-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.45), transparent);
+  animation: tk-shine 3.8s ease-in-out 1.5s infinite;
+  pointer-events: none;
+}
+
+html.ui-data-saver .tk-float,
+html.ui-data-saver .tk-float-slow,
+html.ui-data-saver .tk-ping::after,
+html.ui-data-saver .tk-shine::after { animation: none !important; }
