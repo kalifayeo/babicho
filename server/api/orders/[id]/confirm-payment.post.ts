@@ -1,6 +1,7 @@
 import { requireCsrf } from '~/server/utils/csrf'
 import { sendTransactionalEmail } from '~/server/utils/brevo'
 import { orderConfirmationEmail } from '~/server/utils/orderEmail'
+import { getSiteOrigin } from '~/server/utils/siteOrigin'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -66,7 +67,7 @@ export default defineEventHandler(async (event) => {
   // même si l'envoi échoue (ex. Brevo non configuré en local).
   if (summary?.buyer?.email) {
     try {
-      const { subject, html, attachments } = await orderConfirmationEmail(orderId, summary)
+      const { subject, html, attachments } = await orderConfirmationEmail(orderId, summary, getSiteOrigin(event))
       await sendTransactionalEmail({
         to: summary.buyer.email,
         toName: summary.buyer.full_name || summary.buyer.email,

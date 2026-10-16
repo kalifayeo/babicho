@@ -29,7 +29,7 @@ async function isCauseOrder(orderId: string): Promise<boolean> {
  * Email envoyé après une commande confirmée : billets (PDF + QR) pour un
  * événement classique, simple message de remerciement pour une cause solidaire.
  */
-export async function orderConfirmationEmail(orderId: string, summary: OrderSummary) {
+export async function orderConfirmationEmail(orderId: string, summary: OrderSummary, siteUrl?: string | null) {
   const social = await getEmailSocialLinks()
   if (await isCauseOrder(orderId)) {
     return thankYouEmailTemplate({
@@ -40,6 +40,7 @@ export async function orderConfirmationEmail(orderId: string, summary: OrderSumm
       contributorName: summary.buyer?.full_name,
       causeCoverImage: summary.event.cover_image,
       social,
+      siteUrl,
     })
   }
   return ticketsEmailTemplate({
@@ -53,5 +54,6 @@ export async function orderConfirmationEmail(orderId: string, summary: OrderSumm
     holderName: summary.buyer?.full_name,
     tickets: summary.tickets ?? [],
     social,
+    siteUrl,
   })
 }

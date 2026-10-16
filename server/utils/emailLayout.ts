@@ -29,7 +29,11 @@ export const MAIL = {
 export const FONT = "'Segoe UI',Helvetica,Arial,sans-serif"
 
 /** Origine publique du site (liens et logo dans les emails). */
-export function siteBaseUrl(): string {
+export function siteBaseUrl(override?: string | null): string {
+  // Origine réelle de la requête (passée par l'appelant) : garantit que le logo et les
+  // icônes pointent vers le site qui répond vraiment, quel que soit le domaine configuré.
+  const given = String(override ?? '').trim().replace(/\/+$/, '')
+  if (/^https?:\/\/[^\s/]+$/i.test(given)) return given
   try {
     const root = String(useRuntimeConfig().public.rootDomain || 'babicho.com').trim()
     return `https://${root}`
@@ -77,8 +81,7 @@ export async function getEmailSocialLinks(): Promise<EmailSocialLink[]> {
 }
 
 /** Rangée d'icônes rondes cliquables (PNG hébergés sur le site : les SVG ne passent pas dans les emails). */
-function socialRow(links: EmailSocialLink[]) {
-  const base = siteBaseUrl()
+function socialRow(links: EmailSocialLink[], base: string) {
   const cells = links
     .map((l) => {
       const file = l.name.toLowerCase()
@@ -139,11 +142,13 @@ interface ShellOptions {
   rows: string
   /** Réseaux sociaux du site (voir getEmailSocialLinks). */
   social?: EmailSocialLink[]
+  /** Origine du site (logo, icônes, liens). */
+  siteUrl?: string | null
 }
 
 /** Enveloppe commune : en-tête logo, corps, pied de page support. */
-export function emailShell({ preheader, headerNote, rows, social = [] }: ShellOptions) {
-  const base = siteBaseUrl()
+export function emailShell({ preheader, headerNote, rows, social = [], siteUrl }: ShellOptions) {
+  const base = siteBaseUrl(siteUrl)
   const year = new Date().getFullYear()
   const link = (label: string, path: string) =>
     `<a href="${base}${path}" target="_blank" style="color:${MAIL.ink};font-weight:600;text-decoration:underline;">${label}</a>`
@@ -191,7 +196,7 @@ export function emailShell({ preheader, headerNote, rows, social = [] }: ShellOp
           <!-- Pied de page -->
           <tr>
             <td class="px" style="padding:28px 36px 30px;background:#F7F8FB;border-top:1px solid ${MAIL.line};font-family:${FONT};">
-              ${socialRow(social)}
+              ${socialRow(social, base)}
               <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:${MAIL.ink};">Une question ? Nous sommes là.</p>
               <p style="margin:0 0 16px;font-size:13px;line-height:1.65;color:${MAIL.gray};">
                 ${link('Mes billets', '/mon-espace/mes-billets')} &nbsp;·&nbsp; ${link('Contacter le support', '/contact')} &nbsp;·&nbsp; ${link('Conditions générales', '/conditions')} &nbsp;·&nbsp; ${link('Remboursement', '/remboursement')}

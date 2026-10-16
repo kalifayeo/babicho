@@ -2,6 +2,7 @@ import { getJekoPaymentRequest, verifyJekoSignature } from '~/server/utils/jeko'
 import { checkRateLimit } from '~/server/utils/rateLimit'
 import { sendTransactionalEmail } from '~/server/utils/brevo'
 import { orderConfirmationEmail } from '~/server/utils/orderEmail'
+import { getSiteOrigin } from '~/server/utils/siteOrigin'
 
 /**
  * POST /api/payments/jeko/webhook — notification serveur-à-serveur envoyée par
@@ -149,7 +150,7 @@ export default defineEventHandler(async (event) => {
   // Email non bloquant : le paiement et les billets sont déjà enregistrés même si l'envoi échoue.
   if (summary?.buyer?.email) {
     try {
-      const { subject, html, attachments } = await orderConfirmationEmail(order.id, summary)
+      const { subject, html, attachments } = await orderConfirmationEmail(order.id, summary, getSiteOrigin(event))
       await sendTransactionalEmail({
         to: summary.buyer.email,
         toName: summary.buyer.full_name || summary.buyer.email,

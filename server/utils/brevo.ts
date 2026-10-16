@@ -84,6 +84,8 @@ interface TicketsEmailOptions {
   tickets: TicketsEmailTicket[]
   /** Réseaux sociaux du site (pied de page). */
   social?: EmailSocialLink[]
+  /** Origine du site pour les images et liens de l'email. */
+  siteUrl?: string | null
 }
 
 function formatAmount(n: number, currency: string) {
@@ -114,7 +116,7 @@ async function qrDataUrl(token: string | null | undefined): Promise<string | nul
  */
 export async function ticketsEmailTemplate(options: TicketsEmailOptions) {
   const isFree = Number(options.total) === 0
-  const base = siteBaseUrl()
+  const base = siteBaseUrl(options.siteUrl)
 
   // Les billets « officiels », avec un vrai design (talon détachable, QR
   // code, logo Babicho), sont générés en PDF et joints à l'email — voir
@@ -342,6 +344,7 @@ export async function ticketsEmailTemplate(options: TicketsEmailOptions) {
       headerNote: `Commande ${options.orderNumber}`,
       rows,
       social: options.social,
+      siteUrl: options.siteUrl,
     }),
     attachments: pdfAttachments,
   }
@@ -361,12 +364,13 @@ export function thankYouEmailTemplate(options: {
   contributorName?: string | null
   causeCoverImage?: string | null
   social?: EmailSocialLink[]
+  siteUrl?: string | null
 }) {
   const isFree = Number(options.total) === 0
   const firstName = (options.contributorName || '').trim().split(/\s+/)[0]
   const amountLine = isFree ? 'Contribution libre' : formatAmount(options.total, options.currency)
   const F = FONT
-  const base = siteBaseUrl()
+  const base = siteBaseUrl(options.siteUrl)
 
   const rows = `
         <tr><td style="font-size:0;line-height:0;">${heroImage(options.causeTitle, options.causeCoverImage)}</td></tr>
@@ -408,6 +412,7 @@ export function thankYouEmailTemplate(options: {
       headerNote: `Reçu ${options.orderNumber}`,
       rows,
       social: options.social,
+      siteUrl: options.siteUrl,
     }),
     attachments: [] as EmailAttachment[],
   }

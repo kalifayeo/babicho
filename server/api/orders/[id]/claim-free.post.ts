@@ -2,6 +2,7 @@ import { requireCsrf } from '~/server/utils/csrf'
 import { checkRateLimit } from '~/server/utils/rateLimit'
 import { sendTransactionalEmail } from '~/server/utils/brevo'
 import { orderConfirmationEmail } from '~/server/utils/orderEmail'
+import { getSiteOrigin } from '~/server/utils/siteOrigin'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -97,7 +98,7 @@ export default defineEventHandler(async (event) => {
   const recipientEmail = summary?.buyer?.email || email
   if (recipientEmail) {
     try {
-      const { subject, html, attachments } = await orderConfirmationEmail(orderId, summary)
+      const { subject, html, attachments } = await orderConfirmationEmail(orderId, summary, getSiteOrigin(event))
       await sendTransactionalEmail({
         to: recipientEmail,
         toName: summary.buyer.full_name || recipientEmail,
