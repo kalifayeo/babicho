@@ -1,5 +1,6 @@
 import { ticketsEmailTemplate, thankYouEmailTemplate } from './brevo'
 import { useSupabaseAdmin } from './supabaseAdmin'
+import { getEmailSocialLinks } from './emailLayout'
 
 interface OrderSummary {
   order: { order_number: string; total: number; currency: string }
@@ -29,6 +30,7 @@ async function isCauseOrder(orderId: string): Promise<boolean> {
  * événement classique, simple message de remerciement pour une cause solidaire.
  */
 export async function orderConfirmationEmail(orderId: string, summary: OrderSummary) {
+  const social = await getEmailSocialLinks()
   if (await isCauseOrder(orderId)) {
     return thankYouEmailTemplate({
       orderNumber: summary.order.order_number,
@@ -37,6 +39,7 @@ export async function orderConfirmationEmail(orderId: string, summary: OrderSumm
       causeTitle: summary.event.title,
       contributorName: summary.buyer?.full_name,
       causeCoverImage: summary.event.cover_image,
+      social,
     })
   }
   return ticketsEmailTemplate({
@@ -49,5 +52,6 @@ export async function orderConfirmationEmail(orderId: string, summary: OrderSumm
     eventCoverImage: summary.event.cover_image,
     holderName: summary.buyer?.full_name,
     tickets: summary.tickets ?? [],
+    social,
   })
 }

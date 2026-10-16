@@ -1,7 +1,7 @@
 import QRCode from 'qrcode'
 import { buildIndividualTicketPdfs } from './ticketPdf'
 import { escapeHtml } from './escapeHtml'
-import { MAIL, FONT, siteBaseUrl, emailShell, emailButton, microLabel, heroImage } from './emailLayout'
+import { MAIL, FONT, siteBaseUrl, emailShell, emailButton, microLabel, heroImage, type EmailSocialLink } from './emailLayout'
 
 const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
 
@@ -82,6 +82,8 @@ interface TicketsEmailOptions {
   /** Nom du titulaire imprimé sur chaque billet PDF (l'acheteur). */
   holderName?: string | null
   tickets: TicketsEmailTicket[]
+  /** Réseaux sociaux du site (pied de page). */
+  social?: EmailSocialLink[]
 }
 
 function formatAmount(n: number, currency: string) {
@@ -339,6 +341,7 @@ export async function ticketsEmailTemplate(options: TicketsEmailOptions) {
       preheader: `${isFree ? 'Place confirmée' : 'Paiement confirmé'} · ${options.eventTitle} · ${dateLabel} à ${timeLabel}`,
       headerNote: `Commande ${options.orderNumber}`,
       rows,
+      social: options.social,
     }),
     attachments: pdfAttachments,
   }
@@ -357,6 +360,7 @@ export function thankYouEmailTemplate(options: {
   causeTitle: string
   contributorName?: string | null
   causeCoverImage?: string | null
+  social?: EmailSocialLink[]
 }) {
   const isFree = Number(options.total) === 0
   const firstName = (options.contributorName || '').trim().split(/\s+/)[0]
@@ -403,6 +407,7 @@ export function thankYouEmailTemplate(options: {
       preheader: `Votre contribution à ${options.causeTitle} a bien été reçue. Merci !`,
       headerNote: `Reçu ${options.orderNumber}`,
       rows,
+      social: options.social,
     }),
     attachments: [] as EmailAttachment[],
   }

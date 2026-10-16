@@ -1,4 +1,5 @@
 import { escapeHtml, safeHttpUrl } from './escapeHtml'
+import { useSupabaseAdmin } from './supabaseAdmin'
 
 /**
  * Briques HTML communes aux emails transactionnels « premium » de Babicho
@@ -35,6 +36,61 @@ export function siteBaseUrl(): string {
   } catch {
     return 'https://babicho.com'
   }
+}
+
+export interface EmailSocialLink {
+  /** Nom du réseau (Facebook, Instagram…), sert aussi à choisir l'icône. */
+  name: string
+  href: string
+}
+
+// Mêmes réseaux et mêmes valeurs de secours que le site (composables/useSiteSettings.ts).
+const SOCIAL_FIELDS: Array<{ name: string; field: string; fallback: string | null }> = [
+  { name: 'Facebook', field: 'facebook_url', fallback: 'https://facebook.com/babicho' },
+  { name: 'Instagram', field: 'instagram_url', fallback: 'https://instagram.com/babicho' },
+  { name: 'TikTok', field: 'tiktok_url', fallback: 'https://tiktok.com/@babicho' },
+  { name: 'LinkedIn', field: 'linkedin_url', fallback: 'https://linkedin.com/company/babicho' },
+  { name: 'X', field: 'x_url', fallback: null },
+  { name: 'YouTube', field: 'youtube_url', fallback: null },
+  { name: 'WhatsApp', field: 'whatsapp_channel_url', fallback: null },
+]
+
+/**
+ * Réseaux sociaux à afficher dans les emails : ce sont exactement ceux du site,
+ * gérés dans /admin/contact-reseaux (table site_settings). Un champ vide masque le réseau.
+ */
+export async function getEmailSocialLinks(): Promise<EmailSocialLink[]> {
+  let row: Record<string, string | null> | null = null
+  try {
+    const { data } = await useSupabaseAdmin().from('site_settings').select('*').eq('id', true).maybeSingle()
+    row = (data as any) ?? null
+  } catch (e) {
+    console.error('[email] réglages du site indisponibles, liens sociaux par défaut :', e)
+  }
+  const links: EmailSocialLink[] = []
+  for (const n of SOCIAL_FIELDS) {
+    const raw = row ? row[n.field] : n.fallback
+    const url = String(raw ?? '').trim()
+    if (/^https:\/\/[^\s]+$/i.test(url)) links.push({ name: n.name, href: url })
+  }
+  return links
+}
+
+/** Rangée d'icônes rondes cliquables (PNG hébergés sur le site : les SVG ne passent pas dans les emails). */
+function socialRow(links: EmailSocialLink[]) {
+  const base = siteBaseUrl()
+  const cells = links
+    .map((l) => {
+      const file = l.name.toLowerCase()
+      const href = safeHttpUrl(l.href)
+      if (!href) return ''
+      return `<td style="padding:0 6px 0 0;"><a href="${href}" target="_blank" title="${escapeHtml(l.name)}"><img src="${base}/email/social/${file}.png" width="36" height="36" alt="${escapeHtml(l.name)}" style="display:block;width:36px;height:36px;border:0;border-radius:18px;" /></a></td>`
+    })
+    .join('')
+  if (!cells) return ''
+  return `
+              <p style="margin:0 0 10px;font-size:14px;font-weight:700;color:${MAIL.ink};">Suivez-nous</p>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 22px;"><tr>${cells}</tr></table>`
 }
 
 /** Bouton « bulletproof » (rendu correct y compris sous Outlook). */
@@ -81,10 +137,12 @@ interface ShellOptions {
   headerNote?: string
   /** Contenu (suite de <tr>…</tr> pleine largeur, 600 px). */
   rows: string
+  /** Réseaux sociaux du site (voir getEmailSocialLinks). */
+  social?: EmailSocialLink[]
 }
 
 /** Enveloppe commune : en-tête logo, corps, pied de page support. */
-export function emailShell({ preheader, headerNote, rows }: ShellOptions) {
+export function emailShell({ preheader, headerNote, rows, social = [] }: ShellOptions) {
   const base = siteBaseUrl()
   const year = new Date().getFullYear()
   const link = (label: string, path: string) =>
@@ -119,7 +177,7 @@ export function emailShell({ preheader, headerNote, rows }: ShellOptions) {
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="left" valign="middle">
-                    <a href="${base}" target="_blank"><img src="${base}/logo-babicho.png" width="132" alt="Babicho" style="display:block;width:132px;height:auto;border:0;" /></a>
+                    <a href="${base}" target="_blank"><img src="${base}/email/logo.png" width="132" height="47" alt="Babicho" style="display:block;width:132px;height:47px;border:0;font-family:${FONT};font-size:18px;font-weight:800;color:${MAIL.orange};" /></a>
                   </td>
                   <td align="right" valign="middle" style="font-family:${FONT};font-size:12px;color:${MAIL.muted};">${headerNote ? escapeHtml(headerNote) : ''}</td>
                 </tr>
@@ -133,6 +191,7 @@ export function emailShell({ preheader, headerNote, rows }: ShellOptions) {
           <!-- Pied de page -->
           <tr>
             <td class="px" style="padding:28px 36px 30px;background:#F7F8FB;border-top:1px solid ${MAIL.line};font-family:${FONT};">
+              ${socialRow(social)}
               <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:${MAIL.ink};">Une question ? Nous sommes là.</p>
               <p style="margin:0 0 16px;font-size:13px;line-height:1.65;color:${MAIL.gray};">
                 ${link('Mes billets', '/mon-espace/mes-billets')} &nbsp;·&nbsp; ${link('Contacter le support', '/contact')} &nbsp;·&nbsp; ${link('Conditions générales', '/conditions')} &nbsp;·&nbsp; ${link('Remboursement', '/remboursement')}
