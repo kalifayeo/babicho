@@ -295,6 +295,8 @@ function goCategory(name: string) {
 }
 
 // --- Barre de réservation mobile : se retire quand on arrive au pied de page ---
+// Disparaît / réapparaît en même temps que la barre de navigation du bas.
+const scrolling = useScrolling()
 const endSentinel = ref<HTMLElement | null>(null)
 const nearEnd = ref(false)
 let endObserver: IntersectionObserver | null = null
@@ -947,8 +949,9 @@ const stepBtn =
       >
         <div
           v-if="showMobileBar"
-          class="fixed inset-x-0 z-[45] border-t border-tikeo-border bg-tikeo-surface shadow-[0_-6px_20px_rgba(0,0,0,0.12)] md:hidden"
-          style="bottom: calc(env(safe-area-inset-bottom, 0px) + 96px)"
+          class="fixed inset-x-0 z-[45] border-t border-tikeo-border bg-tikeo-surface shadow-[0_-6px_20px_rgba(0,0,0,0.12)] transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none md:hidden"
+          :class="scrolling ? 'pointer-events-none translate-y-[150%] opacity-0' : ''"
+          style="bottom: var(--bottom-nav-h, calc(env(safe-area-inset-bottom, 0px) + 72px))"
           role="region"
           :aria-label="tk('summaryTitle')"
         >

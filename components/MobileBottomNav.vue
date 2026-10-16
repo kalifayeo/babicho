@@ -18,6 +18,30 @@ const allItems = computed(() => [
 // les autres sont envoyés vers /scanner (page qui explique quand il s'active).
 const items = computed(() => allItems.value.map((i) => (i.scanner && !canScan.value ? { ...i, to: '/scanner' } : i)))
 
+// Publie la distance « bas de l'écran → haut de la barre » (--bottom-nav-h) pour que
+// les barres d'action collées au-dessus (ex. réservation) la touchent sans espace.
+const navInner = ref<HTMLElement | null>(null)
+let navObserver: ResizeObserver | undefined
+function publishNavHeight() {
+  const el = navInner.value
+  if (!el) return
+  const h = Math.round(window.innerHeight - el.getBoundingClientRect().top)
+  // Barre masquée (translatée hors écran) : on garde la dernière valeur utile.
+  if (h > 0 && h < 200 && !scrolling.value) document.documentElement.style.setProperty('--bottom-nav-h', `${h}px`)
+}
+onMounted(() => {
+  publishNavHeight()
+  if (navInner.value && 'ResizeObserver' in window) {
+    navObserver = new ResizeObserver(publishNavHeight)
+    navObserver.observe(navInner.value)
+  }
+  window.addEventListener('resize', publishNavHeight)
+})
+onBeforeUnmount(() => {
+  navObserver?.disconnect()
+  window.removeEventListener('resize', publishNavHeight)
+})
+
 function isActive(to: string) {
   return to === '/' ? route.path === '/' : route.path.startsWith(to)
 }
@@ -25,10 +49,10 @@ function isActive(to: string) {
 
 <template>
   <nav
-    class="fixed inset-x-0 bottom-0 z-40 px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-1.5 transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none"
+    class="fixed inset-x-0 bottom-0 z-40 px-3 pt-1.5 transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none"
     :class="scrolling ? 'pointer-events-none translate-y-[150%] opacity-0' : ''"
   >
-    <div class="mx-auto flex max-w-md items-center justify-between border border-tikeo-border bg-tikeo-surface/95 px-2 py-1.5 shadow-card-hover backdrop-blur">
+    <div ref="navInner" class="mx-auto flex max-w-md items-center justify-between border border-b-0 border-tikeo-border bg-tikeo-surface/95 px-2 pb-[calc(env(safe-area-inset-bottom)+0.375rem)] pt-1.5 shadow-card-hover backdrop-blur">
       <NuxtLink
         v-for="item in items"
         :key="item.label"

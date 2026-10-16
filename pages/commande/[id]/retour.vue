@@ -103,7 +103,7 @@ const returnSteps = computed<Array<{ label: string; state: 'done' | 'current' | 
         <article v-else-if="order.status === 'paid' && isCause" class="relative bg-tikeo-surface shadow-card">
           <span class="absolute inset-x-0 top-0 h-1 bg-tikeo-brand" aria-hidden="true" />
           <div class="px-6 pb-8 pt-10 text-center md:px-10">
-            <span class="mx-auto flex h-20 w-20 items-center justify-center bg-[#FF7A00] text-tikeo-ink"><AppIcon name="heart" class="h-10 w-10" :stroke="2.4" /></span>
+            <span class="mx-auto flex h-20 w-20 items-center justify-center bg-tikeo-success text-white"><AppIcon name="heart" class="h-10 w-10" :stroke="2.4" /></span>
             <h2 class="mt-6 font-display text-2xl font-extrabold tracking-tight text-tikeo-black md:text-3xl">Merci pour votre générosité&nbsp;!</h2>
             <p class="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-tikeo-gray-text">
               Votre contribution a bien été reçue<template v-if="order.event"> pour <span class="font-bold text-tikeo-black">{{ order.event.title }}</span></template>.
@@ -125,11 +125,11 @@ const returnSteps = computed<Array<{ label: string; state: 'done' | 'current' | 
               </div>
               <div class="text-right">
                 <p class="text-[10px] font-bold uppercase tracking-wider text-white/60">Votre contribution</p>
-                <p class="mt-0.5 font-display text-xl font-extrabold text-[#FF7A00]">{{ isFreeOrder ? 'Contribution libre' : formatPrice(order.total, order.currency) }}</p>
+                <p class="mt-0.5 font-display text-xl font-extrabold text-tikeo-success">{{ isFreeOrder ? 'Contribution libre' : formatPrice(order.total, order.currency) }}</p>
               </div>
             </div>
             <p class="mt-4 flex items-start gap-2 text-xs leading-relaxed text-tikeo-gray-text">
-              <AppIcon name="mail" class="mt-0.5 h-4 w-4 shrink-0 text-tikeo-orange" />
+              <AppIcon name="mail" class="mt-0.5 h-4 w-4 shrink-0 text-tikeo-success" />
               Un message de remerciement vous a aussi été envoyé par email. Vous pouvez retrouver cette contribution à tout moment dans « Mes commandes ».
             </p>
 
@@ -138,8 +138,8 @@ const returnSteps = computed<Array<{ label: string; state: 'done' | 'current' | 
               Revenir à la cause
             </NuxtLink>
             <div class="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-center">
-              <NuxtLink to="/evenements" class="text-sm font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[5px] hover:text-tikeo-orange">Découvrir d'autres causes</NuxtLink>
-              <NuxtLink to="/" class="text-sm font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[5px] hover:text-tikeo-orange">Retour à l'accueil</NuxtLink>
+              <NuxtLink to="/evenements" class="text-sm font-bold text-tikeo-black underline decoration-tikeo-success decoration-2 underline-offset-[5px] hover:text-tikeo-success">Découvrir d'autres causes</NuxtLink>
+              <NuxtLink to="/" class="text-sm font-bold text-tikeo-black underline decoration-tikeo-success decoration-2 underline-offset-[5px] hover:text-tikeo-success">Retour à l'accueil</NuxtLink>
             </div>
           </div>
         </article>
@@ -148,7 +148,7 @@ const returnSteps = computed<Array<{ label: string; state: 'done' | 'current' | 
         <article v-else-if="order.status === 'paid'" class="relative bg-tikeo-surface shadow-card">
           <span class="absolute inset-x-0 top-0 h-1 bg-tikeo-brand" aria-hidden="true" />
           <div class="px-6 pb-6 pt-9 text-center md:px-8">
-            <span class="mx-auto flex h-16 w-16 items-center justify-center bg-[#FF7A00] text-tikeo-ink"><AppIcon name="check" class="h-8 w-8" :stroke="3" /></span>
+            <span class="mx-auto flex h-16 w-16 items-center justify-center bg-tikeo-success text-white"><AppIcon name="check" class="h-8 w-8" :stroke="3" /></span>
             <h2 class="mt-5 font-display text-2xl font-extrabold tracking-tight text-tikeo-black">{{ isFreeOrder ? 'Billet confirmé !' : 'Paiement réussi !' }}</h2>
             <p class="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-tikeo-gray-text">
               {{ ticketCount > 1 ? `Vos ${ticketCount} billets sont prêts.` : 'Votre billet est prêt.' }}
@@ -167,11 +167,11 @@ const returnSteps = computed<Array<{ label: string; state: 'done' | 'current' | 
             <p v-if="order.event" class="font-display text-lg font-extrabold leading-tight tracking-tight text-tikeo-black">{{ order.event.title }}</p>
             <ul class="mt-3 space-y-2 text-sm text-tikeo-gray-text">
               <li v-if="eventDateLabel" class="flex items-center gap-2.5">
-                <span class="flex h-7 w-7 shrink-0 items-center justify-center bg-[#FF7A00] text-tikeo-ink"><AppIcon name="calendar" class="h-4 w-4" /></span>
+                <span class="flex h-7 w-7 shrink-0 items-center justify-center bg-tikeo-success text-white"><AppIcon name="calendar" class="h-4 w-4" /></span>
                 <span class="capitalize">{{ eventDateLabel }}</span>
               </li>
               <li v-if="order.event?.location_name || order.event?.city" class="flex items-center gap-2.5">
-                <span class="flex h-7 w-7 shrink-0 items-center justify-center bg-[#FF7A00] text-tikeo-ink"><AppIcon name="pin" class="h-4 w-4" /></span>
+                <span class="flex h-7 w-7 shrink-0 items-center justify-center bg-tikeo-success text-white"><AppIcon name="pin" class="h-4 w-4" /></span>
                 <span>{{ [order.event?.location_name, order.event?.city].filter(Boolean).join(' · ') }}</span>
               </li>
             </ul>
@@ -181,7 +181,7 @@ const returnSteps = computed<Array<{ label: string; state: 'done' | 'current' | 
                 <p class="text-[10px] font-bold uppercase tracking-wider text-white/60">Commande</p>
                 <p class="mt-0.5 truncate font-mono text-xs font-semibold">{{ order.order_number }}</p>
               </div>
-              <p class="font-display text-xl font-extrabold text-[#FF7A00]">{{ isFreeOrder ? 'Gratuit' : formatPrice(order.total, order.currency) }}</p>
+              <p class="font-display text-xl font-extrabold text-tikeo-success">{{ isFreeOrder ? 'Gratuit' : formatPrice(order.total, order.currency) }}</p>
             </div>
 
             <NuxtLink to="/mon-espace/mes-billets" class="btn-brand !h-14 mt-6 w-full text-base">
@@ -189,7 +189,7 @@ const returnSteps = computed<Array<{ label: string; state: 'done' | 'current' | 
               Voir mes billets
             </NuxtLink>
             <div class="mt-4 text-center">
-              <NuxtLink to="/" class="text-sm font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[5px] hover:text-tikeo-orange">Retour à l'accueil</NuxtLink>
+              <NuxtLink to="/" class="text-sm font-bold text-tikeo-black underline decoration-tikeo-success decoration-2 underline-offset-[5px] hover:text-tikeo-success">Retour à l'accueil</NuxtLink>
             </div>
           </div>
         </article>
