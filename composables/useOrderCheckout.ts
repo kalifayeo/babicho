@@ -9,7 +9,7 @@ export interface OrderDetail {
   currency: string
   status: 'pending' | 'paid' | 'cancelled' | 'refunded'
   expires_at: string | null
-  event: { id: string; title: string; slug: string; cover_image: string | null; start_date: string; location_name: string | null; city: string | null; country: string | null; category?: { kind: 'event' | 'cause' } | null } | null
+  event: { id: string; title: string; slug: string; cover_image: string | null; start_date: string; end_date?: string | null; address?: string | null; location_name: string | null; city: string | null; country: string | null; category?: { kind: 'event' | 'cause' } | null } | null
   order_items: Array<{ id: string; quantity: number; unit_price: number; total: number; ticket_type: { name: string } | null }>
 }
 

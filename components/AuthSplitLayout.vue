@@ -1,71 +1,48 @@
 <script setup lang="ts">
 /**
- * Gabarit des pages connexion / inscription / mot de passe oublié : un grand
- * « billet » à deux volets — grande photo de concert à gauche (logo, promesse),
- * perforation avec encoches, formulaire à droite. Sur mobile l'image devient
- * un bandeau compact au-dessus du formulaire.
+ * Gabarit des pages connexion / inscription / mot de passe oublié.
+ *
+ * Une carte centrée sur un fond clair : bandeau marine (photo de concert en filigrane,
+ * logo, titre et sous-titre centrés) puis le formulaire. `wide` élargit la carte pour
+ * disposer les champs sur deux colonnes (inscription, connexion) et garder la page courte.
  */
-defineProps<{ title: string; subtitle?: string }>()
+defineProps<{ title: string; subtitle?: string; wide?: boolean }>()
 const { t } = useI18n()
 const year = new Date().getFullYear()
-
 </script>
 
 <template>
-  <div class="flex min-h-[calc(100vh-64px)] items-center justify-center bg-tikeo-gray-light px-0 py-0 md:px-6 md:py-12">
-    <div class="relative grid w-full max-w-5xl overflow-hidden bg-tikeo-surface shadow-card-hover md:grid-cols-[minmax(0,9fr)_minmax(0,11fr)]">
-      <div class="absolute inset-x-0 top-0 z-20 h-1 bg-tikeo-brand" aria-hidden="true" />
+  <div class="relative isolate flex min-h-[calc(100vh-64px)] flex-col items-center justify-center overflow-hidden bg-tikeo-gray-light px-4 py-8 sm:py-10">
+    <!-- Halos de marque très légers -->
+    <div
+      class="pointer-events-none absolute inset-0 -z-10"
+      style="background: radial-gradient(46rem 22rem at 12% -6%, rgb(255 122 0 / 0.14), transparent 62%), radial-gradient(46rem 24rem at 100% 105%, rgb(0 87 184 / 0.14), transparent 62%)"
+      aria-hidden="true"
+    />
 
-      <!-- Encoches de la perforation (desktop) -->
-      <span class="absolute -top-3.5 left-[45%] z-20 hidden h-7 w-7 -translate-x-1/2 rounded-full bg-tikeo-gray-light md:block" aria-hidden="true" />
-      <span class="absolute -bottom-3.5 left-[45%] z-20 hidden h-7 w-7 -translate-x-1/2 rounded-full bg-tikeo-gray-light md:block" aria-hidden="true" />
+    <main class="w-full" :class="wide ? 'max-w-[40rem]' : 'max-w-[28rem]'">
+      <div class="overflow-hidden bg-tikeo-surface shadow-[0_24px_60px_-24px_rgba(10,26,52,0.45)] ring-1 ring-black/5">
+        <!-- Bandeau -->
+        <header class="relative isolate overflow-hidden bg-tikeo-ink px-6 pb-6 pt-7 text-center text-white sm:px-10">
+          <img src="/images/auth-concert.jpg" alt="" aria-hidden="true" class="absolute inset-0 -z-20 h-full w-full object-cover object-center opacity-20 blur-[2px]" decoding="async" />
+          <div class="absolute inset-0 -z-10 bg-gradient-to-b from-tikeo-ink/70 via-tikeo-ink/80 to-tikeo-ink" aria-hidden="true" />
+          <div class="absolute inset-x-0 top-0 h-1 bg-tikeo-brand" aria-hidden="true" />
 
-      <!-- ============ Panneau image ============ -->
-      <aside class="relative isolate min-h-[170px] overflow-hidden bg-tikeo-ink text-white md:min-h-[640px]">
-        <img
-          src="/images/auth-concert.jpg"
-          alt=""
-          class="absolute inset-0 -z-20 h-full w-full object-cover object-center"
-          fetchpriority="high"
-          decoding="async"
-        />
-        <div class="absolute inset-0 -z-10 bg-gradient-to-t from-tikeo-ink/90 via-tikeo-ink/25 to-tikeo-ink/55" aria-hidden="true" />
-        <span class="pointer-events-none absolute inset-y-6 right-0 hidden border-r-2 border-dashed border-white/30 md:block" aria-hidden="true" />
-
-        <!-- Mobile : bandeau image compact -->
-        <div class="flex h-full min-h-[170px] items-start justify-between px-6 pt-7 md:hidden">
-          <NuxtLink to="/" aria-label="Babicho"><img src="/logo-babicho.png" alt="Babicho" class="h-10 w-auto drop-shadow" /></NuxtLink>
-          <p class="text-[11px] font-bold uppercase tracking-wider text-white/80">{{ t('authLayout.secure') }}</p>
-        </div>
-
-        <!-- Desktop : image + légende -->
-        <div class="hidden h-full flex-col justify-between gap-10 p-10 md:flex lg:p-12">
           <NuxtLink to="/" aria-label="Babicho" class="inline-flex"><img src="/logo-babicho.png" alt="Babicho" class="h-12 w-auto drop-shadow-lg" /></NuxtLink>
+          <h1 class="mt-3 font-display text-2xl font-extrabold leading-tight tracking-tight sm:text-[1.7rem]">{{ title }}</h1>
+          <p v-if="subtitle" class="mx-auto mt-1.5 max-w-md text-[13px] leading-relaxed text-white/75">{{ subtitle }}</p>
+        </header>
 
-          <div>
-            <p class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-white/80">
-              <span class="h-[3px] w-6 bg-[#FF7A00]" aria-hidden="true" />
-              {{ t('authLayout.secure') }}
-            </p>
-            <p class="mt-3 font-display text-3xl font-extrabold leading-[1.1] tracking-tight lg:text-[2.5rem]">
-              {{ t('header.publish') }}<span class="text-[#FF7A00]">.</span><br />{{ t('home.buy') }}<span class="text-[#FF7A00]">.</span><br />{{ t('authLayout.live') }}
-            </p>
-            <p class="mt-4 max-w-sm text-sm leading-relaxed text-white/85">{{ t('authLayout.intro') }}</p>
-            <p class="mt-8 text-xs text-white/60">© {{ year }} Babicho — {{ t('authLayout.footer') }}</p>
-          </div>
+        <!-- Formulaire -->
+        <div class="px-6 pb-7 pt-6 sm:px-10">
+          <slot />
         </div>
-      </aside>
+      </div>
 
-      <!-- ============ Formulaire ============ -->
-      <section class="flex flex-col justify-center px-6 py-9 md:px-10 md:py-14 lg:px-14">
-        <div class="mx-auto w-full max-w-sm">
-          <h1 class="font-display text-[1.75rem] font-extrabold leading-tight tracking-tight text-tikeo-black md:text-3xl">{{ title }}</h1>
-          <p v-if="subtitle" class="mt-2 text-sm leading-relaxed text-tikeo-gray-text">{{ subtitle }}</p>
-          <div class="mt-7">
-            <slot />
-          </div>
-        </div>
-      </section>
-    </div>
+      <p class="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-tikeo-gray-text">
+        <AppIcon name="lock" class="h-3 w-3" :stroke="2.4" />
+        {{ t('authLayout.secure') }} · © {{ year }} Babicho
+      </p>
+    </main>
   </div>
 </template>

@@ -123,9 +123,9 @@ function switchMode(next: 'password' | 'otp') {
 </script>
 
 <template>
-  <AuthSplitLayout :title="t('auth.loginTitle')" :subtitle="t('auth.loginSubtitle')">
+  <AuthSplitLayout wide :title="t('auth.loginTitle')" :subtitle="t('auth.loginSubtitle')">
     <!-- Choix du mode de connexion -->
-    <div class="mb-6 grid grid-cols-2 gap-2">
+    <div class="mb-5 grid grid-cols-2 gap-2">
       <button
         v-for="m in modes"
         :key="m"
@@ -150,7 +150,7 @@ function switchMode(next: 'password' | 'otp') {
     <TurnstileWidget ref="widget" class="mb-4" @verify="onVerify" @expire="onExpire" />
 
     <!-- Connexion par mot de passe -->
-    <form v-if="mode === 'password' && step === 'form'" class="flex flex-col gap-5" @submit.prevent="submitPasswordLogin">
+    <form v-if="mode === 'password' && step === 'form'" class="grid gap-x-4 gap-y-4 sm:grid-cols-2" @submit.prevent="submitPasswordLogin">
       <AuthField
         v-model="email"
         :label="t('auth.emailPlaceholder')"
@@ -160,8 +160,7 @@ function switchMode(next: 'password' | 'otp') {
         required
         maxlength="254"
       />
-      <div>
-        <AuthField
+      <AuthField
           v-model="password"
           :label="t('auth.passwordPlaceholder')"
           type="password"
@@ -170,11 +169,10 @@ function switchMode(next: 'password' | 'otp') {
           required
           maxlength="72"
         />
-        <NuxtLink to="/mot-de-passe-oublie" class="mt-2 inline-block text-xs font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[5px] transition-colors hover:text-tikeo-orange">
-          {{ t('auth.forgotPasswordLink') }}
-        </NuxtLink>
-      </div>
-      <button type="submit" class="btn-ink !h-12 w-full disabled:opacity-60" :disabled="loading">
+      <NuxtLink to="/mot-de-passe-oublie" class="block text-center text-xs font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[5px] transition-colors hover:text-tikeo-orange sm:col-span-2">
+        {{ t('auth.forgotPasswordLink') }}
+      </NuxtLink>
+      <button type="submit" class="btn-ink !h-12 w-full disabled:opacity-60 sm:col-span-2" :disabled="loading">
         {{ loading ? t('auth.loggingIn') : t('auth.login') }}
         <AppIcon v-if="!loading" name="arrow-right" class="h-4 w-4" :stroke="2.4" />
       </button>
@@ -211,7 +209,7 @@ function switchMode(next: 'password' | 'otp') {
       <button type="submit" class="btn-ink !h-12 w-full disabled:opacity-60" :disabled="loading">
         {{ loading ? t('auth.verifying') : t('auth.verifyCode') }}
       </button>
-      <button type="button" class="text-xs font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[5px] transition-colors hover:text-tikeo-orange" @click="submitRequestOtp">
+      <button type="button" class="text-center text-xs font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[5px] transition-colors hover:text-tikeo-orange" @click="submitRequestOtp">
         {{ t('auth.resendCode') }}
       </button>
     </form>
@@ -225,12 +223,8 @@ function switchMode(next: 'password' | 'otp') {
     />
 
     <!-- Pas de compte ? -->
-    <div class="mt-8 flex flex-wrap items-center justify-between gap-3 border-t-2 border-dashed border-tikeo-gray-text/25 pt-6">
-      <p class="text-sm text-tikeo-gray-text">{{ t('auth.noAccount') }}</p>
-      <NuxtLink :to="{ path: '/inscription', query: route.query }" class="acc-btn-ghost !h-10">
-        <AppIcon name="user-plus" class="h-4 w-4" />
-        {{ t('auth.register') }}
-      </NuxtLink>
-    </div>
+    <p class="mt-6 border-t-2 border-dashed border-tikeo-gray-text/25 pt-5 text-center text-sm text-tikeo-gray-text">{{ t('auth.noAccount') }}
+      <NuxtLink :to="{ path: '/inscription', query: route.query }" class="ml-1 font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[5px] transition-colors hover:text-tikeo-orange">{{ t('auth.register') }}</NuxtLink>
+    </p>
   </AuthSplitLayout>
 </template>

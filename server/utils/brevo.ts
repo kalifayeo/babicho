@@ -1,6 +1,7 @@
 import QRCode from 'qrcode'
 import { buildIndividualTicketPdfs } from './ticketPdf'
 import { escapeHtml } from './escapeHtml'
+import { buildIcs, googleCalendarUrl } from './ics'
 import { MAIL, FONT, siteBaseUrl, emailShell, emailButton, microLabel, heroImage, type EmailSocialLink } from './emailLayout'
 
 const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
@@ -82,6 +83,12 @@ interface TicketsEmailOptions {
   /** Nom du titulaire imprimé sur chaque billet PDF (l'acheteur). */
   holderName?: string | null
   tickets: TicketsEmailTicket[]
+  /** Slug de l'événement (lien vers sa page). */
+  eventSlug?: string | null
+  eventEndDate?: string | null
+  eventAddress?: string | null
+  /** Apple / Google Wallet configurés côté serveur : on propose le bouton Wallet. */
+  walletAvailable?: boolean
   /** Réseaux sociaux du site (pied de page). */
   social?: EmailSocialLink[]
   /** Origine du site pour les images et liens de l'email. */
@@ -114,6 +121,12 @@ async function qrDataUrl(token: string | null | undefined): Promise<string | nul
  * infos essentielles, et QR code (encodant tickets.qr_token) — c'est la
  * preuve d'achat scannée à l'entrée.
  */
+/** Tuile cliquable (titre + sous-titre) de la section « Ne ratez pas votre soirée ». */
+function actionTile(title: string, subtitle: string, href: string, link = true) {
+  const inner = `<p style="margin:0 0 2px;font-family:${FONT};font-size:14px;font-weight:800;color:${MAIL.ink};">${escapeHtml(title)}</p><p style="margin:0;font-family:${FONT};font-size:12px;color:${MAIL.gray};">${escapeHtml(subtitle)}</p>`
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" style="background:#FFFFFF;border:1px solid ${MAIL.line};border-radius:12px;"><tr><td style="padding:13px 15px;">${link ? `<a href="${href}" target="_blank" style="display:block;text-decoration:none;">${inner}</a>` : inner}</td></tr></table>`
+}
+
 export async function ticketsEmailTemplate(options: TicketsEmailOptions) {
   const isFree = Number(options.total) === 0
   const base = siteBaseUrl(options.siteUrl)
@@ -158,6 +171,40 @@ export async function ticketsEmailTemplate(options: TicketsEmailOptions) {
   const firstName = (options.holderName || '').trim().split(/\s+/)[0]
   const holder = (options.holderName || '').trim()
   const ticketsUrl = `${base}/mon-espace/mes-billets`
+  const eventUrl = options.eventSlug ? `${base}/e/${encodeURIComponent(options.eventSlug)}` : ''
+  const fullLocation = [options.eventLocation, options.eventAddress].filter(Boolean).join(', ')
+  const calInput = {
+    title: options.eventTitle,
+    start: options.eventDate,
+    end: options.eventEndDate,
+    location: fullLocation,
+    description: `Commande ${options.orderNumber} — présentez le QR code de votre billet à l’entrée.`,
+    url: eventUrl || undefined,
+  }
+  const googleCalUrl = googleCalendarUrl(calInput)
+  const inviteUrl = `https://wa.me/?text=${encodeURIComponent(`Je vais à « ${options.eventTitle} » le ${dateLabel} ! Rejoins-moi : ${eventUrl || base}`)}`
+
+  const tiles = [
+    actionTile('Google Agenda', 'Ajouter avec rappel', googleCalUrl),
+    actionTile('Apple / Outlook', 'Ouvrez le fichier .ics joint', '', false),
+    eventUrl ? actionTile('Page de l’événement', 'Programme, lieu, infos', eventUrl) : actionTile('Mes billets', 'Retrouvez-les à tout moment', ticketsUrl),
+    options.walletAvailable ? actionTile('Apple / Google Wallet', 'Billet dans votre téléphone', ticketsUrl) : '',
+    actionTile('Inviter un ami', 'Partager sur WhatsApp', inviteUrl),
+  ].filter(Boolean)
+  const tileRows: string[] = []
+  for (let i = 0; i < tiles.length; i += 2) {
+    tileRows.push(`<tr>
+                  <td class="stack" valign="top" width="50%" style="padding:0 6px 10px 0;">${tiles[i]}</td>
+                  <td class="stack" valign="top" width="50%" style="padding:0 0 10px 6px;">${tiles[i + 1] ?? ''}</td>
+                </tr>`)
+  }
+  const tileGrid = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${tileRows.join('')}</table>`
+
+  // Pièce jointe .ics (Apple Calendar, Outlook, Gmail…).
+  const icsAttachment = {
+    name: 'ajouter-a-mon-agenda.ics',
+    content: Buffer.from(buildIcs({ uid: `commande-${options.orderNumber}@babicho`, ...calInput }), 'utf-8').toString('base64'),
+  }
   const F = FONT
 
   // ---------- Cartes billet ----------
@@ -302,6 +349,17 @@ export async function ticketsEmailTemplate(options: TicketsEmailOptions) {
         ${ticketCards}
         ${pdfNotice}
 
+        <!-- Garder l'événement -->
+        <tr><td class="px" style="padding:6px 36px 30px;font-family:${F};">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#FFF8F0" style="background:#FFF8F0;border:1px solid #FFE1C2;border-radius:14px;">
+            <tr><td style="padding:22px 22px 8px;">
+              <p style="margin:0 0 4px;font-size:16px;font-weight:800;color:${MAIL.text};">Ne ratez pas votre soirée</p>
+              <p style="margin:0 0 16px;font-size:13px;line-height:1.6;color:${MAIL.gray};">Ajoutez l’événement à votre agenda avec un rappel la veille, et gardez vos billets sous la main.</p>
+              ${tileGrid}
+            </td></tr>
+          </table>
+        </td></tr>
+
         <!-- Avant de partir -->
         <tr><td class="px" style="padding:10px 36px 8px;font-family:${F};">
           <h3 style="margin:0 0 16px;font-size:16px;font-weight:800;color:${MAIL.text};">Avant de partir</h3>
@@ -346,7 +404,7 @@ export async function ticketsEmailTemplate(options: TicketsEmailOptions) {
       social: options.social,
       siteUrl: options.siteUrl,
     }),
-    attachments: pdfAttachments,
+    attachments: [...pdfAttachments, icsAttachment],
   }
 }
 

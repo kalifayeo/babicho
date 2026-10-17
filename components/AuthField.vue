@@ -23,7 +23,7 @@ const inputType = computed(() => (isPassword.value && show.value ? 'text' : prop
         v-bind="$attrs"
         :type="inputType"
         :value="modelValue"
-        class="field-input"
+        class="field-input !h-11"
         :class="isPassword ? 'pr-12' : ''"
         @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       />

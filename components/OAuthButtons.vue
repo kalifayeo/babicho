@@ -47,15 +47,15 @@ onBeforeUnmount(() => window.removeEventListener('pageshow', onPageShow))
 </script>
 
 <template>
-  <div class="mt-6">
+  <div class="mt-5">
     <div class="flex items-center gap-3" role="separator">
       <span class="h-px flex-1 bg-tikeo-border" aria-hidden="true" />
       <span class="text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text">{{ t('auth.orContinueWith') }}</span>
       <span class="h-px flex-1 bg-tikeo-border" aria-hidden="true" />
     </div>
 
-    <div class="mt-4 flex flex-col gap-3">
-      <button type="button" class="acc-btn-ghost !h-12 w-full" :disabled="!!pending" @click="start('google')">
+    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+      <button type="button" class="acc-btn-ghost !h-11 w-full !px-3" :disabled="!!pending" @click="start('google')">
         <TikeoSpinner v-if="pending === 'google'" :size="20" />
         <svg v-else class="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true">
           <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
@@ -68,7 +68,7 @@ onBeforeUnmount(() => window.removeEventListener('pageshow', onPageShow))
 
       <button
         type="button"
-        class="acc-btn-ghost !h-12 w-full"
+        class="acc-btn-ghost !h-11 w-full !px-3"
         :class="{ 'cursor-not-allowed opacity-50': !APPLE_ENABLED }"
         :disabled="!!pending || !APPLE_ENABLED"
         :aria-disabled="!APPLE_ENABLED"
@@ -80,11 +80,11 @@ onBeforeUnmount(() => window.removeEventListener('pageshow', onPageShow))
           <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701" />
         </svg>
         {{ pending === 'apple' ? t('auth.oauthRedirecting') : t('auth.continueWithApple') }}
-        <span v-if="!APPLE_ENABLED" class="ml-1 bg-tikeo-gray-light px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-tikeo-gray-text">{{ t('auth.comingSoon') }}</span>
+        <span v-if="!APPLE_ENABLED" class="bg-tikeo-gray-light px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-tikeo-gray-text">{{ t('auth.comingSoon') }}</span>
       </button>
     </div>
 
-    <p v-if="mode === 'login'" class="mt-4 text-center text-xs leading-relaxed text-tikeo-gray-text">
+    <p v-if="mode === 'login'" class="mt-3 text-center text-xs leading-relaxed text-tikeo-gray-text">
       {{ t('auth.oauthConsentPrefix') }}
       <NuxtLink to="/conditions" target="_blank" class="font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[3px]">{{ t('auth.termsConsentTerms') }}</NuxtLink>
       {{ t('auth.termsConsentAnd') }}

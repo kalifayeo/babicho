@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     .from('orders')
     .select(
       `id, order_number, subtotal, fees, discount, promo_code, total, currency, status, expires_at, created_at,
-       event:events ( id, title, slug, cover_image, start_date, location_name, city, country, category:categories ( kind ) ),
+       event:events ( id, title, slug, cover_image, start_date, end_date, address, location_name, city, country, category:categories ( kind ) ),
        order_items ( id, ticket_type_id, quantity, unit_price, total, ticket_type:ticket_types ( name ) )`
     )
     .eq('id', orderId)

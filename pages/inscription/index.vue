@@ -82,11 +82,11 @@ async function submitVerify() {
 </script>
 
 <template>
-  <AuthSplitLayout :title="t('auth.registerTitle')" :subtitle="t('auth.registerSubtitle')">
+  <AuthSplitLayout wide :title="t('auth.registerTitle')" :subtitle="t('auth.registerSubtitle')">
     <p v-if="errorMessage" class="acc-alert-error mb-4">{{ errorMessage }}</p>
     <p v-if="infoMessage" class="acc-alert-info mb-4">{{ infoMessage }}</p>
 
-    <form v-if="step === 'form'" class="flex flex-col gap-5" @submit.prevent="submitRegister">
+    <form v-if="step === 'form'" class="grid gap-x-4 gap-y-4 sm:grid-cols-2" @submit.prevent="submitRegister">
       <AuthField
         v-model="fullName"
         :label="t('auth.fullNamePlaceholder')"
@@ -128,7 +128,7 @@ async function submitVerify() {
         <input v-model="website" type="text" name="website" tabindex="-1" autocomplete="off" />
       </div>
 
-      <label class="flex items-start gap-3 border border-tikeo-border bg-tikeo-surface-alt/60 p-3.5 text-xs leading-relaxed text-tikeo-gray-text">
+      <label class="flex items-start gap-3 border border-tikeo-border bg-tikeo-surface-alt/60 p-3 sm:col-span-2 text-xs leading-relaxed text-tikeo-gray-text">
         <input
           v-model="acceptTerms"
           type="checkbox"
@@ -143,9 +143,9 @@ async function submitVerify() {
         </span>
       </label>
 
-      <TurnstileWidget ref="widget" @verify="onVerify" @expire="onExpire" />
+      <TurnstileWidget ref="widget" class="sm:col-span-2" @verify="onVerify" @expire="onExpire" />
 
-      <button type="submit" class="btn-ink !h-12 w-full disabled:opacity-60" :disabled="loading">
+      <button type="submit" class="btn-ink !h-12 w-full disabled:opacity-60 sm:col-span-2" :disabled="loading">
         {{ loading ? t('auth.creatingAccount') : t('auth.createAccount') }}
         <AppIcon v-if="!loading" name="arrow-right" class="h-4 w-4" :stroke="2.4" />
       </button>
@@ -179,12 +179,8 @@ async function submitVerify() {
       </button>
     </form>
 
-    <div class="mt-8 flex flex-wrap items-center justify-between gap-3 border-t-2 border-dashed border-tikeo-gray-text/25 pt-6">
-      <p class="text-sm text-tikeo-gray-text">{{ t('auth.haveAccount') }}</p>
-      <NuxtLink :to="{ path: '/connexion', query: route.query }" class="acc-btn-ghost !h-10">
-        <AppIcon name="login" class="h-4 w-4" />
-        {{ t('auth.login') }}
-      </NuxtLink>
-    </div>
+    <p class="mt-6 border-t-2 border-dashed border-tikeo-gray-text/25 pt-5 text-center text-sm text-tikeo-gray-text">{{ t('auth.haveAccount') }}
+      <NuxtLink :to="{ path: '/connexion', query: route.query }" class="ml-1 font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[5px] transition-colors hover:text-tikeo-orange">{{ t('auth.login') }}</NuxtLink>
+    </p>
   </AuthSplitLayout>
 </template>

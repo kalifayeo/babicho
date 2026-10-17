@@ -1,6 +1,8 @@
 import { ticketsEmailTemplate, thankYouEmailTemplate } from './brevo'
 import { useSupabaseAdmin } from './supabaseAdmin'
 import { getEmailSocialLinks } from './emailLayout'
+import { isGoogleWalletConfigured } from './googleWallet'
+import { isAppleWalletConfigured } from './appleWallet'
 
 interface OrderSummary {
   order: { order_number: string; total: number; currency: string }
@@ -9,19 +11,29 @@ interface OrderSummary {
   tickets?: Array<{ ticket_number: string; type_name: string; price: number; qr_token: string | null }> | null
 }
 
-/** Vrai si l'événement de la commande est rattaché à une catégorie de type « cause » (demande d'aide). */
-async function isCauseOrder(orderId: string): Promise<boolean> {
+interface OrderExtras {
+  isCause: boolean
+  slug: string | null
+  endDate: string | null
+  address: string | null
+}
+
+/**
+ * Infos de l'événement absentes du résumé de commande (slug, fin, adresse) + type « cause ».
+ * En cas de doute (ex. migration 0051 pas encore appliquée), on garde le comportement billetterie.
+ */
+async function loadOrderExtras(orderId: string): Promise<OrderExtras> {
   try {
     const { data } = await useSupabaseAdmin()
       .from('orders')
-      .select('event:events ( category:categories ( kind ) )')
+      .select('event:events ( slug, end_date, address, category:categories ( kind ) )')
       .eq('id', orderId)
       .maybeSingle()
-    return (data as any)?.event?.category?.kind === 'cause'
+    const ev = (data as any)?.event
+    return { isCause: ev?.category?.kind === 'cause', slug: ev?.slug ?? null, endDate: ev?.end_date ?? null, address: ev?.address ?? null }
   } catch (e) {
-    // En cas de doute (ex. migration 0051 pas encore appliquée), on garde le comportement billetterie.
-    console.error('[orderEmail] impossible de déterminer le type de la commande :', e)
-    return false
+    console.error('[orderEmail] impossible de lire les détails de la commande :', e)
+    return { isCause: false, slug: null, endDate: null, address: null }
   }
 }
 
@@ -31,7 +43,8 @@ async function isCauseOrder(orderId: string): Promise<boolean> {
  */
 export async function orderConfirmationEmail(orderId: string, summary: OrderSummary, siteUrl?: string | null) {
   const social = await getEmailSocialLinks()
-  if (await isCauseOrder(orderId)) {
+  const extras = await loadOrderExtras(orderId)
+  if (extras.isCause) {
     return thankYouEmailTemplate({
       orderNumber: summary.order.order_number,
       total: summary.order.total,
@@ -53,6 +66,10 @@ export async function orderConfirmationEmail(orderId: string, summary: OrderSumm
     eventCoverImage: summary.event.cover_image,
     holderName: summary.buyer?.full_name,
     tickets: summary.tickets ?? [],
+    eventSlug: extras.slug,
+    eventEndDate: extras.endDate,
+    eventAddress: extras.address,
+    walletAvailable: isGoogleWalletConfigured() || isAppleWalletConfigured(),
     social,
     siteUrl,
   })

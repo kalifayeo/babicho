@@ -41,6 +41,37 @@ const eventDateLabel = computed(() => {
   return dt.toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }) + ' à ' + dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 })
 
+// --- Après l'achat : agenda + partage (on garde la soirée en tête, on invite des amis) ---
+const { buildEventUrl } = useEventPublicUrl()
+const eventPageUrl = computed(() => (order.value?.event?.slug ? buildEventUrl({ slug: order.value.event.slug }).url : ''))
+const calendarLocation = computed(() =>
+  [order.value?.event?.location_name, order.value?.event?.address, order.value?.event?.city].filter(Boolean).join(', ')
+)
+const inviteText = computed(
+  () => `Je vais à « ${order.value?.event?.title ?? ''} » ${eventDateLabel.value ? `le ${eventDateLabel.value}` : ''} ! Rejoins-moi : ${eventPageUrl.value}`
+)
+const whatsappInviteUrl = computed(() => `https://wa.me/?text=${encodeURIComponent(inviteText.value)}`)
+const linkCopied = ref(false)
+async function shareEvent() {
+  const url = eventPageUrl.value
+  if (!url) return
+  if (typeof navigator !== 'undefined' && navigator.share) {
+    try {
+      await navigator.share({ title: order.value?.event?.title, text: inviteText.value, url })
+    } catch {
+      // annulé par l'utilisateur : rien à afficher
+    }
+    return
+  }
+  try {
+    await navigator.clipboard.writeText(url)
+    linkCopied.value = true
+    setTimeout(() => (linkCopied.value = false), 2000)
+  } catch {
+    // presse-papiers indisponible : le bouton WhatsApp reste disponible
+  }
+}
+
 onMounted(() => {
   timer = setInterval(async () => {
     attempts.value += 1
@@ -182,6 +213,40 @@ const returnSteps = computed<Array<{ label: string; state: 'done' | 'current' | 
                 <p class="mt-0.5 truncate font-mono text-xs font-semibold">{{ order.order_number }}</p>
               </div>
               <p class="font-display text-xl font-extrabold text-tikeo-success">{{ isFreeOrder ? 'Gratuit' : formatPrice(order.total, order.currency) }}</p>
+            </div>
+
+            <!-- Garder la soirée en tête : agenda + invitation d'amis -->
+            <div v-if="order.event && eventDateLabel" class="mt-5 border border-tikeo-success/30 bg-tikeo-success/5 p-4">
+              <p class="font-display text-[15px] font-extrabold text-tikeo-black">Ne ratez pas votre soirée</p>
+              <p class="mt-1 text-xs leading-relaxed text-tikeo-gray-text">Ajoutez-la à votre agenda (rappel la veille) et invitez vos amis à vous rejoindre.</p>
+              <div class="mt-3 flex flex-wrap items-center gap-2">
+                <AddToCalendar
+                  :title="order.event.title"
+                  :start-date="order.event.start_date"
+                  :end-date="order.event.end_date"
+                  :location="calendarLocation"
+                  :url="eventPageUrl"
+                />
+                <a
+                  v-if="eventPageUrl"
+                  :href="whatsappInviteUrl"
+                  target="_blank"
+                  rel="noopener"
+                  class="inline-flex h-11 items-center gap-2 border border-tikeo-success bg-tikeo-success px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                >
+                  <AppIcon name="users" class="h-[18px] w-[18px]" />
+                  Inviter un ami
+                </a>
+                <button
+                  v-if="eventPageUrl"
+                  type="button"
+                  class="inline-flex h-11 items-center gap-2 border border-tikeo-border px-4 text-sm font-semibold text-tikeo-black transition-colors hover:border-tikeo-success hover:text-tikeo-success"
+                  @click="shareEvent"
+                >
+                  <AppIcon :name="linkCopied ? 'check' : 'link'" class="h-[18px] w-[18px]" :stroke="2" />
+                  {{ linkCopied ? 'Lien copié' : 'Partager' }}
+                </button>
+              </div>
             </div>
 
             <NuxtLink to="/mon-espace/mes-billets" class="btn-brand !h-14 mt-6 w-full text-base">
