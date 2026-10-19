@@ -77,19 +77,20 @@ async function submitReset() {
     <!-- Progression : email → code → nouveau mot de passe -->
     <ol class="mb-7 grid grid-cols-3 gap-2" aria-hidden="true">
       <li v-for="(s, i) in steps" :key="s.label" class="min-w-0">
-        <span class="block h-1 transition-colors duration-300" :class="i <= currentStepIndex ? 'bg-[#FF7A00]' : 'bg-tikeo-border'" />
-        <span class="mt-2 block truncate text-[11px] font-bold uppercase tracking-wider" :class="i <= currentStepIndex ? 'text-tikeo-black' : 'text-tikeo-gray-text'">
+        <span class="block h-1.5 rounded-full transition-colors duration-300" :class="i <= currentStepIndex ? 'bg-[#FF7A00]' : 'bg-tikeo-border'" />
+        <span class="mt-2 block truncate text-xs font-semibold" :class="i <= currentStepIndex ? 'text-tikeo-black' : 'text-tikeo-gray-text'">
           {{ i + 1 }}. {{ s.label }}
         </span>
       </li>
     </ol>
 
-    <p v-if="errorMessage" class="acc-alert-error mb-4">{{ errorMessage }}</p>
-    <p v-if="infoMessage" class="acc-alert-info mb-4">{{ infoMessage }}</p>
+    <p v-if="errorMessage" role="alert" class="auth-alert-error mb-4">{{ errorMessage }}</p>
+    <p v-if="infoMessage" role="status" class="auth-alert-info mb-4">{{ infoMessage }}</p>
 
-    <form v-if="step === 'request'" class="flex flex-col gap-5" @submit.prevent="submitRequest">
+    <form v-if="step === 'request'" class="flex flex-col gap-4" @submit.prevent="submitRequest">
       <AuthField
         v-model="email"
+        icon="mail"
         :label="t('auth.emailPlaceholder')"
         type="email"
         name="email"
@@ -98,13 +99,13 @@ async function submitReset() {
         maxlength="254"
       />
       <TurnstileWidget ref="widget" @verify="onVerify" @expire="onExpire" />
-      <button type="submit" class="btn-ink !h-12 w-full disabled:opacity-60" :disabled="loading">
+      <button type="submit" class="auth-cta mt-1 w-full" :disabled="loading">
         {{ loading ? t('auth.sendingCode') : t('auth.sendCode') }}
         <AppIcon v-if="!loading" name="arrow-right" class="h-4 w-4" :stroke="2.4" />
       </button>
     </form>
 
-    <form v-else-if="step === 'verify'" class="flex flex-col gap-5" @submit.prevent="submitVerify">
+    <form v-else-if="step === 'verify'" class="flex flex-col gap-4" @submit.prevent="submitVerify">
       <AuthField
         v-model="code"
         :label="t('auth.codePlaceholder')"
@@ -114,14 +115,15 @@ async function submitReset() {
         required
         class="text-center font-mono text-xl tracking-[0.5em]"
       />
-      <button type="submit" class="btn-ink !h-12 w-full disabled:opacity-60" :disabled="loading">
+      <button type="submit" class="auth-cta mt-1 w-full" :disabled="loading">
         {{ loading ? t('auth.verifying') : t('auth.verifyCode') }}
       </button>
     </form>
 
-    <form v-else class="flex flex-col gap-5" @submit.prevent="submitReset">
+    <form v-else class="flex flex-col gap-4" @submit.prevent="submitReset">
       <AuthField
         v-model="newPassword"
+        icon="lock"
         :label="t('auth.newPasswordPlaceholder')"
         type="password"
         name="new-password"
@@ -130,16 +132,16 @@ async function submitReset() {
         maxlength="72"
         required
       />
-      <button type="submit" class="btn-ink !h-12 w-full disabled:opacity-60" :disabled="loading">
+      <button type="submit" class="auth-cta mt-1 w-full" :disabled="loading">
         {{ loading ? t('auth.resetting') : t('auth.resetPassword') }}
       </button>
     </form>
 
-    <div class="mt-8 border-t-2 border-dashed border-tikeo-gray-text/25 pt-6">
-      <NuxtLink to="/connexion" class="inline-flex items-center gap-2 text-sm font-bold text-tikeo-black transition-colors hover:text-tikeo-orange">
+    <p class="mt-7 text-center">
+      <NuxtLink to="/connexion" class="auth-link inline-flex items-center gap-1.5 text-sm">
         <AppIcon name="chevron-left" class="h-4 w-4" :stroke="2.4" />
         {{ t('auth.backToLogin') }}
       </NuxtLink>
-    </div>
+    </p>
   </AuthSplitLayout>
 </template>

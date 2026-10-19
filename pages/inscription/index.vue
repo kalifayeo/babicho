@@ -83,12 +83,13 @@ async function submitVerify() {
 
 <template>
   <AuthSplitLayout wide :title="t('auth.registerTitle')" :subtitle="t('auth.registerSubtitle')">
-    <p v-if="errorMessage" class="acc-alert-error mb-4">{{ errorMessage }}</p>
-    <p v-if="infoMessage" class="acc-alert-info mb-4">{{ infoMessage }}</p>
+    <p v-if="errorMessage" role="alert" class="auth-alert-error mb-4">{{ errorMessage }}</p>
+    <p v-if="infoMessage" role="status" class="auth-alert-info mb-4">{{ infoMessage }}</p>
 
     <form v-if="step === 'form'" class="grid gap-x-4 gap-y-4 sm:grid-cols-2" @submit.prevent="submitRegister">
       <AuthField
         v-model="fullName"
+        icon="user"
         :label="t('auth.fullNamePlaceholder')"
         type="text"
         name="name"
@@ -97,7 +98,18 @@ async function submitVerify() {
         maxlength="120"
       />
       <AuthField
+        v-model="phone"
+        icon="phone"
+        :label="t('auth.phonePlaceholder')"
+        type="tel"
+        name="tel"
+        autocomplete="tel"
+        maxlength="30"
+      />
+      <AuthField
         v-model="email"
+        icon="mail"
+        wrapper-class="sm:col-span-2"
         :label="t('auth.emailPlaceholder')"
         type="email"
         name="email"
@@ -106,15 +118,9 @@ async function submitVerify() {
         maxlength="254"
       />
       <AuthField
-        v-model="phone"
-        :label="t('auth.phonePlaceholder')"
-        type="tel"
-        name="tel"
-        autocomplete="tel"
-        maxlength="30"
-      />
-      <AuthField
         v-model="password"
+        icon="lock"
+        wrapper-class="sm:col-span-2"
         :label="t('auth.passwordOptionalPlaceholder')"
         type="password"
         name="new-password"
@@ -128,24 +134,24 @@ async function submitVerify() {
         <input v-model="website" type="text" name="website" tabindex="-1" autocomplete="off" />
       </div>
 
-      <label class="flex items-start gap-3 border border-tikeo-border bg-tikeo-surface-alt/60 p-3 sm:col-span-2 text-xs leading-relaxed text-tikeo-gray-text">
+      <label class="flex items-start gap-3 rounded-xl border border-tikeo-border bg-tikeo-surface-alt/50 p-3.5 text-xs leading-relaxed text-tikeo-gray-text sm:col-span-2">
         <input
           v-model="acceptTerms"
           type="checkbox"
           required
-          class="mt-0.5 h-4 w-4 shrink-0 accent-[rgb(var(--tikeo-orange-strong))]"
+          class="mt-0.5 h-4 w-4 shrink-0 rounded accent-[rgb(var(--tikeo-orange-strong))]"
         />
         <span>
           {{ t('auth.termsConsentPrefix') }}
-          <NuxtLink to="/conditions" target="_blank" class="font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[3px]">{{ t('auth.termsConsentTerms') }}</NuxtLink>
+          <NuxtLink to="/conditions" target="_blank" class="font-semibold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[3px]">{{ t('auth.termsConsentTerms') }}</NuxtLink>
           {{ t('auth.termsConsentAnd') }}
-          <NuxtLink to="/confidentialite" target="_blank" class="font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[3px]">{{ t('auth.termsConsentPrivacy') }}</NuxtLink>
+          <NuxtLink to="/confidentialite" target="_blank" class="font-semibold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[3px]">{{ t('auth.termsConsentPrivacy') }}</NuxtLink>
         </span>
       </label>
 
       <TurnstileWidget ref="widget" class="sm:col-span-2" @verify="onVerify" @expire="onExpire" />
 
-      <button type="submit" class="btn-ink !h-12 w-full disabled:opacity-60 sm:col-span-2" :disabled="loading">
+      <button type="submit" class="auth-cta w-full sm:col-span-2" :disabled="loading">
         {{ loading ? t('auth.creatingAccount') : t('auth.createAccount') }}
         <AppIcon v-if="!loading" name="arrow-right" class="h-4 w-4" :stroke="2.4" />
       </button>
@@ -160,10 +166,12 @@ async function submitVerify() {
       @error="errorMessage = $event"
     />
 
-    <form v-if="step === 'otp'" class="flex flex-col gap-5" @submit.prevent="submitVerify">
-      <div class="flex items-start gap-3 border-l-4 border-[#FF7A00] bg-tikeo-surface-alt px-4 py-3">
-        <AppIcon name="mail" class="mt-0.5 h-5 w-5 shrink-0 text-tikeo-orange" />
-        <p class="text-sm leading-relaxed text-tikeo-black">{{ email }}</p>
+    <form v-if="step === 'otp'" class="flex flex-col gap-4" @submit.prevent="submitVerify">
+      <div class="flex items-center gap-3 rounded-xl bg-tikeo-surface-alt px-4 py-3">
+        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FF7A00]/15 text-[rgb(var(--tikeo-orange-strong))]">
+          <AppIcon name="mail" class="h-[18px] w-[18px]" />
+        </span>
+        <p class="min-w-0 truncate text-sm font-medium text-tikeo-black">{{ email }}</p>
       </div>
       <AuthField
         v-model="code"
@@ -174,13 +182,14 @@ async function submitVerify() {
         required
         class="text-center font-mono text-xl tracking-[0.5em]"
       />
-      <button type="submit" class="btn-ink !h-12 w-full disabled:opacity-60" :disabled="loading">
+      <button type="submit" class="auth-cta mt-1 w-full" :disabled="loading">
         {{ loading ? t('auth.confirmingAccount') : t('auth.confirmAccount') }}
       </button>
     </form>
 
-    <p class="mt-6 border-t-2 border-dashed border-tikeo-gray-text/25 pt-5 text-center text-sm text-tikeo-gray-text">{{ t('auth.haveAccount') }}
-      <NuxtLink :to="{ path: '/connexion', query: route.query }" class="ml-1 font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[5px] transition-colors hover:text-tikeo-orange">{{ t('auth.login') }}</NuxtLink>
+    <p class="mt-7 text-center text-sm text-tikeo-gray-text">
+      {{ t('auth.haveAccount') }}
+      <NuxtLink :to="{ path: '/connexion', query: route.query }" class="auth-link ml-1 font-bold">{{ t('auth.login') }}</NuxtLink>
     </p>
   </AuthSplitLayout>
 </template>

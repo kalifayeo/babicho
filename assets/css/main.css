@@ -285,6 +285,20 @@ html.ui-data-saver .tk-deco {
     box-shadow: 0 0 0 3px rgb(255 122 0 / 0.18);
   }
 
+  /* ---- Pages connexion / inscription / mot de passe oublié ---- */
+  .auth-cta {
+    @apply inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF7A00] to-[#FF9A3D] px-6 text-[15px] font-bold text-tikeo-ink shadow-[0_12px_24px_-12px_rgb(255_122_0/0.9)] transition duration-200 hover:brightness-105 hover:shadow-[0_16px_28px_-12px_rgb(255_122_0/0.95)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .auth-alert-error {
+    @apply rounded-xl border border-tikeo-error/30 bg-tikeo-error/10 px-4 py-3 text-sm leading-snug text-tikeo-error;
+  }
+  .auth-alert-info {
+    @apply rounded-xl border border-tikeo-blue/25 bg-tikeo-blue/10 px-4 py-3 text-sm leading-snug text-tikeo-blue;
+  }
+  .auth-link {
+    @apply font-semibold text-[rgb(var(--tikeo-orange-strong))] underline-offset-4 hover:underline;
+  }
+
   /* ---- Espace organisateur : mêmes briques que le site visiteur ---- */
   .org-panel {
     @apply border border-tikeo-border bg-tikeo-surface shadow-card;

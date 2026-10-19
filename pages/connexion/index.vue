@@ -123,18 +123,20 @@ function switchMode(next: 'password' | 'otp') {
 </script>
 
 <template>
-  <AuthSplitLayout wide :title="t('auth.loginTitle')" :subtitle="t('auth.loginSubtitle')">
+  <AuthSplitLayout :title="t('auth.loginTitle')" :subtitle="t('auth.loginSubtitle')">
     <!-- Choix du mode de connexion -->
-    <div class="mb-5 grid grid-cols-2 gap-2">
+    <div role="tablist" class="mb-6 grid grid-cols-2 gap-1 rounded-xl bg-tikeo-surface-alt p-1">
       <button
         v-for="m in modes"
         :key="m"
         type="button"
-        class="flex h-11 items-center justify-center gap-2 border px-3 text-sm font-semibold transition-colors duration-200"
+        role="tab"
+        :aria-selected="mode === m"
+        class="flex h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-2 text-[13px] font-semibold transition-all duration-200"
         :class="
           mode === m
-            ? 'border-tikeo-ink bg-tikeo-ink text-white dark:border-[#FF7A00] dark:bg-[#FF7A00] dark:text-tikeo-ink'
-            : 'border-tikeo-border bg-tikeo-surface text-tikeo-black hover:border-tikeo-ink dark:hover:border-[#FF7A00]'
+            ? 'bg-tikeo-surface text-tikeo-black shadow-sm ring-1 ring-black/5 dark:ring-white/10'
+            : 'text-tikeo-gray-text hover:text-tikeo-black'
         "
         @click="switchMode(m)"
       >
@@ -143,16 +145,17 @@ function switchMode(next: 'password' | 'otp') {
       </button>
     </div>
 
-    <p v-if="errorMessage" class="acc-alert-error mb-4">{{ errorMessage }}</p>
-    <p v-if="infoMessage" class="acc-alert-info mb-4">{{ infoMessage }}</p>
+    <p v-if="errorMessage" role="alert" class="auth-alert-error mb-4">{{ errorMessage }}</p>
+    <p v-if="infoMessage" role="status" class="auth-alert-info mb-4">{{ infoMessage }}</p>
 
     <!-- Anti-robots : présent sur toute la page (connexion et renvoi du code) -->
     <TurnstileWidget ref="widget" class="mb-4" @verify="onVerify" @expire="onExpire" />
 
     <!-- Connexion par mot de passe -->
-    <form v-if="mode === 'password' && step === 'form'" class="grid gap-x-4 gap-y-4 sm:grid-cols-2" @submit.prevent="submitPasswordLogin">
+    <form v-if="mode === 'password' && step === 'form'" class="flex flex-col gap-4" @submit.prevent="submitPasswordLogin">
       <AuthField
         v-model="email"
+        icon="mail"
         :label="t('auth.emailPlaceholder')"
         type="email"
         name="email"
@@ -160,8 +163,10 @@ function switchMode(next: 'password' | 'otp') {
         required
         maxlength="254"
       />
-      <AuthField
+      <div>
+        <AuthField
           v-model="password"
+          icon="lock"
           :label="t('auth.passwordPlaceholder')"
           type="password"
           name="password"
@@ -169,19 +174,21 @@ function switchMode(next: 'password' | 'otp') {
           required
           maxlength="72"
         />
-      <NuxtLink to="/mot-de-passe-oublie" class="block text-center text-xs font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[5px] transition-colors hover:text-tikeo-orange sm:col-span-2">
-        {{ t('auth.forgotPasswordLink') }}
-      </NuxtLink>
-      <button type="submit" class="btn-ink !h-12 w-full disabled:opacity-60 sm:col-span-2" :disabled="loading">
+        <div class="mt-2 flex justify-end">
+          <NuxtLink to="/mot-de-passe-oublie" class="auth-link text-[13px]">{{ t('auth.forgotPasswordLink') }}</NuxtLink>
+        </div>
+      </div>
+      <button type="submit" class="auth-cta mt-1 w-full" :disabled="loading">
         {{ loading ? t('auth.loggingIn') : t('auth.login') }}
         <AppIcon v-if="!loading" name="arrow-right" class="h-4 w-4" :stroke="2.4" />
       </button>
     </form>
 
     <!-- Connexion par code OTP : demande du code -->
-    <form v-else-if="step === 'form'" class="flex flex-col gap-5" @submit.prevent="submitRequestOtp">
+    <form v-else-if="step === 'form'" class="flex flex-col gap-4" @submit.prevent="submitRequestOtp">
       <AuthField
         v-model="email"
+        icon="mail"
         :label="t('auth.emailPlaceholder')"
         type="email"
         name="email"
@@ -189,14 +196,20 @@ function switchMode(next: 'password' | 'otp') {
         required
         maxlength="254"
       />
-      <button type="submit" class="btn-ink !h-12 w-full disabled:opacity-60" :disabled="loading">
+      <button type="submit" class="auth-cta mt-1 w-full" :disabled="loading">
         {{ loading ? t('auth.sendingCode') : t('auth.sendCode') }}
         <AppIcon v-if="!loading" name="arrow-right" class="h-4 w-4" :stroke="2.4" />
       </button>
     </form>
 
     <!-- Connexion par code OTP : saisie du code reçu -->
-    <form v-else class="flex flex-col gap-5" @submit.prevent="submitVerifyOtp">
+    <form v-else class="flex flex-col gap-4" @submit.prevent="submitVerifyOtp">
+      <div class="flex items-center gap-3 rounded-xl bg-tikeo-surface-alt px-4 py-3">
+        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FF7A00]/15 text-[rgb(var(--tikeo-orange-strong))]">
+          <AppIcon name="mail" class="h-[18px] w-[18px]" />
+        </span>
+        <p class="min-w-0 truncate text-sm font-medium text-tikeo-black">{{ email }}</p>
+      </div>
       <AuthField
         v-model="code"
         :label="t('auth.codePlaceholder')"
@@ -206,10 +219,10 @@ function switchMode(next: 'password' | 'otp') {
         required
         class="text-center font-mono text-xl tracking-[0.5em]"
       />
-      <button type="submit" class="btn-ink !h-12 w-full disabled:opacity-60" :disabled="loading">
+      <button type="submit" class="auth-cta mt-1 w-full" :disabled="loading">
         {{ loading ? t('auth.verifying') : t('auth.verifyCode') }}
       </button>
-      <button type="button" class="text-center text-xs font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[5px] transition-colors hover:text-tikeo-orange" @click="submitRequestOtp">
+      <button type="button" class="auth-link text-center text-sm" @click="submitRequestOtp">
         {{ t('auth.resendCode') }}
       </button>
     </form>
@@ -223,8 +236,9 @@ function switchMode(next: 'password' | 'otp') {
     />
 
     <!-- Pas de compte ? -->
-    <p class="mt-6 border-t-2 border-dashed border-tikeo-gray-text/25 pt-5 text-center text-sm text-tikeo-gray-text">{{ t('auth.noAccount') }}
-      <NuxtLink :to="{ path: '/inscription', query: route.query }" class="ml-1 font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[5px] transition-colors hover:text-tikeo-orange">{{ t('auth.register') }}</NuxtLink>
+    <p class="mt-7 text-center text-sm text-tikeo-gray-text">
+      {{ t('auth.noAccount') }}
+      <NuxtLink :to="{ path: '/inscription', query: route.query }" class="auth-link ml-1 font-bold">{{ t('auth.register') }}</NuxtLink>
     </p>
   </AuthSplitLayout>
 </template>
