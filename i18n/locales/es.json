@@ -1659,6 +1659,7 @@
     "colStatus": "Estado",
     "typeImage": "Imagen",
     "typeGif": "Gif animado",
+    "typeVideo": "Vídeo (fondo)",
     "statusActive": "Activa",
     "statusInactive": "Desactivada",
     "urlPlaceholder": "https://... (jpg, png, gif...)",

@@ -1,3 +1,17 @@
+# Accueil : bannière « cinéma » (vidéo / gif / image en fond)
+
+- **Fond plein écran** : la vidéo (.mp4 / .webm), le gif ou l'image occupe tout le fond de la première section, avec un voile de marque pour garder le texte lisible. Fondu enchaîné entre les visuels, léger zoom continu, halos orange/bleu animés.
+- **Affiches carrées / portrait** (comme l'affiche HIMRA) : elles ne sont plus coupées. Fond flouté de la même image + affiche nette à droite, qui flotte et s'incline avec la souris (ordinateur). Les visuels larges et les vidéos restent en plein cadre.
+- **Au scroll** : le fond glisse plus lentement que la page (parallaxe), le texte s'estompe en montant, l'affiche remonte ; bord « billet perforé » vers la section suivante.
+- **Animations d'entrée** : titre mot par mot (dernier mot en dégradé orange), trait de marque, carte de recherche, boutons.
+- **Points importants mis en avant** : barre en bas de la bannière avec les chiffres réels (événements, organisateurs vérifiés, villes - compteurs animés) et les 3 promesses clés (paiement Mobile Money, billet QR instantané, support local).
+- **Vidéo en fond** : coller un lien .mp4/.webm dans Admin > Accueil. Nouveau type « Vidéo » (`media_type = 'video'`). Pas de vidéo chargée en mode économiseur de données ; « Réduire les animations » coupe tous les mouvements.
+- Modifiés : `components/HeroSection.vue`, `composables/useHomeSlides.ts`, `types/database.ts`, `pages/admin/accueil/index.vue`, `i18n/locales/*.json` (`adminHomeSlides.typeVideo`). Nouveau : `supabase/migrations/0057_home_slides_video.sql`.
+
+## À faire
+- Appliquer `supabase/migrations/0057_home_slides_video.sql` dans Supabase (après la 0056) avant d'ajouter une vidéo. Les images et gifs fonctionnent sans.
+- Pour une vidéo fluide sur mobile : MP4 H.264, 1920x1080 max, sans son, moins de 8 Mo, hébergée (Supabase Storage ou autre) ; le téléversement du site reste limité aux images (10 Mo).
+
 # Nouveau logo Babicho + accueil plus lisible
 
 - **Nouveau logo partout** : `public/logo-babicho.png` (logo complet, fond transparent, recadré), `favicon.ico`, `favicon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png` (emblème billet/QR seul, lisible en petit), `og-default.jpg` (image de partage 1200×630), `utils/ticketLogo.ts` (logo des billets PDF, ratio mis à jour dans `ticketPdfDoc.ts`). Écran de démarrage, loader, maintenance, page hors-ligne, connexion, admin, espace organisateur et wallets Apple/Google utilisent ces fichiers.

@@ -7,8 +7,10 @@ type Zone = HomeSlide['zone']
  * champ `media_type` dans le formulaire admin sans que l'utilisateur ait à
  * y penser : un lien .gif est presque toujours un gif animé).
  */
-export function guessMediaType(url: string): 'image' | 'gif' {
-  return /\.gif(\?|#|$)/i.test(url.trim()) ? 'gif' : 'image'
+export function guessMediaType(url: string): 'image' | 'gif' | 'video' {
+  const u = url.trim()
+  if (/\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u)) return 'video'
+  return /\.gif(\?|#|$)/i.test(u) ? 'gif' : 'image'
 }
 
 /**
@@ -148,7 +150,7 @@ export function useAdminHomeSlides() {
     )
   }
 
-  async function createSlide(input: { zone: Zone; media_url: string; media_type: 'image' | 'gif'; status: 'active' | 'inactive' }) {
+  async function createSlide(input: { zone: Zone; media_url: string; media_type: 'image' | 'gif' | 'video'; status: 'active' | 'inactive' }) {
     const supabase = useSupabase()
     // Nouvelle image = fin du diaporama (après toutes les zones confondues).
     const nextPosition = slides.value.length > 0 ? Math.max(...slides.value.map((s) => s.position)) + 1 : 1

@@ -529,7 +529,7 @@ export interface HomeSlide {
   id: string
   zone: 'center' | 'left' | 'right'
   media_url: string
-  media_type: 'image' | 'gif'
+  media_type: 'image' | 'gif' | 'video'
   position: number
   status: 'active' | 'inactive'
   created_at: string

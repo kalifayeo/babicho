@@ -261,14 +261,15 @@ const textDirty = computed(() => {
                     :aria-label="t('adminHomeSlides.preview')"
                     @click="previewId = slide.id"
                   >
-                    <img :src="slide.media_url" alt="" class="h-14 w-24 object-cover" loading="lazy" />
+                    <video v-if="slide.media_type === 'video'" :src="slide.media_url" class="h-14 w-24 object-cover" muted playsinline preload="metadata" />
+                    <img v-else :src="slide.media_url" alt="" class="h-14 w-24 object-cover" loading="lazy" />
                     <span class="absolute left-0 top-0 bg-tikeo-ink px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-white">{{ String(idx + 1).padStart(2, '0') }}</span>
                   </button>
                   <div class="min-w-0 flex-1">
                     <p class="truncate text-sm font-semibold text-tikeo-black">{{ t('adminHomeSlides.slideNumber', { n: idx + 1 }) }}</p>
                     <p class="truncate text-xs text-tikeo-gray-text">{{ slide.media_url }}</p>
                     <div class="mt-1 flex flex-wrap items-center gap-1.5">
-                      <StatusPill :tone="slide.media_type === 'gif' ? 'warning' : 'neutral'">{{ slide.media_type === 'gif' ? t('adminHomeSlides.typeGif') : t('adminHomeSlides.typeImage') }}</StatusPill>
+                      <StatusPill :tone="slide.media_type === 'image' ? 'neutral' : 'warning'">{{ slide.media_type === 'video' ? t('adminHomeSlides.typeVideo') : slide.media_type === 'gif' ? t('adminHomeSlides.typeGif') : t('adminHomeSlides.typeImage') }}</StatusPill>
                       <StatusPill :tone="slide.status === 'active' ? 'success' : 'neutral'">{{ slide.status === 'active' ? t('adminHomeSlides.statusActive') : t('adminHomeSlides.statusInactive') }}</StatusPill>
                     </div>
                   </div>
