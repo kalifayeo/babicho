@@ -12,6 +12,15 @@
  *  v-parallax          décor qui glisse doucement pendant le scroll
  *    <div v-parallax="0.12">  (réservé aux éléments décoratifs)
  *
+ *  v-scrub             expose la progression de l'élément dans l'écran via la
+ *                      variable CSS --sp (0 → 1) : l'animation SUIT le scroll
+ *    <section v-scrub>        ex. transform: translateX(calc(var(--sp) * -30vw))
+ *
+ *  v-magnetic          bouton « aimanté » : suit légèrement le curseur (souris
+ *    <button v-magnetic>      uniquement, jamais sur écran tactile)
+ *
+ *  Titres « masque » mot par mot : composant <SplitHeading> (effet `split`).
+ *
  * IMPORTANT : plugin universel (pas de suffixe .client). Sans directive côté
  * serveur, le rendu SSR plante (« getSSRProps of undefined »). getSSRProps
  * pose donc les mêmes classes que le client : le HTML serveur est déjà dans
@@ -24,8 +33,9 @@
  * immédiatement, sans mouvement.
  */
 import type { Directive, DirectiveBinding } from 'vue'
+import { crossing, scrub } from '~/utils/scrollScrub'
 
-const EFFECTS = ['up', 'down', 'left', 'right', 'zoom', 'blur', 'flip', 'pop', 'wipe', 'title', 'rise'] as const
+const EFFECTS = ['up', 'down', 'left', 'right', 'zoom', 'blur', 'flip', 'pop', 'wipe', 'title', 'rise', 'split'] as const
 type Effect = (typeof EFFECTS)[number]
 
 interface RevealOptions {
@@ -232,8 +242,86 @@ const parallax: Directive<HTMLElement> = {
   },
 }
 
+// --- Scrub : l'animation suit le scroll (variable CSS --sp) --------------------
+const scrubOff = new WeakMap<HTMLElement, () => void>()
+const scrubDirective: Directive<HTMLElement> = {
+  getSSRProps() {
+    return {}
+  },
+  mounted(el) {
+    if (typeof window === 'undefined') return
+    if (reducedMotion()) {
+      el.style.setProperty('--sp', '0.5')
+      return
+    }
+    scrubOff.set(
+      el,
+      scrub(el, (rect, vh) => el.style.setProperty('--sp', crossing(rect, vh).toFixed(3)))
+    )
+  },
+  beforeUnmount(el) {
+    scrubOff.get(el)?.()
+    scrubOff.delete(el)
+  },
+}
+
+// --- Magnétique : le bouton suit doucement le curseur ----------------------------
+// Utilise la propriété CSS `translate` (indépendante de `transform`) : aucun
+// conflit avec les effets de survol / d'appui déjà présents sur les boutons.
+const magnetOff = new WeakMap<HTMLElement, () => void>()
+const magnetic: Directive<HTMLElement> = {
+  getSSRProps() {
+    return {}
+  },
+  mounted(el, binding) {
+    if (typeof window === 'undefined' || reducedMotion()) return
+    if (!window.matchMedia?.('(hover: hover) and (pointer: fine)').matches) return
+    const k = typeof binding.value === 'number' ? binding.value : 0.28
+    let tx = 0
+    let ty = 0
+    let cx = 0
+    let cy = 0
+    let raf = 0
+    const tick = () => {
+      cx += (tx - cx) * 0.18
+      cy += (ty - cy) * 0.18
+      el.style.translate = `${cx.toFixed(2)}px ${cy.toFixed(2)}px`
+      raf = Math.abs(tx - cx) > 0.05 || Math.abs(ty - cy) > 0.05 ? requestAnimationFrame(tick) : 0
+    }
+    const kick = () => {
+      if (!raf) raf = requestAnimationFrame(tick)
+    }
+    const move = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return
+      const r = el.getBoundingClientRect()
+      tx = (e.clientX - (r.left + r.width / 2)) * k
+      ty = (e.clientY - (r.top + r.height / 2)) * k
+      kick()
+    }
+    const leave = () => {
+      tx = 0
+      ty = 0
+      kick()
+    }
+    el.addEventListener('pointermove', move)
+    el.addEventListener('pointerleave', leave)
+    magnetOff.set(el, () => {
+      el.removeEventListener('pointermove', move)
+      el.removeEventListener('pointerleave', leave)
+      cancelAnimationFrame(raf)
+      el.style.translate = ''
+    })
+  },
+  beforeUnmount(el) {
+    magnetOff.get(el)?.()
+    magnetOff.delete(el)
+  },
+}
+
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.directive('reveal', reveal)
   nuxtApp.vueApp.directive('stagger', stagger)
   nuxtApp.vueApp.directive('parallax', parallax)
+  nuxtApp.vueApp.directive('scrub', scrubDirective)
+  nuxtApp.vueApp.directive('magnetic', magnetic)
 })

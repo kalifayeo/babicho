@@ -817,3 +817,344 @@ html.ui-data-saver .tk-float,
 html.ui-data-saver .tk-float-slow,
 html.ui-data-saver .tk-ping::after,
 html.ui-data-saver .tk-shine::after { animation: none !important; }
+
+/* ==================================================================
+   Animations « site pro » (accueil)
+   - Titres masque mot par mot  : <SplitHeading>      (effet `split`)
+   - Bandeau piloté par le scroll : <MarqueeBand>      (v-scrub → --sp)
+   - Vidéo pliable au scroll      : <ScrollVideoSection>
+   Tout est en transform / opacity / clip-path : fluide même sur mobile
+   d'entrée de gamme. « Réduire les animations » : tout reste immobile.
+   ================================================================== */
+
+/* ---------- Titres masque ---------- */
+.sw {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  margin: -0.06em 0.26em -0.14em 0;
+  padding: 0.06em 0.02em 0.14em;
+}
+.sw:last-child { margin-right: 0; }
+.sw__in { display: inline-block; will-change: transform; }
+
+[data-stagger='split'] > .sw { opacity: 1; }
+[data-stagger='split']:not(.rv-in) > .sw > .sw__in {
+  transform: translate3d(0, 112%, 0) rotate(5deg);
+  transform-origin: 0 100%;
+}
+@keyframes rv-split {
+  from { transform: translate3d(0, 112%, 0) rotate(5deg); }
+  to { transform: translate3d(0, 0, 0) rotate(0); }
+}
+[data-stagger='split'].rv-in > .sw { animation: none; }
+[data-stagger='split'].rv-in > .sw > .sw__in {
+  transform-origin: 0 100%;
+  animation: rv-split 1.05s var(--ease-tikeo) calc(var(--rv-d, 0ms) + var(--i, 0) * var(--rv-st)) backwards;
+}
+[data-stagger='split'].rv-now > .sw > .sw__in { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  [data-stagger='split'] .sw__in { transform: none !important; animation: none !important; }
+}
+html.ui-reduce-motion [data-stagger='split'] .sw__in { transform: none !important; animation: none !important; }
+@media (scripting: none) {
+  [data-stagger='split'] .sw__in { transform: none !important; }
+}
+
+/* ---------- Bandeau de mots piloté par le scroll ---------- */
+.mq {
+  overflow: hidden;
+  padding-block: clamp(1.5rem, 4vw, 3.5rem);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+.mq__row { display: flex; }
+.mq__row--b { margin-top: clamp(0.25rem, 1vw, 0.75rem); }
+.mq__track {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: clamp(1.25rem, 3vw, 3rem);
+  padding-right: clamp(1.25rem, 3vw, 3rem);
+  will-change: transform;
+  transform: translate3d(calc(-12% + (var(--sp, 0.5) - 0.5) * var(--dir, -1) * 38vw), 0, 0);
+}
+.mq__w {
+  font-family: 'Bricolage Grotesque', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(2.75rem, 8vw, 7rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgb(var(--tikeo-text-primary));
+}
+.mq__row--b .mq__w { color: transparent; -webkit-text-stroke: 1.5px rgb(var(--tikeo-text-primary) / 0.7); }
+.mq__star { flex: none; width: clamp(1.25rem, 3vw, 2.5rem); height: clamp(1.25rem, 3vw, 2.5rem); color: #ff7a00; }
+
+/* ---------- Vidéo pliable au scroll ---------- */
+.sv {
+  --ex: 0;
+  --fo: 0;
+  --p: 0;
+  --top-in: 34%;
+  --bot-in: 8%;
+  --side-in: 17%;
+  position: relative;
+  height: 235vh;
+  height: 235svh;
+  background: #0e2240;
+  color: #fff;
+}
+@media (max-width: 767px) {
+  .sv { height: 190vh; height: 190svh; --top-in: 31%; --bot-in: 10%; --side-in: 5%; }
+}
+.sv--folded { height: auto; }
+
+.sv__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+
+/* Titre au-dessus de la carte : s'efface pendant l'agrandissement */
+.sv__head {
+  position: relative;
+  z-index: 3;
+  max-width: 62rem;
+  margin-inline: auto;
+  padding: 5.5rem 1rem 0;
+  text-align: center;
+  opacity: calc(1 - var(--ex) * 1.4);
+  transform: translate3d(0, calc(var(--ex) * -56px), 0) scale(calc(1 - var(--ex) * 0.06));
+  will-change: transform, opacity;
+}
+@media (max-width: 767px) { .sv__head { padding-top: 4.5rem; } }
+.sv__eyebrow {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ff9a3d;
+}
+.sv__title {
+  margin-top: 0.5rem;
+  font-family: 'Bricolage Grotesque', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(1.75rem, 4.6vw, 3.75rem);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+  color: #fff;
+}
+
+/* Volet qui se plie vers l'arrière à la sortie */
+.sv__fold {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 0;
+  transform: perspective(1500px) translate3d(0, calc(var(--fo) * -3%), 0) rotateX(calc(var(--fo) * -14deg)) scale(calc(1 - var(--fo) * 0.1));
+  will-change: transform;
+}
+/* Cadre : carte centrée → plein écran (rognage, donc aucune déformation) */
+.sv__frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+  clip-path: inset(calc(var(--top-in) * (1 - var(--ex))) calc(var(--side-in) * (1 - var(--ex))) calc(var(--bot-in) * (1 - var(--ex))));
+}
+.sv__media {
+  position: absolute;
+  inset: 0;
+  transform: scale(calc(1.18 - var(--ex) * 0.18));
+  will-change: transform;
+}
+.sv__ph { width: 100%; height: 100%; background: linear-gradient(135deg, #16305a, #0e2240 55%, #3a1d00); }
+.sv__scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, rgb(14 34 64 / 0.92), rgb(14 34 64 / 0.25) 45%, rgb(14 34 64 / 0.1));
+}
+.sv__dim { position: absolute; inset: 0; pointer-events: none; background: #0e2240; opacity: calc(var(--fo) * 0.75); }
+
+/* Texte + boutons : apparaissent quand la vidéo est presque en plein écran */
+.sv__copy {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 2;
+  max-width: 1600px;
+  margin-inline: auto;
+  padding: 0 1rem 3.25rem;
+  /* (ex − 0,6) × 2,5 : 0 → 1 ; négatif = transparent. fo ne démarre qu'une fois ex = 1. */
+  opacity: calc((var(--ex) - 0.6) * 2.5 * (1 - var(--fo) * 1.6));
+  transform: translate3d(0, calc((1 - var(--ex)) * 36px), 0);
+  pointer-events: none;
+}
+@media (min-width: 768px) { .sv__copy { padding: 0 1.5rem 4rem; } }
+.sv__copy > * { pointer-events: auto; }
+.sv__ctitle {
+  max-width: 40rem;
+  margin-bottom: 0.6rem;
+  font-family: 'Bricolage Grotesque', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(1.6rem, 3.6vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+  color: #fff;
+}
+.sv__sub { max-width: 34rem; font-size: 1rem; line-height: 1.55; color: rgb(255 255 255 / 0.88); }
+@media (min-width: 768px) { .sv__sub { font-size: 1.125rem; } }
+.sv__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-top: 1.1rem; }
+.sv__cta {
+  display: inline-flex;
+  height: 3rem;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 1.5rem;
+  background: #ff7a00;
+  color: #0e2240;
+  font-size: 0.875rem;
+  font-weight: 800;
+  transition: background-color 0.2s, color 0.2s;
+}
+.sv__cta:hover { background: #fff; }
+.sv__icon {
+  display: inline-flex;
+  width: 3rem;
+  height: 3rem;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgb(255 255 255 / 0.55);
+  background: rgb(14 34 64 / 0.4);
+  color: #fff;
+  backdrop-filter: blur(6px);
+  transition: background-color 0.2s, color 0.2s;
+}
+.sv__icon:hover { background: #fff; color: #0e2240; }
+.sv__icon svg { width: 1.25rem; height: 1.25rem; }
+
+/* Bouton lecture (YouTube / Vimeo / mouvement réduit) */
+.sv__play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  display: flex;
+  width: 5rem;
+  height: 5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #ff7a00;
+  color: #0e2240;
+  transform: translate(-50%, -50%);
+  transition: transform 0.3s var(--ease-tikeo), background-color 0.2s;
+}
+.sv__play:hover { transform: translate(-50%, -50%) scale(1.08); background: #fff; }
+.sv__play svg { position: relative; width: 1.75rem; height: 1.75rem; margin-left: 0.2rem; }
+.sv__play-ring { position: absolute; inset: 0; border-radius: inherit; background: #ff7a00; animation: tk-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite; }
+
+/* Barre de progression de la scène */
+.sv__prog {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 4;
+  height: 3px;
+  background: linear-gradient(90deg, #ff7a00, #0057b8);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--p));
+  opacity: var(--ex);
+}
+
+/* Boutons Replier / Déplier */
+.sv__btn {
+  display: inline-flex;
+  height: 2.5rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  border: 2px solid rgb(255 255 255 / 0.55);
+  background: rgb(14 34 64 / 0.45);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  backdrop-filter: blur(6px);
+  transition: background-color 0.2s, color 0.2s;
+}
+.sv__btn:hover { background: #fff; color: #0e2240; }
+.sv__fold-btn { position: absolute; top: 4.75rem; right: 1rem; z-index: 5; }
+@media (min-width: 768px) { .sv__fold-btn { top: 6rem; right: 1.5rem; } }
+
+/* Barre repliée */
+.svf { padding: 0.875rem 1rem; }
+.svf__inner { display: flex; max-width: 1600px; margin-inline: auto; align-items: center; gap: 1rem; }
+@media (min-width: 768px) { .svf { padding: 1rem 1.5rem; } }
+.svf__thumb {
+  position: relative;
+  display: flex;
+  width: 6rem;
+  flex: none;
+  aspect-ratio: 16 / 9;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(135deg, #16305a, #3a1d00);
+}
+.svf__thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.svf__thumb svg { position: relative; width: 1.25rem; height: 1.25rem; color: #fff; filter: drop-shadow(0 1px 4px rgb(0 0 0 / 0.6)); }
+.svf__eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #ff9a3d; }
+.svf__title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'Bricolage Grotesque', 'Instrument Sans', ui-sans-serif, sans-serif; font-size: 1rem; font-weight: 800; }
+
+/* Passage plié ↔ déplié */
+.sv-swap-enter-active { transition: opacity 0.45s var(--ease-tikeo), transform 0.45s var(--ease-tikeo); }
+.sv-swap-leave-active { transition: opacity 0.2s ease-in; }
+.sv-swap-enter-from { opacity: 0; transform: translateY(14px); }
+.sv-swap-leave-to { opacity: 0; }
+
+/* Mouvement réduit / économiseur de données : carte simple, sans collage */
+.sv--static {
+
+  height: auto;
+  --ex: 1;
+  --fo: 0;
+  --p: 0;
+}
+.sv--static .sv__stage { position: relative; height: auto; padding-bottom: 2.5rem; }
+.sv--static .sv__head { position: relative; opacity: 1; transform: none; padding-bottom: 1.75rem; }
+.sv--static .sv__fold { position: relative; inset: auto; width: min(100% - 2rem, 72rem); margin-inline: auto; aspect-ratio: 16 / 9; transform: none; }
+.sv--static .sv__media { transform: none; }
+.sv--static .sv__copy { opacity: 1; transform: none; padding-bottom: 1.5rem; }
+.sv--static .sv__dim,
+.sv--static .sv__ctitle,
+.sv--static .sv__prog { display: none; }
+.sv--static .sv__fold-btn { position: relative; top: auto; right: auto; margin: 1.25rem auto 0; display: flex; }
+
+
+@media (prefers-reduced-motion: reduce) {
+  .sv:not(.sv--folded) {
+
+    height: auto;
+    --ex: 1;
+    --fo: 0;
+    --p: 0;
+  }
+  .sv:not(.sv--folded) .sv__stage { position: relative; height: auto; padding-bottom: 2.5rem; }
+  .sv:not(.sv--folded) .sv__head { position: relative; opacity: 1; transform: none; padding-bottom: 1.75rem; }
+  .sv:not(.sv--folded) .sv__fold { position: relative; inset: auto; width: min(100% - 2rem, 72rem); margin-inline: auto; aspect-ratio: 16 / 9; transform: none; }
+  .sv:not(.sv--folded) .sv__media { transform: none; }
+  .sv:not(.sv--folded) .sv__copy { opacity: 1; transform: none; padding-bottom: 1.5rem; }
+  .sv:not(.sv--folded) .sv__dim,
+  .sv:not(.sv--folded) .sv__ctitle,
+  .sv:not(.sv--folded) .sv__prog { display: none; }
+  .sv:not(.sv--folded) .sv__fold-btn { position: relative; top: auto; right: auto; margin: 1.25rem auto 0; display: flex; }
+  
+  .sv__play-ring { animation: none; }
+}
+html.ui-reduce-motion .sv__play-ring,
+html.ui-data-saver .sv__play-ring { animation: none; }

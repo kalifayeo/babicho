@@ -217,7 +217,7 @@ export function useAdminHeroContent() {
     }
   }
 
-  async function saveContent(patch: Partial<Pick<HomeHeroContent, 'title' | 'subtitle' | 'cta_label' | 'cta_url' | 'presentation_video_url'>>) {
+  async function saveContent(patch: Partial<Pick<HomeHeroContent, 'title' | 'subtitle' | 'cta_label' | 'cta_url' | 'presentation_video_url' | 'presentation_poster_url' | 'ambiance_video_url' | 'ambiance_poster_url' | 'organizers_video_url' | 'organizers_poster_url'>>) {
     const supabase = useSupabase()
     const { data, error: sbError } = await supabase
       .from('home_hero_content')

@@ -1,3 +1,15 @@
+# Accueil : animations « site pro » + vidéos pliables au scroll
+
+- **Section admin « Vidéos de l'accueil »** (`/admin/accueil`, raccourci en haut de page) : pour la présentation, l'ambiance et les organisateurs, envoi d'un fichier .mp4 / .webm depuis l'ordinateur (bucket `site-videos`, 50 Mo) ou lien YouTube / Vimeo, image d'aperçu facultative, aperçu de lecture avant enregistrement. **Migration à exécuter : `0058_home_videos.sql`.** Remplace l'ancien champ « lien de la vidéo » du bloc « Texte de la bannière ». Les valeurs de l'admin passent avant les variables d'environnement.
+- Détection d'une vidéo introuvable ou illisible par test de lecture réel (au lieu d'une requête HEAD) ; la section est recréée si l'adresse change après le chargement du contenu admin.
+- **Vidéos pliables au scroll** (`ScrollVideoSection`) : la vidéo démarre en carte sous un titre, s'agrandit en plein écran, joue en muet (uniquement quand elle est visible), puis se replie vers l'arrière. Bouton « Replier la vidéo » pour la réduire en barre fine. Sections : présentation (admin), ambiance, organisateurs (variables `NUXT_PUBLIC_HOME_VIDEO_*`, voir `.env.example` et `public/videos/LISEZ-MOI.txt`). Une section sans vidéo n'apparaît pas ; fichier introuvable = section masquée.
+- **Titres « masque »** mot par mot (`SplitHeading`, effet `split`) sur « Prochainement », les catégories et la bannière organisateur.
+- **Bandeau de mots géants** (`MarqueeBand`) piloté par le scroll (directive `v-scrub`, variable CSS `--sp`).
+- **Boutons magnétiques** (`v-magnetic`, souris uniquement) sur le hero et l'appel organisateur.
+- **Moteur de scroll partagé** `utils/scrollScrub.ts` : un seul écouteur et un seul rAF pour tout le site.
+- **Accessibilité / performance** : « réduire les animations » et économiseur de données = carte statique, pas de collage ni de lecture auto ; YouTube/Vimeo chargés seulement au clic ; vidéo préchargée uniquement à l'approche.
+- Traductions fr / en / es / pt (`homeVideo.*`, `marquee.fallback`). Attention : dans vue-i18n, `|` est le séparateur de pluriel, d'où la virgule dans `marquee.fallback`.
+
 # Accueil : bannière « cinéma » (vidéo / gif / image en fond)
 
 - **Fond plein écran** : la vidéo (.mp4 / .webm), le gif ou l'image occupe tout le fond de la première section, avec un voile de marque pour garder le texte lisible. Fondu enchaîné entre les visuels, léger zoom continu, halos orange/bleu animés.

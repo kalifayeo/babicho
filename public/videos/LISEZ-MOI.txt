@@ -1,13 +1,34 @@
-VIDÉO DE PRÉSENTATION BABICHO
+VIDÉOS DE L'ACCUEIL BABICHO
 ===========================
-La vidéo se gère maintenant depuis /admin/accueil (champ « Vidéo de présentation » :
-lien YouTube, Vimeo ou .mp4). Ce dossier ne sert que de valeur de secours.
 
-Déposez ici votre vidéo sous le nom :  presentation.mp4   (format MP4 / H.264, idéalement < 50 Mo)
-Image d'aperçu facultative :          presentation-poster.jpg
+MÉTHODE RECOMMANDÉE : l'admin
+-----------------------------
+/admin/accueil  >  section « Vidéos de l'accueil »
+Trois emplacements, chacun avec : envoi d'un fichier depuis l'ordinateur OU lien YouTube / Vimeo / .mp4,
+et une image d'aperçu facultative. Aucun redéploiement n'est nécessaire ; rechargez l'accueil après
+avoir enregistré.
+  1. Présentation   - section « Du clic au billet » + bouton « Voir la vidéo »
+  2. Ambiance       - section avant les chiffres de confiance (vide = non affichée)
+  3. Organisateurs  - section juste avant l'appel « Créer un événement » (vide = non affichée)
 
-Autres options (sans mettre de fichier ici) : dans .env, renseignez
-NUXT_PUBLIC_PRESENTATION_VIDEO_URL avec :
-  - un lien YouTube  (https://www.youtube.com/watch?v=XXXX ou https://youtu.be/XXXX)
-  - un lien Vimeo    (https://vimeo.com/XXXX)
-  - ou l'URL directe d'un fichier .mp4 / .webm hébergé ailleurs (ex. Supabase Storage).
+PRÉREQUIS (une seule fois) : exécuter  supabase/migrations/0058_home_videos.sql
+dans Supabase > SQL Editor. Elle crée les colonnes et l'espace de stockage « site-videos »
+(envoi de fichiers jusqu'à 50 Mo). Au-delà de 50 Mo : utilisez un lien YouTube ou Vimeo.
+
+Ce que l'admin enregistre PASSE AVANT les valeurs ci-dessous.
+
+MÉTHODE DE SECOURS : fichier dans le projet
+-------------------------------------------
+Déposez  presentation.mp4  dans  public/videos/  (le dossier « public », pas un dossier « videos » à la racine).
+Vérifiez : http://localhost:3000/videos/presentation.mp4 doit lire la vidéo. Rechargez ensuite l'accueil (F5).
+La section est en bas de la page d'accueil (après « Explorez par ville »).
+Variables possibles (.env) : NUXT_PUBLIC_PRESENTATION_VIDEO_URL, NUXT_PUBLIC_HOME_VIDEO_AMBIANCE_URL,
+NUXT_PUBLIC_HOME_VIDEO_ORGANIZERS_URL (+ _POSTER).
+
+FORMAT DES FICHIERS (important)
+-------------------------------
+  - MP4 encodé en H.264 (le plus compatible) ou WEBM. Les .mov d'iPhone (HEVC) et le AV1 ne se lisent pas partout :
+    si le format n'est pas lisible, la section est masquée (en développement, la console du navigateur l'indique).
+  - 1920x1080 maximum, 24-30 images/s, SANS piste audio (la lecture automatique est muette)
+  - moins de 8 Mo pour une boucle de 20-30 s ; idéalement 16:9
+  - YouTube / Vimeo : la vidéo n'est chargée qu'au clic sur le bouton lecture (page plus rapide).

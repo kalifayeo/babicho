@@ -153,11 +153,25 @@ function decrement(ticketTypeId: string) {
   if (current > 0) quantities.value[ticketTypeId] = current - 1
 }
 
-// Un type de billet est signalé « Forte demande » quand son stock restant
-// (donnée réelle : quantity - sold_quantity) passe sous la barre des 10 —
-// pas un badge décoratif, il reflète l'inventaire réel du type de billet.
-function isHighDemand(tt: { remaining: number | null; soldOut: boolean }) {
-  return !tt.soldOut && tt.remaining !== null && tt.remaining <= 10
+// Niveau de demande d'un type de billet, calculé sur l'inventaire réel
+// (quantity / sold_quantity). Le billet « Standard » est au minimum « Forte demande ».
+type DemandLevel = 'almostGone' | 'high' | 'limited' | null
+function demandLevel(tt: { name: string; remaining: number | null; quantity: number | null; soldOut: boolean }): DemandLevel {
+  if (tt.soldOut) return null
+  let level: DemandLevel = null
+  if (tt.remaining !== null && tt.quantity && tt.quantity > 0) {
+    const ratio = (tt.quantity - tt.remaining) / tt.quantity
+    if (ratio >= 0.9 || (tt.remaining <= 10 && ratio >= 0.5)) level = 'almostGone'
+    else if (ratio >= 0.6) level = 'high'
+    else if (ratio >= 0.3) level = 'limited'
+  }
+  if (tt.name.trim().toLowerCase() === 'standard' && (level === null || level === 'limited')) level = 'high'
+  return level
+}
+const DEMAND_STYLE: Record<'almostGone' | 'high' | 'limited', { cls: string; icon: string; key: string }> = {
+  almostGone: { cls: 'bg-[#FFF3C4] text-[#8A6100]', icon: 'alert', key: 'almostGone' },
+  high: { cls: 'bg-[#FDE2E8] text-[#C81E4B]', icon: 'trending', key: 'highDemand' },
+  limited: { cls: 'bg-[#FFE6CC] text-[#B45309]', icon: 'clock', key: 'limitedPlaces' },
 }
 
 const cartLines = computed<CartLine[]>(() => {
@@ -668,7 +682,9 @@ const stepBtn =
                   <div class="min-w-0 flex-1 p-4 md:p-5">
                     <div class="flex flex-wrap items-center gap-2">
                       <span v-if="tt.soldOut" class="bg-tikeo-error/10 px-2 py-0.5 text-[11px] font-bold uppercase text-tikeo-error">{{ tk('soldOut') }}</span>
-                      <span v-else-if="isHighDemand(tt)" class="bg-[#FF7A00] px-2 py-0.5 text-[11px] font-bold uppercase text-tikeo-ink">{{ tk('highDemand') }}</span>
+                      <span v-else-if="demandLevel(tt)" class="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold" :class="DEMAND_STYLE[demandLevel(tt)!].cls">
+                        <AppIcon :name="DEMAND_STYLE[demandLevel(tt)!].icon" class="h-3.5 w-3.5" :stroke="2.4" />{{ tk(DEMAND_STYLE[demandLevel(tt)!].key) }}
+                      </span>
                     </div>
                     <div class="mt-1 flex items-start gap-2">
                       <h3 class="min-w-0 flex-1 font-display text-lg font-bold leading-tight tracking-tight text-tikeo-black md:text-xl" :class="tt.soldOut ? 'opacity-60' : ''">{{ tt.name }}</h3>

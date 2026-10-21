@@ -403,6 +403,7 @@ export interface TicketTypeOption {
   description: string | null
   price: number
   remaining: number | null
+  quantity: number | null
   soldOut: boolean
 }
 
@@ -544,6 +545,12 @@ export interface HomeHeroContent {
   cta_url: string | null
   /** Lien de la vidéo de présentation (YouTube, Vimeo ou .mp4) — migration 0045. */
   presentation_video_url?: string | null
+  /** Vidéos de l'accueil gérées depuis /admin/accueil — migration 0058. */
+  presentation_poster_url?: string | null
+  ambiance_video_url?: string | null
+  ambiance_poster_url?: string | null
+  organizers_video_url?: string | null
+  organizers_poster_url?: string | null
   updated_at: string
 }
 

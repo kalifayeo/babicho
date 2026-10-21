@@ -38,7 +38,7 @@ export function usePresentationVideo() {
     parsePresentationSource(String(content.value?.presentation_video_url || '')) ??
     parsePresentationSource(String(config.public.presentationVideoUrl || ''))
   )
-  const poster = computed(() => String(config.public.presentationVideoPoster || ''))
+  const poster = computed(() => String(content.value?.presentation_poster_url || config.public.presentationVideoPoster || ''))
 
   function open() {
     isOpen.value = true

@@ -7,7 +7,7 @@ const { t } = useI18n()
 
 // --- Texte de la bannière centrale ---
 const { content: heroContent, loading: heroLoading, saveContent } = useAdminHeroContent()
-const heroForm = reactive({ title: '', subtitle: '', cta_label: '', cta_url: '', video_url: '' })
+const heroForm = reactive({ title: '', subtitle: '', cta_label: '', cta_url: '' })
 const heroSaving = ref(false)
 const heroSaved = ref(false)
 const heroError = ref('')
@@ -20,25 +20,13 @@ watch(
     heroForm.subtitle = c.subtitle || ''
     heroForm.cta_label = c.cta_label || ''
     heroForm.cta_url = c.cta_url || ''
-    heroForm.video_url = c.presentation_video_url || ''
   },
   { immediate: true }
 )
 
-// Lien de vidéo : https:// obligatoire (ou chemin du site /videos/…).
-const videoUrlValid = computed(() => {
-  const v = heroForm.video_url.trim()
-  return !v || /^https?:\/\//i.test(v) || (v.startsWith('/') && !v.startsWith('//'))
-})
-
 async function handleSaveHero() {
   heroError.value = ''
   heroSaved.value = false
-  const video = heroForm.video_url.trim()
-  if (video && !videoUrlValid.value) {
-    heroError.value = t('adminHomeSlides.videoUrlInvalid')
-    return
-  }
   heroSaving.value = true
   try {
     await saveContent({
@@ -46,9 +34,6 @@ async function handleSaveHero() {
       subtitle: heroForm.subtitle.trim() || null,
       cta_label: heroForm.cta_label.trim() || null,
       cta_url: heroForm.cta_url.trim() || null,
-      // N'envoyé que s'il change : le texte reste enregistrable même si la
-      // migration 0045 n'a pas encore été exécutée.
-      ...(video !== (heroContent.value?.presentation_video_url || '') ? { presentation_video_url: video || null } : {}),
     })
     heroSaved.value = true
     setTimeout(() => (heroSaved.value = false), 3000)
@@ -56,6 +41,73 @@ async function handleSaveHero() {
     heroError.value = e?.message || t('adminHomeSlides.errorSave')
   } finally {
     heroSaving.value = false
+  }
+}
+
+// --- Vidéos de l'accueil (présentation, ambiance, organisateurs) ---
+// Chaque emplacement : une vidéo (fichier envoyé ou lien YouTube / Vimeo / .mp4)
+// et une image d'aperçu facultative. Les champs ne sont envoyés que s'ils
+// changent : le reste de la page reste enregistrable même si la migration
+// 0058 n'a pas encore été exécutée.
+type VideoField =
+  | 'presentation_video_url' | 'presentation_poster_url'
+  | 'ambiance_video_url' | 'ambiance_poster_url'
+  | 'organizers_video_url' | 'organizers_poster_url'
+
+const VIDEO_FIELDS: VideoField[] = [
+  'presentation_video_url', 'presentation_poster_url',
+  'ambiance_video_url', 'ambiance_poster_url',
+  'organizers_video_url', 'organizers_poster_url',
+]
+const videoCards: { key: string; video: VideoField; poster: VideoField; icon: string }[] = [
+  { key: 'presentation', video: 'presentation_video_url', poster: 'presentation_poster_url', icon: '1' },
+  { key: 'ambiance', video: 'ambiance_video_url', poster: 'ambiance_poster_url', icon: '2' },
+  { key: 'organizers', video: 'organizers_video_url', poster: 'organizers_poster_url', icon: '3' },
+]
+
+const videoForm = reactive<Record<VideoField, string>>({
+  presentation_video_url: '', presentation_poster_url: '',
+  ambiance_video_url: '', ambiance_poster_url: '',
+  organizers_video_url: '', organizers_poster_url: '',
+})
+const videoSaving = ref(false)
+const videoSaved = ref(false)
+const videoError = ref('')
+
+watch(
+  heroContent,
+  (c) => {
+    if (!c) return
+    for (const f of VIDEO_FIELDS) videoForm[f] = (c[f] as string | null | undefined) || ''
+  },
+  { immediate: true }
+)
+
+const urlOk = (v: string) => !v.trim() || /^https?:\/\//i.test(v.trim()) || (v.trim().startsWith('/') && !v.trim().startsWith('//'))
+const videoDirty = computed(() => VIDEO_FIELDS.some((f) => videoForm[f] !== ((heroContent.value?.[f] as string | null | undefined) || '')))
+
+async function handleSaveVideos() {
+  videoError.value = ''
+  videoSaved.value = false
+  if (!VIDEO_FIELDS.every((f) => urlOk(videoForm[f]))) {
+    videoError.value = t('adminHomeSlides.videoUrlInvalid')
+    return
+  }
+  const patch: Partial<Record<VideoField, string | null>> = {}
+  for (const f of VIDEO_FIELDS) {
+    const v = videoForm[f].trim()
+    if (v !== ((heroContent.value?.[f] as string | null | undefined) || '')) patch[f] = v || null
+  }
+  videoSaving.value = true
+  try {
+    await saveContent(patch)
+    videoSaved.value = true
+    setTimeout(() => (videoSaved.value = false), 4000)
+  } catch (e: any) {
+    // Colonnes absentes = migration 0058 pas encore exécutée dans Supabase.
+    videoError.value = /column|schema cache/i.test(e?.message || '') ? t('adminHomeSlides.videosMigration') : e?.message || t('adminHomeSlides.errorSave')
+  } finally {
+    videoSaving.value = false
   }
 }
 
@@ -130,8 +182,7 @@ const textDirty = computed(() => {
     heroForm.title !== (c?.title || '') ||
     heroForm.subtitle !== (c?.subtitle || '') ||
     heroForm.cta_label !== (c?.cta_label || '') ||
-    heroForm.cta_url !== (c?.cta_url || '') ||
-    heroForm.video_url !== (c?.presentation_video_url || '')
+    heroForm.cta_url !== (c?.cta_url || '')
   )
 })
 </script>
@@ -143,9 +194,14 @@ const textDirty = computed(() => {
         <h1 class="text-xl font-bold text-tikeo-black">{{ t('adminHomeSlides.title') }}</h1>
         <p class="mt-1 max-w-2xl text-sm text-tikeo-gray-text">{{ t('adminHomeSlides.subtitle') }}</p>
       </div>
-      <NuxtLink to="/" target="_blank" class="acc-btn-ghost !text-[13px]">
-        <AppIcon name="eye" class="h-[18px] w-[18px]" />{{ t('adminHomeSlides.viewHome') }}
-      </NuxtLink>
+      <div class="flex flex-wrap items-center gap-2">
+        <a href="#videos" class="acc-btn-ghost !text-[13px]">
+          <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 001.5.86l10.5-6.5a1 1 0 000-1.72L9.5 4.64A1 1 0 008 5.5z" /></svg>{{ t('adminHomeSlides.videosShortcut') }}
+        </a>
+        <NuxtLink to="/" target="_blank" class="acc-btn-ghost !text-[13px]">
+          <AppIcon name="eye" class="h-[18px] w-[18px]" />{{ t('adminHomeSlides.viewHome') }}
+        </NuxtLink>
+      </div>
     </div>
 
     <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
@@ -179,25 +235,6 @@ const textDirty = computed(() => {
               <input v-model="heroForm.cta_url" type="text" class="input-field w-full" placeholder="/organisateur/evenements/nouveau" />
             </div>
 
-            <!-- Vidéo de présentation (bouton « Voir la vidéo ») -->
-            <div class="mt-1 border-t border-tikeo-border pt-4 sm:col-span-2">
-              <h3 class="flex items-center gap-2 text-sm font-bold text-tikeo-black">
-                <svg class="h-4 w-4 text-tikeo-orange" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 001.5.86l10.5-6.5a1 1 0 000-1.72L9.5 4.64A1 1 0 008 5.5z" /></svg>
-                {{ t('adminHomeSlides.videoSectionTitle') }}
-              </h3>
-              <p class="mt-1 text-xs text-tikeo-gray-text">{{ t('adminHomeSlides.videoSectionHint') }}</p>
-              <label class="mb-1 mt-3 block text-xs font-medium text-tikeo-gray-text">{{ t('adminHomeSlides.fieldVideoUrl') }}</label>
-              <input
-                v-model="heroForm.video_url"
-                type="url"
-                inputmode="url"
-                class="input-field w-full"
-                :class="videoUrlValid ? '' : '!border-red-500'"
-                :placeholder="t('adminHomeSlides.videoUrlPlaceholder')"
-              />
-              <p v-if="!videoUrlValid" class="mt-1 text-[11px] font-semibold text-red-600">{{ t('adminHomeSlides.videoUrlInvalid') }}</p>
-            </div>
-
             <div class="flex flex-wrap items-center gap-3 sm:col-span-2">
               <button type="submit" class="btn-ink disabled:opacity-60" :disabled="heroSaving || !textDirty">
                 <AppIcon name="save" class="h-[18px] w-[18px]" />{{ heroSaving ? t('common.saving') : t('adminHomeSlides.saveText') }}
@@ -205,6 +242,47 @@ const textDirty = computed(() => {
               <span v-if="textDirty" class="text-xs font-semibold text-tikeo-orange">{{ t('adminHomeSlides.previewUnsaved') }}</span>
             </div>
           </form>
+          <div v-else class="mt-4 h-40 animate-pulse bg-tikeo-border" />
+        </section>
+
+        <!-- Vidéos de l'accueil -->
+        <section id="videos" class="org-panel scroll-mt-24 border-l-4 !border-l-tikeo-orange p-5">
+          <h2 class="flex items-center gap-2 text-sm font-bold text-tikeo-black">
+            <svg class="h-4 w-4 text-tikeo-orange" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 001.5.86l10.5-6.5a1 1 0 000-1.72L9.5 4.64A1 1 0 008 5.5z" /></svg>
+            {{ t('adminHomeSlides.videosTitle') }}
+          </h2>
+          <p class="mt-1 max-w-2xl text-xs text-tikeo-gray-text">{{ t('adminHomeSlides.videosHint') }}</p>
+
+          <div v-if="!heroLoading" class="mt-4 space-y-4">
+            <p v-if="videoError" class="acc-alert-error !text-xs">{{ videoError }}</p>
+            <p v-if="videoSaved" class="acc-alert-success !text-xs">{{ t('adminHomeSlides.videosSaved') }}</p>
+
+            <div v-for="card in videoCards" :key="card.key" class="border border-tikeo-border p-4">
+              <h3 class="flex items-center gap-2 text-[13px] font-bold text-tikeo-black">
+                <span class="flex h-5 w-5 items-center justify-center bg-tikeo-ink text-[11px] font-bold text-white">{{ card.icon }}</span>
+                {{ t(`adminHomeSlides.videoCard.${card.key}.title`) }}
+              </h3>
+              <p class="mt-1 text-[11px] leading-relaxed text-tikeo-gray-text">{{ t(`adminHomeSlides.videoCard.${card.key}.where`) }}</p>
+
+              <div class="mt-3">
+                <VideoInput v-model="videoForm[card.video]" :label="t('adminHomeSlides.videoFileLabel')" />
+              </div>
+              <details class="mt-3">
+                <summary class="cursor-pointer text-xs font-semibold text-tikeo-gray-text hover:text-tikeo-black">{{ t('adminHomeSlides.posterLabel') }}</summary>
+                <div class="mt-2">
+                  <MediaInput v-model="videoForm[card.poster]" folder="home-slides" compact :placeholder="t('adminHomeSlides.urlPlaceholder')" />
+                  <p class="mt-1 text-[11px] text-tikeo-gray-text">{{ t('adminHomeSlides.posterHint') }}</p>
+                </div>
+              </details>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+              <button type="button" class="btn-ink disabled:opacity-60" :disabled="videoSaving || !videoDirty" @click="handleSaveVideos">
+                <AppIcon name="save" class="h-[18px] w-[18px]" />{{ videoSaving ? t('common.saving') : t('adminHomeSlides.videosSave') }}
+              </button>
+              <span v-if="videoDirty" class="text-xs font-semibold text-tikeo-orange">{{ t('adminHomeSlides.previewUnsaved') }}</span>
+            </div>
+          </div>
           <div v-else class="mt-4 h-40 animate-pulse bg-tikeo-border" />
         </section>
 

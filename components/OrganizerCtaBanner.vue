@@ -11,9 +11,10 @@ const steps = computed(() => [
   <section class="mx-auto max-w-tikeo-container px-4 py-14 md:px-6 md:py-20">
     <div v-reveal:zoom class="grid gap-10 bg-tikeo-ink p-6 text-white md:p-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
       <div class="flex flex-col items-start">
-        <h2 v-reveal:title="200" class="font-display text-3xl font-extrabold leading-[1.05] tracking-tight md:text-5xl">{{ t('organizerBanner.title') }}</h2>
+        <SplitHeading tag="h2" :text="t('organizerBanner.title')" :delay="200" class="font-display text-3xl font-extrabold leading-[1.05] tracking-tight md:text-5xl" />
         <p v-reveal:up="350" class="mt-4 max-w-md text-base leading-relaxed text-white/75">{{ t('organizerBanner.subtitle') }}</p>
         <NuxtLink
+          v-magnetic
           to="/organisateur/evenements/nouveau"
           class="tk-shine mt-7 inline-flex h-12 items-center justify-center bg-[#FF7A00] px-7 text-sm font-bold text-tikeo-ink transition-colors hover:bg-white"
         >

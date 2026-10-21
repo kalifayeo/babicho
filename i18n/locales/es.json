@@ -71,6 +71,50 @@
     "appearance": "Apariencia",
     "languageLabel": "Idioma"
   },
+  "videoInput": {
+    "tabUpload": "Desde mi ordenador",
+    "tabUrl": "Enlace de internet",
+    "dropzone": "Haz clic o arrastra un vídeo aquí",
+    "uploading": "Subiendo… espera, puede tardar un minuto",
+    "hint": "MP4 o WEBM, 50 MB como máximo. Más pesado: usa un enlace de YouTube o Vimeo.",
+    "urlPlaceholder": "https://youtu.be/…  o  https://vimeo.com/…  o  https://…/video.mp4",
+    "urlInvalid": "Enlace no válido: usa una dirección que empiece por https://",
+    "remove": "Quitar el vídeo",
+    "errorType": "Formato no admitido: usa un archivo MP4 o WEBM.",
+    "errorSize": "Este archivo supera los 50 MB. Usa un enlace de YouTube o Vimeo.",
+    "errorBucket": "El almacenamiento de vídeo aún no está activado: ejecuta la migración 0058_home_videos.sql en Supabase.",
+    "errorUpload": "Error al subir. Inténtalo de nuevo o usa un enlace de internet.",
+    "previewFailed": "Este vídeo no se puede reproducir en el navegador. Usa un MP4 codificado en H.264 (o un WEBM).",
+    "embedRecognized": "Enlace de YouTube o Vimeo reconocido: el vídeo se reproducirá al pulsar el botón de reproducción."
+  },
+  "homeVideo": {
+    "fold": "Replegar el vídeo",
+    "unfold": "Desplegar el vídeo",
+    "play": "Reproducir el vídeo",
+    "mute": "Silenciar",
+    "unmute": "Activar el sonido",
+    "presentation": {
+      "eyebrow": "Babicho en vídeo",
+      "title": "Del clic a la entrada en minutos",
+      "subtitle": "Encuentra tu evento, paga con Mobile Money y recibe tu entrada QR al instante.",
+      "cta": "Cómo funciona"
+    },
+    "ambiance": {
+      "eyebrow": "El ambiente",
+      "title": "Vive el momento antes de estar allí",
+      "subtitle": "Conciertos, festivales, fiestas: sumérgete en lo mejor de los eventos de Babicho.",
+      "cta": "Ver eventos"
+    },
+    "organizers": {
+      "eyebrow": "Para organizadores",
+      "title": "Crea, vende y llena tu sala",
+      "subtitle": "Publica tu evento, sigue tus ventas en directo y escanea las entradas en la puerta.",
+      "cta": "Ser organizador"
+    }
+  },
+  "marquee": {
+    "fallback": "Conciertos,Festivales,Fiestas,Conferencias,Deporte,Teatro,Humor,Gastronomía"
+  },
   "presentationVideo": {
     "button": "Ver el vídeo",
     "title": "Descubre Babicho en vídeo",
@@ -1637,6 +1681,20 @@
     "fieldVideoUrl": "Enlace del vídeo",
     "videoUrlPlaceholder": "https://youtu.be/…  o  https://vimeo.com/…  o  https://…/video.mp4",
     "videoUrlInvalid": "Enlace no válido: usa una dirección que empiece por https://",
+    "videosTitle": "Vídeos de la página de inicio",
+    "videosHint": "Añade aquí los vídeos de la página de inicio: sube un archivo desde tu ordenador o pega un enlace de YouTube o Vimeo. Cada vídeo se agranda y luego se pliega al desplazarse la página.",
+    "videosShortcut": "Vídeos de inicio",
+    "videosSave": "Guardar los vídeos",
+    "videosSaved": "Vídeos guardados. Recarga la página de inicio para verlos.",
+    "videosMigration": "No se pudo guardar: la migración 0058_home_videos.sql aún no se ha ejecutado en Supabase (SQL Editor).",
+    "videoFileLabel": "Vídeo",
+    "posterLabel": "Imagen de vista previa (opcional)",
+    "posterHint": "Se muestra antes de cargar el vídeo. En YouTube la vista previa es automática.",
+    "videoCard": {
+      "presentation": { "title": "Vídeo de presentación", "where": "Sección « Del clic a la entrada » en medio de la página de inicio, y ventana abierta por el botón « Ver el vídeo » (inicio y barra superior)." },
+      "ambiance": { "title": "Vídeo de ambiente", "where": "Sección « Vive el momento » en medio de la página de inicio, antes de las cifras de confianza. Vacío = sección oculta." },
+      "organizers": { "title": "Vídeo para organizadores", "where": "Sección « Crea, vende y llena tu sala », justo antes de la llamada a crear un evento. Vacío = sección oculta." }
+    },
     "title": "Banner de inicio",
     "subtitle": "Controla la parte superior de la página de inicio: el texto, el botón y el carrusel de imágenes del banner.",
     "textSectionTitle": "Texto del banner central",

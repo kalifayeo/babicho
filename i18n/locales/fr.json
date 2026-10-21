@@ -71,6 +71,50 @@
     "appearance": "Apparence",
     "languageLabel": "Langue"
   },
+  "videoInput": {
+    "tabUpload": "Depuis mon ordinateur",
+    "tabUrl": "Lien internet",
+    "dropzone": "Cliquez ou glissez une vidéo ici",
+    "uploading": "Envoi en cours… patientez, cela peut prendre une minute",
+    "hint": "MP4 ou WEBM, 50 Mo maximum. Plus lourd : utilisez un lien YouTube ou Vimeo.",
+    "urlPlaceholder": "https://youtu.be/…  ou  https://vimeo.com/…  ou  https://…/video.mp4",
+    "urlInvalid": "Lien invalide : utilisez une adresse commençant par https://",
+    "remove": "Retirer la vidéo",
+    "errorType": "Format non accepté : utilisez un fichier MP4 ou WEBM.",
+    "errorSize": "Ce fichier dépasse 50 Mo. Utilisez un lien YouTube ou Vimeo.",
+    "errorBucket": "Le stockage vidéo n'est pas encore activé : exécutez la migration 0058_home_videos.sql dans Supabase.",
+    "errorUpload": "L'envoi a échoué. Réessayez ou utilisez un lien internet.",
+    "previewFailed": "Cette vidéo ne se lit pas dans le navigateur. Utilisez un MP4 encodé en H.264 (ou un WEBM).",
+    "embedRecognized": "Lien YouTube ou Vimeo reconnu : la vidéo se lira au clic sur le bouton lecture."
+  },
+  "homeVideo": {
+    "fold": "Replier la vidéo",
+    "unfold": "Déplier la vidéo",
+    "play": "Lancer la vidéo",
+    "mute": "Couper le son",
+    "unmute": "Activer le son",
+    "presentation": {
+      "eyebrow": "Babicho en vidéo",
+      "title": "Du clic au billet, en quelques minutes",
+      "subtitle": "Trouvez votre événement, payez en Mobile Money et recevez votre billet QR instantanément.",
+      "cta": "Comment ça marche"
+    },
+    "ambiance": {
+      "eyebrow": "L'ambiance",
+      "title": "Vivez l'instant, avant même d'y être",
+      "subtitle": "Concerts, festivals, soirées : plongez dans les moments forts organisés sur Babicho.",
+      "cta": "Voir les événements"
+    },
+    "organizers": {
+      "eyebrow": "Pour les organisateurs",
+      "title": "Créez, vendez, remplissez votre salle",
+      "subtitle": "Publiez votre événement, suivez vos ventes en direct et scannez les billets à l'entrée.",
+      "cta": "Devenir organisateur"
+    }
+  },
+  "marquee": {
+    "fallback": "Concerts,Festivals,Soirées,Conférences,Sport,Théâtre,Humour,Gastronomie"
+  },
   "presentationVideo": {
     "button": "Voir la vidéo",
     "title": "Découvrez Babicho en vidéo",
@@ -294,6 +338,8 @@
     "ticketDetails": "Détails du ticket",
     "hideTicketDetails": "Masquer les détails",
     "highDemand": "Forte demande",
+    "almostGone": "Bientôt épuisé",
+    "limitedPlaces": "Places limitées",
     "selectToSeeSummary": "Sélectionnez vos tickets pour voir le récapitulatif ici.",
     "summaryTitle": "Récapitulatif",
     "seatingPlan": "Voir le plan de salle",
@@ -1637,6 +1683,20 @@
     "fieldVideoUrl": "Lien de la vidéo",
     "videoUrlPlaceholder": "https://youtu.be/…  ou  https://vimeo.com/…  ou  https://…/video.mp4",
     "videoUrlInvalid": "Lien invalide : utilisez une adresse commençant par https://",
+    "videosTitle": "Vidéos de l'accueil",
+    "videosHint": "Ajoutez ici les vidéos de la page d'accueil : envoyez un fichier depuis votre ordinateur ou collez un lien YouTube ou Vimeo. Chaque vidéo s'agrandit puis se replie quand le visiteur fait défiler la page.",
+    "videosShortcut": "Vidéos de l'accueil",
+    "videosSave": "Enregistrer les vidéos",
+    "videosSaved": "Vidéos enregistrées. Rechargez la page d'accueil pour les voir.",
+    "videosMigration": "Enregistrement impossible : la migration 0058_home_videos.sql n'a pas encore été exécutée dans Supabase (SQL Editor).",
+    "videoFileLabel": "Vidéo",
+    "posterLabel": "Image d'aperçu (facultatif)",
+    "posterHint": "S'affiche avant le chargement de la vidéo. Pour YouTube, l'aperçu est automatique.",
+    "videoCard": {
+      "presentation": { "title": "Vidéo de présentation", "where": "Section « Du clic au billet » au milieu de l'accueil, et fenêtre ouverte par le bouton « Voir la vidéo » (accueil et barre du haut)." },
+      "ambiance": { "title": "Vidéo d'ambiance", "where": "Section « Vivez l'instant » au milieu de l'accueil, avant les chiffres de confiance. Vide = section non affichée." },
+      "organizers": { "title": "Vidéo pour les organisateurs", "where": "Section « Créez, vendez, remplissez votre salle », juste avant l'appel à créer un événement. Vide = section non affichée." }
+    },
     "title": "Bannière d'accueil",
     "subtitle": "Pilotez le haut de la page d'accueil : le texte, le bouton et le diaporama d'images de la bannière.",
     "textSectionTitle": "Texte de la bannière centrale",

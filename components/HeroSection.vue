@@ -289,6 +289,7 @@ const trustItems = computed(() => [
               </label>
               <button
                 type="button"
+                v-magnetic
                 class="hero-cta group relative flex h-12 items-center justify-center gap-2 overflow-hidden bg-[#FF7A00] px-6 text-base font-extrabold text-tikeo-ink transition-colors hover:bg-tikeo-ink hover:text-white md:h-14 md:px-8 sm:shrink-0 dark:hover:bg-white dark:hover:text-tikeo-ink"
                 @click="showEvents"
               >
@@ -331,6 +332,7 @@ const trustItems = computed(() => [
         <!-- Vidéo de présentation + appel organisateur (géré dans /admin/accueil) -->
         <div class="hero__rise mt-5 flex flex-wrap items-center gap-x-6 gap-y-3 md:mt-6" style="--d: 580ms">
           <button
+            v-magnetic
             type="button"
             class="group inline-flex h-12 items-center gap-3 border-2 border-white/70 bg-white/10 pl-2.5 pr-5 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:bg-white hover:text-tikeo-ink"
             @click="openPresentation"

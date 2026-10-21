@@ -126,6 +126,9 @@ function seeAllCategory(name: string) {
 
     <FeaturedEventsBand />
 
+    <!-- Bandeau de mots piloté par le scroll -->
+    <MarqueeBand />
+
     <!-- ======================= SANS FILTRE ======================= -->
     <template v-if="showCategorySections">
       <!-- Chargement -->
@@ -147,7 +150,7 @@ function seeAllCategory(name: string) {
         <!-- Prochainement : la grande affiche + les vignettes -->
         <section v-if="upcoming.length" data-events-anchor class="mx-auto max-w-tikeo-container px-4 pt-8 md:px-6 md:pt-14">
           <div class="mb-5 max-w-xl">
-            <h2 v-reveal:title class="font-display text-2xl font-extrabold tracking-tight text-tikeo-black md:text-4xl">{{ t('home.upcoming') }}</h2>
+            <SplitHeading tag="h2" :text="t('home.upcoming')" class="font-display text-2xl font-extrabold tracking-tight text-tikeo-black md:text-4xl" />
             <p v-reveal:up="140" class="mt-1.5 text-sm text-tikeo-gray-text md:text-base">{{ t('home.upcomingSub') }}</p>
           </div>
 
@@ -165,7 +168,7 @@ function seeAllCategory(name: string) {
         <section v-for="group in groupedByCategory" :key="group.key" data-events-anchor class="mx-auto max-w-tikeo-container px-4 pt-9 md:px-6 md:pt-16">
           <div class="mb-5 flex items-end justify-between gap-4">
             <div class="min-w-0">
-              <h2 v-reveal:title class="font-display text-2xl font-extrabold tracking-tight text-tikeo-black md:text-3xl">{{ group.name }}</h2>
+              <SplitHeading tag="h2" :text="group.name" class="font-display text-2xl font-extrabold tracking-tight text-tikeo-black md:text-3xl" />
               <p v-reveal:up="120" class="mt-1 text-sm text-tikeo-gray-text">{{ t('home.eventsCount', group.events.length) }}</p>
             </div>
 
@@ -264,6 +267,10 @@ function seeAllCategory(name: string) {
     </template>
 
     <CityExplorer :events="events" />
+
+    <!-- Vidéos pliables au scroll : présentation + ambiance (voir composables/useHomeVideos.ts) -->
+    <HomeVideoSections group="story" />
+
     <TrustStats />
     <AppDownloadSection />
     <TestimonialsSection />
@@ -271,6 +278,9 @@ function seeAllCategory(name: string) {
     <PressStrip />
     <PartnersSection />
     <SiteFeedbackStrip />
+
+    <!-- Vidéo organisateurs, juste avant l'appel à créer un événement -->
+    <HomeVideoSections group="organizers" />
     <OrganizerCtaBanner />
   </div>
 </template>

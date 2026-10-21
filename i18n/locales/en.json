@@ -71,6 +71,50 @@
     "appearance": "Appearance",
     "languageLabel": "Language"
   },
+  "videoInput": {
+    "tabUpload": "From my computer",
+    "tabUrl": "Web link",
+    "dropzone": "Click or drop a video here",
+    "uploading": "Uploading… please wait, it can take a minute",
+    "hint": "MP4 or WEBM, 50 MB maximum. Larger: use a YouTube or Vimeo link.",
+    "urlPlaceholder": "https://youtu.be/…  or  https://vimeo.com/…  or  https://…/video.mp4",
+    "urlInvalid": "Invalid link: use an address starting with https://",
+    "remove": "Remove the video",
+    "errorType": "Unsupported format: use an MP4 or WEBM file.",
+    "errorSize": "This file is over 50 MB. Use a YouTube or Vimeo link.",
+    "errorBucket": "Video storage is not enabled yet: run migration 0058_home_videos.sql in Supabase.",
+    "errorUpload": "Upload failed. Try again or use a web link.",
+    "previewFailed": "This video cannot be played in the browser. Use an MP4 encoded in H.264 (or a WEBM).",
+    "embedRecognized": "YouTube or Vimeo link recognized: the video plays when the play button is clicked."
+  },
+  "homeVideo": {
+    "fold": "Fold the video",
+    "unfold": "Unfold the video",
+    "play": "Play the video",
+    "mute": "Mute",
+    "unmute": "Turn sound on",
+    "presentation": {
+      "eyebrow": "Babicho in video",
+      "title": "From click to ticket in minutes",
+      "subtitle": "Find your event, pay with Mobile Money and get your QR ticket instantly.",
+      "cta": "How it works"
+    },
+    "ambiance": {
+      "eyebrow": "The vibe",
+      "title": "Feel the moment before you're even there",
+      "subtitle": "Concerts, festivals, parties: dive into the highlights of events hosted on Babicho.",
+      "cta": "See events"
+    },
+    "organizers": {
+      "eyebrow": "For organizers",
+      "title": "Create, sell, fill your venue",
+      "subtitle": "Publish your event, follow your sales live and scan tickets at the door.",
+      "cta": "Become an organizer"
+    }
+  },
+  "marquee": {
+    "fallback": "Concerts,Festivals,Parties,Conferences,Sports,Theatre,Comedy,Food"
+  },
   "presentationVideo": {
     "button": "Watch the video",
     "title": "Discover Babicho in video",
@@ -1637,6 +1681,20 @@
     "fieldVideoUrl": "Video link",
     "videoUrlPlaceholder": "https://youtu.be/…  or  https://vimeo.com/…  or  https://…/video.mp4",
     "videoUrlInvalid": "Invalid link: use an address starting with https://",
+    "videosTitle": "Home page videos",
+    "videosHint": "Add the home page videos here: upload a file from your computer or paste a YouTube or Vimeo link. Each video grows then folds away as the visitor scrolls.",
+    "videosShortcut": "Home page videos",
+    "videosSave": "Save videos",
+    "videosSaved": "Videos saved. Reload the home page to see them.",
+    "videosMigration": "Could not save: migration 0058_home_videos.sql has not been run in Supabase yet (SQL Editor).",
+    "videoFileLabel": "Video",
+    "posterLabel": "Preview image (optional)",
+    "posterHint": "Shown before the video loads. For YouTube the preview is automatic.",
+    "videoCard": {
+      "presentation": { "title": "Presentation video", "where": "The \"From click to ticket\" section in the middle of the home page, and the window opened by the \"Watch the video\" button (home page and top bar)." },
+      "ambiance": { "title": "Ambiance video", "where": "The \"Feel the moment\" section in the middle of the home page, before the trust figures. Empty = section hidden." },
+      "organizers": { "title": "Video for organizers", "where": "The \"Create, sell, fill your venue\" section, right before the create-an-event call to action. Empty = section hidden." }
+    },
     "title": "Home banner",
     "subtitle": "Control the top of the home page: the text, the button and the image slideshow of the banner.",
     "textSectionTitle": "Center banner text",

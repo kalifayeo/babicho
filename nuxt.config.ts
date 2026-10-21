@@ -178,6 +178,12 @@ export default defineNuxtConfig({
       // (Le lien saisi dans /admin/accueil a priorité sur cette valeur.)
       presentationVideoUrl: process.env.NUXT_PUBLIC_PRESENTATION_VIDEO_URL || '/videos/presentation.mp4',
       presentationVideoPoster: process.env.NUXT_PUBLIC_PRESENTATION_VIDEO_POSTER || '',
+      // Sections vidéo pliables de l'accueil (composables/useHomeVideos.ts) : une section
+      // n'apparaît que si son lien est renseigné (YouTube, Vimeo ou .mp4/.webm).
+      homeVideoAmbianceUrl: process.env.NUXT_PUBLIC_HOME_VIDEO_AMBIANCE_URL || '',
+      homeVideoAmbiancePoster: process.env.NUXT_PUBLIC_HOME_VIDEO_AMBIANCE_POSTER || '',
+      homeVideoOrganizersUrl: process.env.NUXT_PUBLIC_HOME_VIDEO_ORGANIZERS_URL || '',
+      homeVideoOrganizersPoster: process.env.NUXT_PUBLIC_HOME_VIDEO_ORGANIZERS_POSTER || '',
       // Chaîne WhatsApp officielle (bouton vert flottant). Surchargeable via .env ; vide = masqué.
       whatsappChannelUrl: process.env.NUXT_PUBLIC_WHATSAPP_CHANNEL_URL || 'https://whatsapp.com/channel/0029Vb8vVkw2kNFnqt0cAx0c',
       // Liens officiels de l'application mobile (badges Google Play / App Store sur l'accueil,

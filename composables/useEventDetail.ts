@@ -12,6 +12,7 @@ function mapDetail(e: any): EventDetailData {
         description: tt.description,
         price: Number(tt.price) || 0,
         remaining,
+        quantity: tt.quantity != null ? Number(tt.quantity) : null,
         soldOut: remaining !== null && remaining <= 0,
       }
     })
