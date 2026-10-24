@@ -17,8 +17,8 @@
   --tikeo-blue: 0 87 184;
   --tikeo-blue-dark: 18 59 102;
   --tikeo-surface: 255 255 255;
-  --tikeo-surface-alt: 243 245 249;
-  --tikeo-border: 237 239 243;
+  --tikeo-surface-alt: 247 249 252;
+  --tikeo-border: 228 233 241;
   --tikeo-text-primary: 17 24 39;
   --tikeo-text-secondary: 75 85 99;
   /* Courbe unique pour toutes les animations du site : démarre vite, finit
@@ -70,6 +70,106 @@ body {
   h3 {
     font-family: 'Bricolage Grotesque', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
   }
+}
+
+/* =============================================================================
+   STYLE DE TEXTE « Mon espace » (proposition)
+   Une seule famille : Plus Jakarta Sans — ronde, chaleureuse, très lisible sur
+   mobile. La hiérarchie vient de la TAILLE et de la graisse (700 max), plus de
+   l'extra-gras serré ni des micro-capitales espacées.
+     tx-h3 / acc-h2 / h1 : titres      tx-body : texte courant (15-16 px)
+     tx-meta : infos secondaires       tx-eyebrow : petit repère orange
+     tx-number : chiffres (alignés)
+   Activé par la classe .type-scope (posée sur AccountShell). Pour l'étendre à
+   l'accueil et à la page événement, il suffira de poser .type-scope dessus.
+   ============================================================================= */
+.type-scope {
+  font-family: 'Plus Jakarta Sans', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  font-feature-settings: 'ss01';
+  -webkit-font-smoothing: antialiased;
+}
+.type-scope h1,
+.type-scope h2,
+.type-scope h3,
+.type-scope .font-display {
+  font-family: inherit;
+}
+.type-scope h1 {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+}
+/* Toute « extra-grasse » devient simplement grasse dans cet espace */
+.type-scope .font-extrabold {
+  font-weight: 700;
+}
+.tx-h3 {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: rgb(var(--tikeo-text-primary));
+}
+@media (min-width: 768px) {
+  .tx-h3 { font-size: 1.1875rem; }
+}
+.tx-body {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: rgb(var(--tikeo-text-secondary));
+}
+.tx-meta {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.45;
+  color: rgb(var(--tikeo-text-secondary));
+}
+.tx-eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: rgb(var(--tikeo-orange-strong));
+}
+.sec-title {
+  font-size: clamp(1.5rem, 1.15rem + 1.5vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: rgb(var(--tikeo-text-primary));
+  text-wrap: balance;
+}
+.sec-sub {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: rgb(var(--tikeo-text-secondary));
+}
+@media (min-width: 768px) {
+  .sec-sub { font-size: 1.0625rem; }
+}
+.sec-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: rgb(var(--tikeo-orange-strong));
+}
+.sec-eyebrow::before {
+  content: '';
+  width: 1.5rem;
+  height: 3px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #FF7A00, #0057B8);
+}
+.tx-number {
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: inherit;
 }
 
 /* Barre de défilement discrète pour les carrousels horizontaux */
@@ -235,12 +335,12 @@ html.ui-data-saver .tk-deco {
   .btn-brand {
     @apply inline-flex h-12 items-center justify-center gap-2 bg-[#FF7A00] px-7 text-sm font-bold text-tikeo-ink transition-colors duration-200 hover:bg-[#FF9A3D] disabled:cursor-not-allowed disabled:opacity-50;
   }
-  /* Lignes du tiroir mobile : icône carrée, texte net, chevron discret. */
+  /* Lignes du panneau de menu : icône arrondie, texte net, chevron discret. */
   .drawer-row {
-    @apply flex items-center gap-3.5 px-5 py-3 text-[15px] font-semibold text-tikeo-black transition-colors duration-150 active:bg-tikeo-surface-alt;
+    @apply flex items-center gap-3.5 rounded-xl px-3 py-2.5 text-[15px] font-semibold text-tikeo-black transition-colors duration-150 hover:bg-tikeo-surface-alt active:bg-tikeo-surface-alt;
   }
   .drawer-icon {
-    @apply flex h-10 w-10 shrink-0 items-center justify-center bg-tikeo-surface-alt text-tikeo-black;
+    @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-tikeo-surface-alt text-tikeo-black;
   }
 
   /* ---- Espace « Mon compte » : mêmes briques que l'accueil / page événement ---- */
@@ -248,19 +348,20 @@ html.ui-data-saver .tk-deco {
     @apply border border-tikeo-border bg-tikeo-surface shadow-card;
   }
   .acc-h2 {
-    @apply font-display text-xl font-extrabold tracking-tight text-tikeo-black md:text-2xl;
+    @apply text-xl font-bold leading-snug text-tikeo-black md:text-2xl;
+    letter-spacing: -0.02em;
   }
   .acc-label {
-    @apply text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text;
+    @apply text-[13px] font-semibold text-tikeo-gray-text;
   }
   .acc-empty {
     @apply flex flex-col items-center gap-3 border border-dashed border-tikeo-border bg-tikeo-surface px-6 py-12 text-center;
   }
   .acc-tag {
-    @apply inline-flex items-center px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide;
+    @apply inline-flex items-center px-2 py-0.5 text-xs font-semibold;
   }
   .acc-link {
-    @apply text-sm font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[6px] transition-colors hover:text-tikeo-orange;
+    @apply text-sm font-semibold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[6px] transition-colors hover:text-tikeo-orange;
   }
   .acc-btn-ghost {
     @apply inline-flex h-10 items-center justify-center gap-2 border border-tikeo-border bg-tikeo-surface px-4 text-sm font-semibold text-tikeo-black transition-colors duration-200 hover:border-tikeo-ink disabled:cursor-not-allowed disabled:opacity-50 dark:hover:border-[#FF7A00];

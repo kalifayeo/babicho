@@ -190,7 +190,7 @@ onUnmounted(() => {
 })
 
 const iconBtn =
-  'relative flex h-10 w-10 shrink-0 items-center justify-center text-tikeo-gray-text transition-colors duration-200 hover:bg-tikeo-surface-alt hover:text-tikeo-black'
+  'relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-tikeo-gray-text transition-colors duration-200 hover:bg-tikeo-surface-alt hover:text-tikeo-black'
 </script>
 
 <template>
@@ -215,12 +215,12 @@ const iconBtn =
             v-model="searchQuery"
             type="search"
             :placeholder="t('header.searchPlaceholder')"
-            class="h-11 w-full border border-tikeo-border bg-tikeo-surface-alt pl-11 pr-14 text-sm text-tikeo-black transition-colors placeholder:text-tikeo-gray-text/70 focus:border-tikeo-ink focus:bg-tikeo-surface focus:outline-none dark:focus:border-[#FF7A00]"
+            class="h-11 w-full rounded-full border border-tikeo-border bg-tikeo-surface-alt pl-11 pr-14 text-sm text-tikeo-black transition-colors placeholder:text-tikeo-gray-text/70 focus:border-tikeo-ink focus:bg-tikeo-surface focus:outline-none dark:focus:border-[#FF7A00]"
             autocomplete="off"
             @focus="focusSuggestions"
             @keyup.esc="showSuggestions = false"
           />
-          <button type="submit" class="absolute right-1 top-1 flex h-9 w-10 items-center justify-center bg-tikeo-ink text-white transition-colors duration-200 hover:bg-[#FF7A00] hover:text-tikeo-ink dark:bg-[#FF7A00] dark:text-tikeo-ink dark:hover:bg-white" :aria-label="t('header.search')">
+          <button type="submit" class="absolute right-1 top-1 flex h-9 w-10 items-center justify-center rounded-full bg-tikeo-ink text-white transition-colors duration-200 hover:bg-[#FF7A00] hover:text-tikeo-ink dark:bg-[#FF7A00] dark:text-tikeo-ink dark:hover:bg-white" :aria-label="t('header.search')">
             <AppIcon name="search" class="h-4 w-4" :stroke="2.2" />
           </button>
         </form>
@@ -231,7 +231,7 @@ const iconBtn =
           enter-from-class="opacity-0 -translate-y-1"
           leave-to-class="opacity-0 -translate-y-1"
         >
-          <div v-if="showSuggestions" class="absolute left-0 right-0 top-[3.25rem] z-50 overflow-hidden border border-tikeo-border bg-tikeo-surface shadow-card-hover">
+          <div v-if="showSuggestions" class="absolute left-0 right-0 top-[3.25rem] z-50 overflow-hidden rounded-2xl border border-tikeo-border bg-tikeo-surface shadow-card-hover">
             <SearchSuggestions :suggestions="suggestions" :loading="suggestLoading" @select="goToSuggestion" @all="submitSearch" />
           </div>
         </Transition>
@@ -281,112 +281,28 @@ const iconBtn =
         </NuxtLink>
 
         <!-- CTA « Publier un événement » : texte complet dès lg, simple « + » sur tablette -->
-        <NuxtLink to="/organisateur/evenements/nouveau" data-tour="publish" class="btn-ink ml-1 !px-4 max-lg:!w-11 max-lg:!px-0" :aria-label="t('header.publish')">
+        <NuxtLink to="/organisateur/evenements/nouveau" data-tour="publish" class="btn-ink ml-1 !rounded-full !px-4 max-lg:!w-11 max-lg:!px-0" :aria-label="t('header.publish')">
           <AppIcon name="plus" class="h-[18px] w-[18px]" :stroke="2.4" />
           <span class="hidden lg:inline">{{ t('header.publish') }}</span>
         </NuxtLink>
 
-        <!-- Menu compte : se replie quand le curseur le quitte -->
-        <div class="relative ml-1" @mouseleave="accountOpen = false">
-          <button
-            type="button"
-            data-tour="account"
-            class="flex h-11 items-center gap-2 border border-tikeo-border py-1 pl-1 pr-2.5 transition-colors hover:border-tikeo-ink dark:hover:border-[#FF7A00]"
-            :class="accountOpen ? 'border-tikeo-ink dark:border-[#FF7A00]' : ''"
-            :aria-expanded="accountOpen"
-            aria-haspopup="true"
-            @click="accountOpen = !accountOpen"
-          >
-            <UserAvatar v-if="isAuthenticated" :avatar-url="profile?.avatar_url" :initials="initials" size-class="h-9 w-9" text-class="text-sm" />
-            <span v-else class="flex h-9 w-9 items-center justify-center bg-tikeo-surface-alt text-tikeo-gray-text">
-              <AppIcon name="user" class="h-5 w-5" />
-            </span>
-            <span class="hidden flex-col items-start leading-tight xl:flex">
-              <span class="max-w-[7rem] truncate text-sm font-bold text-tikeo-black">{{ isAuthenticated ? firstName || t('header.myAccount') : t('header.myAccount') }}</span>
-              <span v-if="roleLabel" class="text-[11px] font-semibold text-tikeo-orange">{{ roleLabel }}</span>
-            </span>
-            <AppIcon name="chevron-down" class="h-3.5 w-3.5 text-tikeo-gray-text transition-transform duration-200" :class="accountOpen ? 'rotate-180' : ''" :stroke="2.2" />
-          </button>
-
-          <Transition
-            enter-active-class="transition-all duration-150 ease-out"
-            leave-active-class="transition-all duration-100 ease-in"
-            enter-from-class="opacity-0 translate-y-1"
-            leave-to-class="opacity-0 translate-y-1"
-          >
-            <div v-if="accountOpen" class="absolute right-0 top-[3.25rem] z-50 flex max-h-[calc(100vh-6.5rem)] w-72 flex-col overflow-hidden border border-tikeo-border bg-tikeo-surface shadow-card-hover">
-              <!-- En-tête : membre connecté, ou invitation à se connecter -->
-              <div class="shrink-0 bg-tikeo-ink p-4 text-white">
-                <template v-if="isAuthenticated">
-                  <div class="flex items-center gap-3">
-                    <UserAvatar :avatar-url="profile?.avatar_url" :initials="initials" size-class="h-12 w-12" text-class="text-base" />
-                    <div class="min-w-0">
-                      <p class="truncate text-sm font-bold">{{ profile?.full_name || t('header.myAccount') }}</p>
-                      <p class="truncate text-xs text-white/65">{{ user?.email }}</p>
-                      <span v-if="roleLabel" class="mt-1 inline-block bg-[#FF7A00] px-1.5 py-0.5 text-[10px] font-bold uppercase text-tikeo-ink">{{ roleLabel }}</span>
-                    </div>
-                  </div>
-                </template>
-                <template v-else>
-                  <p class="font-display text-base font-extrabold">{{ t('header.welcomeTitle') }}</p>
-                  <p class="mt-1 text-xs leading-relaxed text-white/70">{{ t('header.welcomeText') }}</p>
-                  <div class="mt-3 flex gap-2">
-                    <NuxtLink to="/connexion" class="flex h-10 flex-1 items-center justify-center bg-[#FF7A00] text-sm font-bold text-tikeo-ink transition-colors hover:bg-white" @click="accountOpen = false">{{ t('header.login') }}</NuxtLink>
-                    <NuxtLink to="/inscription" class="flex h-10 flex-1 items-center justify-center border border-white/30 text-sm font-bold text-white transition-colors hover:bg-white hover:text-tikeo-ink" @click="accountOpen = false">{{ t('header.register') }}</NuxtLink>
-                  </div>
-                </template>
-              </div>
-
-              <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain py-1.5">
-                <template v-if="isAuthenticated">
-                  <NuxtLink
-                    v-if="isAdmin"
-                    to="/admin"
-                    class="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-tikeo-orange transition-colors hover:bg-tikeo-gray-light"
-                    @click="accountOpen = false"
-                  >
-                    <AppIcon name="shield" class="h-[18px] w-[18px]" />
-                    {{ t('header.administration') }}
-                  </NuxtLink>
-                  <NuxtLink
-                    v-for="l in accountLinks"
-                    :key="l.to"
-                    :to="l.to"
-                    class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-tikeo-black transition-colors hover:bg-tikeo-gray-light"
-                    @click="accountOpen = false"
-                  >
-                    <AppIcon :name="l.icon" class="h-[18px] w-[18px] text-tikeo-gray-text" />
-                    <span class="flex-1">{{ l.label }}</span>
-                    <span v-if="l.badge" :key="l.badge" class="badge-pop flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#FF7A00] px-1.5 text-[11px] font-bold text-tikeo-ink">{{ badgeText(l.badge) }}</span>
-                  </NuxtLink>
-                  <div class="my-1.5 border-t border-tikeo-border" />
-                </template>
-
-                <NuxtLink
-                  v-for="l in generalLinks"
-                  :key="l.to"
-                  :to="l.to"
-                  class="flex items-center gap-3 px-4 py-2 text-sm text-tikeo-gray-text transition-colors hover:bg-tikeo-gray-light hover:text-tikeo-black"
-                  @click="accountOpen = false"
-                >
-                  <AppIcon :name="l.icon" class="h-[18px] w-[18px]" />
-                  {{ l.label }}
-                </NuxtLink>
-
-                <template v-if="isAuthenticated">
-                  <div class="my-1.5 border-t border-tikeo-border" />
-                  <button type="button" class="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-semibold text-tikeo-error transition-colors hover:bg-tikeo-gray-light" @click="handleLogout">
-                    <AppIcon name="logout" class="h-[18px] w-[18px]" />
-                    {{ t('header.logout') }}
-                  </button>
-                </template>
-              </div>
-            </div>
-          </Transition>
-          <Teleport to="body">
-            <button v-if="accountOpen" type="button" class="fixed inset-0 z-30 hidden cursor-default md:block" :aria-label="t('common.close')" @click="accountOpen = false" />
-          </Teleport>
-        </div>
+        <!-- Menu : même panneau latéral que sur mobile (compte, navigation, préférences) -->
+        <button
+          type="button"
+          data-tour="account"
+          class="menu-btn ml-1 flex h-11 items-center gap-2.5 rounded-full border border-tikeo-border bg-tikeo-surface py-1 pl-1 pr-4 shadow-sm transition-colors hover:border-slate-300 hover:bg-tikeo-surface-alt"
+          :aria-label="t('header.menu')"
+          :aria-expanded="drawerOpen"
+          aria-haspopup="dialog"
+          @click="drawerOpen = true"
+        >
+          <UserAvatar v-if="isAuthenticated" :avatar-url="profile?.avatar_url" :initials="initials" size-class="h-9 w-9" text-class="text-sm" />
+          <span v-else class="flex h-9 w-9 items-center justify-center rounded-full bg-tikeo-surface-alt text-tikeo-gray-text">
+            <AppIcon name="user" class="h-5 w-5" />
+          </span>
+          <span class="hidden max-w-[7rem] truncate text-sm font-bold text-tikeo-black xl:block">{{ isAuthenticated ? firstName || t('header.myAccount') : t('header.menu') }}</span>
+          <span class="menu-bars" aria-hidden="true"><i /><i /><i /></span>
+        </button>
       </div>
 
       <!-- ============== MOBILE ============== -->
@@ -396,7 +312,7 @@ const iconBtn =
         <button
           type="button"
           data-tour="search"
-          class="flex h-10 w-10 shrink-0 items-center justify-center transition-colors"
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors"
           :class="mobileSearchOpen ? 'bg-tikeo-ink text-white dark:bg-[#FF7A00] dark:text-tikeo-ink' : 'text-tikeo-black'"
           :aria-label="t('header.search')"
           :aria-expanded="mobileSearchOpen"
@@ -405,12 +321,12 @@ const iconBtn =
           <AppIcon :name="mobileSearchOpen ? 'close' : 'search'" class="h-[22px] w-[22px]" />
         </button>
 
-        <NuxtLink to="/mon-espace/notifications" data-tour="notifications" class="relative flex h-10 w-10 shrink-0 items-center justify-center text-tikeo-black" :aria-label="t('header.notifications') + (unreadCount > 0 ? ` (${unreadCount})` : '')">
+        <NuxtLink to="/mon-espace/notifications" data-tour="notifications" class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-tikeo-black" :aria-label="t('header.notifications') + (unreadCount > 0 ? ` (${unreadCount})` : '')">
           <AppIcon name="bell" class="h-[22px] w-[22px]" />
           <span v-if="unreadCount > 0" :key="unreadCount" class="badge-pop pointer-events-none absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FF7A00] px-1 text-[10px] font-bold leading-none text-tikeo-ink ring-2 ring-tikeo-surface" aria-hidden="true">{{ badgeText(unreadCount) }}</span>
         </NuxtLink>
 
-        <NuxtLink to="/mon-espace/mes-favoris" data-tour="favorites" class="relative flex h-10 w-10 shrink-0 items-center justify-center text-tikeo-black" :aria-label="t('header.favorites') + (favoritesCount > 0 ? ` (${favoritesCount})` : '')">
+        <NuxtLink to="/mon-espace/mes-favoris" data-tour="favorites" class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-tikeo-black" :aria-label="t('header.favorites') + (favoritesCount > 0 ? ` (${favoritesCount})` : '')">
           <AppIcon name="heart" class="h-[22px] w-[22px]" />
           <span v-if="favoritesCount > 0" :key="favoritesCount" class="badge-pop pointer-events-none absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FF7A00] px-1 text-[10px] font-bold leading-none text-tikeo-ink ring-2 ring-tikeo-surface" aria-hidden="true">{{ badgeText(favoritesCount) }}</span>
         </NuxtLink>
@@ -418,14 +334,15 @@ const iconBtn =
         <button
           type="button"
           data-tour="account"
-          class="ml-1 flex h-10 shrink-0 items-center gap-1.5 border border-tikeo-border pl-1 pr-2 transition-colors active:bg-tikeo-surface-alt"
+          class="menu-btn ml-1 flex h-10 shrink-0 items-center gap-2 rounded-full border border-tikeo-border bg-tikeo-surface py-1 pl-1 pr-3.5 shadow-sm transition-colors active:bg-tikeo-surface-alt"
           :aria-label="t('header.menu')"
           :aria-expanded="drawerOpen"
+          aria-haspopup="dialog"
           @click="drawerOpen = true"
         >
           <UserAvatar v-if="isAuthenticated" :avatar-url="profile?.avatar_url" :initials="initials" size-class="h-8 w-8" text-class="text-xs" />
-          <span v-else class="flex h-8 w-8 items-center justify-center bg-tikeo-surface-alt text-tikeo-black"><AppIcon name="user" class="h-[18px] w-[18px]" /></span>
-          <AppIcon name="menu" class="h-5 w-5 text-tikeo-black" :stroke="2.2" />
+          <span v-else class="flex h-8 w-8 items-center justify-center rounded-full bg-tikeo-surface-alt text-tikeo-black"><AppIcon name="user" class="h-[18px] w-[18px]" /></span>
+          <span class="menu-bars" aria-hidden="true"><i /><i /><i /></span>
         </button>
       </div>
     </div>
@@ -446,11 +363,11 @@ const iconBtn =
             type="search"
             enterkeyhint="search"
             :placeholder="t('header.searchPlaceholder')"
-            class="h-12 w-full border border-tikeo-border bg-tikeo-surface-alt pl-11 pr-24 text-base text-tikeo-black placeholder:text-tikeo-gray-text/70 focus:border-tikeo-ink focus:outline-none dark:focus:border-[#FF7A00]"
+            class="h-12 w-full rounded-xl border border-tikeo-border bg-tikeo-surface-alt pl-11 pr-24 text-base text-tikeo-black placeholder:text-tikeo-gray-text/70 focus:border-tikeo-ink focus:outline-none dark:focus:border-[#FF7A00]"
             autocomplete="off"
             @keyup.esc="mobileSearchOpen = false"
           />
-          <button type="submit" class="absolute right-[1.2rem] top-[1.1rem] flex h-10 items-center bg-[#FF7A00] px-4 text-sm font-bold text-tikeo-ink">
+          <button type="submit" class="absolute right-[1.2rem] top-[1.1rem] flex h-10 items-center rounded-lg bg-[#FF7A00] px-4 text-sm font-bold text-tikeo-ink">
             {{ t('header.search') }}
           </button>
         </form>
@@ -460,7 +377,7 @@ const iconBtn =
       </div>
     </Transition>
 
-    <!-- Tiroir mobile.
+    <!-- Panneau de menu (mobile ET ordinateur) : s'ouvre depuis la droite, fond clair.
          Teleport indispensable : le <header> a une transformation CSS (translate-y
          pour l'effet montre/cache au scroll), ce qui en fait un « containing block »
          pour tout descendant en position fixed. Teleport le sort jusqu'au <body>. -->
@@ -471,82 +388,80 @@ const iconBtn =
         enter-from-class="opacity-0"
         leave-to-class="opacity-0"
       >
-        <div v-if="drawerOpen" class="fixed inset-0 z-[60] bg-tikeo-ink/70 backdrop-blur-[2px] md:hidden" aria-hidden="true" @click="drawerOpen = false" />
+        <div v-if="drawerOpen" class="fixed inset-0 z-[60] bg-tikeo-ink/40 backdrop-blur-sm" aria-hidden="true" @click="drawerOpen = false" />
       </Transition>
 
       <Transition
-        enter-active-class="transition-transform duration-300 ease-out"
-        leave-active-class="transition-transform duration-200 ease-in"
-        enter-from-class="translate-x-full"
-        leave-to-class="translate-x-full"
+        enter-active-class="transition duration-300 ease-out"
+        leave-active-class="transition duration-200 ease-in"
+        enter-from-class="translate-x-full opacity-0"
+        leave-to-class="translate-x-full opacity-0"
       >
-        <aside v-if="drawerOpen" class="fixed inset-y-0 right-0 z-[61] flex w-[88vw] max-w-[390px] flex-col bg-tikeo-surface shadow-2xl md:hidden" role="dialog" aria-modal="true" :aria-label="t('header.menu')">
-          <!-- Bandeau : identité du visiteur -->
-          <div class="relative shrink-0 overflow-hidden bg-tikeo-ink px-5 pb-6 pt-[calc(env(safe-area-inset-top,0px)+1.25rem)] text-white">
-            <div class="pointer-events-none absolute inset-y-0 left-0 w-2" style="background-image: radial-gradient(circle, rgb(243 245 249) 2.5px, transparent 3px); background-size: 8px 14px; background-position: -4px 0" aria-hidden="true" />
-            <button type="button" class="absolute right-3 top-[calc(env(safe-area-inset-top,0px)+0.75rem)] flex h-10 w-10 items-center justify-center bg-white/10 text-white transition-colors active:bg-white active:text-tikeo-ink" :aria-label="t('header.closeMenu')" @click="drawerOpen = false">
+        <aside v-if="drawerOpen" class="fixed inset-y-0 right-0 z-[61] flex w-[92vw] max-w-[400px] flex-col overflow-hidden rounded-l-3xl bg-tikeo-surface shadow-2xl" role="dialog" aria-modal="true" :aria-label="t('header.menu')">
+          <!-- Haut : logo + fermer -->
+          <div class="flex shrink-0 items-center justify-between gap-3 px-5 pb-3 pt-[calc(env(safe-area-inset-top,0px)+1rem)]">
+            <NuxtLink to="/" class="flex min-w-0 items-center" :aria-label="brandName + ' — ' + t('nav.home')" @click="drawerOpen = false">
+              <SiteLogo />
+            </NuxtLink>
+            <button type="button" class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-tikeo-surface-alt text-tikeo-black transition-colors hover:bg-tikeo-border" :aria-label="t('header.closeMenu')" @click="drawerOpen = false">
               <AppIcon name="close" class="h-5 w-5" :stroke="2.2" />
             </button>
+          </div>
 
-            <template v-if="isAuthenticated">
-              <div class="flex items-center gap-3.5 pr-12">
-                <UserAvatar :avatar-url="profile?.avatar_url" :initials="initials" size-class="h-16 w-16" text-class="text-xl" />
-                <div class="min-w-0">
-                  <p class="truncate font-display text-lg font-extrabold leading-tight">{{ profile?.full_name || t('header.myAccount') }}</p>
-                  <p class="truncate text-sm text-white/65">{{ user?.email }}</p>
-                  <span v-if="roleLabel" class="mt-1.5 inline-block bg-[#FF7A00] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-tikeo-ink">{{ roleLabel }}</span>
-                </div>
+          <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)]">
+            <!-- Identité du visiteur -->
+            <div v-if="isAuthenticated" class="flex items-center gap-3.5 rounded-2xl bg-tikeo-surface-alt p-4">
+              <UserAvatar :avatar-url="profile?.avatar_url" :initials="initials" size-class="h-14 w-14" text-class="text-lg" />
+              <div class="min-w-0">
+                <p class="truncate font-display text-base font-extrabold leading-tight text-tikeo-black">{{ profile?.full_name || t('header.myAccount') }}</p>
+                <p class="truncate text-sm text-tikeo-gray-text">{{ user?.email }}</p>
+                <span v-if="roleLabel" class="mt-1.5 inline-block rounded-full bg-[#FF7A00]/15 px-2.5 py-0.5 text-[11px] font-bold text-[rgb(var(--tikeo-orange-strong))]">{{ roleLabel }}</span>
               </div>
-            </template>
-            <template v-else>
-              <SiteLogo :light="!logoOnDarkOk" :on-dark="logoOnDarkOk" :size-class="logoOnDarkOk ? 'h-12' : 'h-9 bg-white p-1.5'" />
-              <p class="mt-4 font-display text-2xl font-extrabold leading-tight">{{ t('header.welcomeTitle') }}</p>
-              <p class="mt-1.5 max-w-[17rem] text-sm leading-relaxed text-white/70">{{ t('header.welcomeText') }}</p>
+            </div>
+            <div v-else class="rounded-2xl border border-[#FF7A00]/20 bg-gradient-to-br from-[#FFF3E6] to-[#EAF2FC] p-4 dark:from-tikeo-surface-alt dark:to-tikeo-surface-alt">
+              <p class="font-display text-xl font-extrabold leading-tight text-tikeo-black">{{ t('header.welcomeTitle') }}</p>
+              <p class="mt-1.5 text-sm leading-relaxed text-tikeo-gray-text">{{ t('header.welcomeText') }}</p>
               <div class="mt-4 grid grid-cols-2 gap-2.5">
-                <NuxtLink to="/connexion" class="flex h-11 items-center justify-center gap-2 bg-[#FF7A00] text-sm font-bold text-tikeo-ink">
+                <NuxtLink to="/connexion" class="flex h-11 items-center justify-center gap-2 rounded-xl bg-[#FF7A00] text-sm font-bold text-tikeo-ink shadow-sm transition-colors hover:bg-[#FF8F26]">
                   <AppIcon name="login" class="h-[18px] w-[18px]" :stroke="2" />{{ t('header.login') }}
                 </NuxtLink>
-                <NuxtLink to="/inscription" class="flex h-11 items-center justify-center gap-2 border border-white/30 text-sm font-bold text-white">
+                <NuxtLink to="/inscription" class="flex h-11 items-center justify-center gap-2 rounded-xl border border-tikeo-border bg-tikeo-surface text-sm font-bold text-tikeo-black transition-colors hover:bg-tikeo-surface-alt">
                   <AppIcon name="user-plus" class="h-[18px] w-[18px]" :stroke="2" />{{ t('header.register') }}
                 </NuxtLink>
               </div>
-            </template>
-          </div>
+            </div>
 
-          <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)]">
             <!-- Accès rapide (connecté) -->
-            <div v-if="isAuthenticated" class="grid grid-cols-2 gap-2.5 p-4">
+            <div v-if="isAuthenticated" class="mt-3 grid grid-cols-2 gap-2.5">
               <NuxtLink
                 v-for="l in quickLinks"
                 :key="l.to"
                 :to="l.to"
-                class="flex flex-col items-start gap-3 border border-tikeo-border bg-tikeo-surface p-3.5 transition-colors active:border-tikeo-ink active:bg-tikeo-surface-alt"
+                class="flex items-center gap-3 rounded-2xl border border-tikeo-border bg-tikeo-surface p-3 transition-colors hover:bg-tikeo-surface-alt"
               >
-                <span class="relative flex h-10 w-10 items-center justify-center bg-tikeo-ink text-white dark:bg-[#FF7A00] dark:text-tikeo-ink">
+                <span class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF7A00]/10 text-[rgb(var(--tikeo-orange-strong))]">
                   <AppIcon :name="l.icon" class="h-5 w-5" />
                   <span v-if="l.badge" :key="l.badge" class="badge-pop absolute -right-1.5 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FF7A00] px-1 text-[10px] font-bold leading-none text-tikeo-ink ring-2 ring-tikeo-surface">{{ badgeText(l.badge) }}</span>
                 </span>
-                <span class="text-sm font-bold leading-tight text-tikeo-black">{{ l.label }}</span>
+                <span class="min-w-0 text-sm font-bold leading-tight text-tikeo-black">{{ l.label }}</span>
               </NuxtLink>
             </div>
 
             <!-- Publier -->
-            <div class="px-4" :class="isAuthenticated ? '' : 'pt-4'">
-              <NuxtLink to="/organisateur/evenements/nouveau" class="flex items-center gap-3.5 bg-[#FF7A00] p-4 text-tikeo-ink active:bg-[#FF9A3D]">
-                <span class="flex h-10 w-10 shrink-0 items-center justify-center bg-tikeo-ink text-white"><AppIcon name="plus" class="h-5 w-5" :stroke="2.4" /></span>
-                <span class="min-w-0 flex-1">
-                  <span class="block font-display text-base font-extrabold leading-tight">{{ t('header.publish') }}</span>
-                  <span class="block text-xs font-medium text-tikeo-ink/75">{{ t('header.publishHint') }}</span>
-                </span>
-                <AppIcon name="arrow-right" class="h-5 w-5 shrink-0" :stroke="2.2" />
-              </NuxtLink>
-            </div>
+            <NuxtLink to="/organisateur/evenements/nouveau" class="mt-3 flex items-center gap-3.5 rounded-2xl bg-[#FF7A00] p-4 text-tikeo-ink shadow-sm transition-colors hover:bg-[#FF8F26]">
+              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-tikeo-ink text-white"><AppIcon name="plus" class="h-5 w-5" :stroke="2.4" /></span>
+              <span class="min-w-0 flex-1">
+                <span class="block font-display text-base font-extrabold leading-tight">{{ t('header.publish') }}</span>
+                <span class="block text-xs font-medium text-tikeo-ink/75">{{ t('header.publishHint') }}</span>
+              </span>
+              <AppIcon name="arrow-right" class="h-5 w-5 shrink-0" :stroke="2.2" />
+            </NuxtLink>
 
             <!-- Navigation -->
-            <nav class="pt-3">
-              <p class="px-5 pb-1 pt-3 text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text">{{ t('header.menuSectionGeneral') }}</p>
-              <NuxtLink v-if="isAuthenticated && isAdmin" to="/admin" class="drawer-row !text-tikeo-orange">
-                <span class="drawer-icon !bg-tikeo-orange/10 !text-tikeo-orange"><AppIcon name="shield" class="h-5 w-5" /></span>
+            <nav class="mt-4">
+              <p class="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text">{{ t('header.menuSectionGeneral') }}</p>
+              <NuxtLink v-if="isAuthenticated && isAdmin" to="/admin" class="drawer-row !text-[rgb(var(--tikeo-orange-strong))]">
+                <span class="drawer-icon !bg-[#FF7A00]/10 !text-[rgb(var(--tikeo-orange-strong))]"><AppIcon name="shield" class="h-5 w-5" /></span>
                 <span class="flex-1">{{ t('header.administration') }}</span>
                 <AppIcon name="chevron-right" class="h-4 w-4 text-tikeo-gray-text" :stroke="2.2" />
               </NuxtLink>
@@ -570,7 +485,7 @@ const iconBtn =
             </nav>
 
             <!-- Préférences : thème + langue -->
-            <div class="mx-4 mt-4 space-y-3 border border-tikeo-border p-4">
+            <div class="mt-4 space-y-3 rounded-2xl border border-tikeo-border p-4">
               <div class="flex items-center justify-between gap-3">
                 <p class="text-sm font-bold text-tikeo-black">{{ t('header.appearance') }}</p>
                 <span class="inline-flex" data-tour="theme"><ThemeToggle /></span>
@@ -582,8 +497,8 @@ const iconBtn =
                     v-for="l in localeList"
                     :key="l.code"
                     type="button"
-                    class="h-10 border text-sm font-bold uppercase transition-colors"
-                    :class="locale === l.code ? 'border-tikeo-ink bg-tikeo-ink text-white dark:border-[#FF7A00] dark:bg-[#FF7A00] dark:text-tikeo-ink' : 'border-tikeo-border text-tikeo-gray-text active:bg-tikeo-surface-alt'"
+                    class="h-10 rounded-xl border text-sm font-bold uppercase transition-colors"
+                    :class="locale === l.code ? 'border-tikeo-ink bg-tikeo-ink text-white dark:border-[#FF7A00] dark:bg-[#FF7A00] dark:text-tikeo-ink' : 'border-tikeo-border text-tikeo-gray-text hover:bg-tikeo-surface-alt'"
                     :aria-pressed="locale === l.code"
                     :title="l.name"
                     @click="chooseLocale(l.code)"
@@ -594,12 +509,10 @@ const iconBtn =
               </div>
             </div>
 
-            <div v-if="isAuthenticated" class="mt-2 px-1">
-              <button type="button" class="drawer-row w-full text-left !text-tikeo-error" @click="handleLogout">
-                <span class="drawer-icon !bg-tikeo-error/10 !text-tikeo-error"><AppIcon name="logout" class="h-5 w-5" /></span>
-                <span class="flex-1">{{ t('header.logout') }}</span>
-              </button>
-            </div>
+            <button v-if="isAuthenticated" type="button" class="drawer-row mt-2 w-full text-left !text-tikeo-error" @click="handleLogout">
+              <span class="drawer-icon !bg-tikeo-error/10 !text-tikeo-error"><AppIcon name="logout" class="h-5 w-5" /></span>
+              <span class="flex-1">{{ t('header.logout') }}</span>
+            </button>
           </div>
         </aside>
       </Transition>
@@ -608,6 +521,31 @@ const iconBtn =
 </template>
 
 <style scoped>
+/* Trois traits du bouton menu : le trait du milieu est plus court et s'allonge au survol. */
+.menu-bars {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.menu-bars i {
+  display: block;
+  height: 2px;
+  width: 18px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: width 0.2s ease;
+}
+.menu-bars i:nth-child(2) {
+  width: 12px;
+}
+.menu-btn:hover .menu-bars i:nth-child(2),
+.menu-btn:focus-visible .menu-bars i:nth-child(2) {
+  width: 18px;
+}
+.menu-btn {
+  color: rgb(var(--tikeo-text-primary));
+}
 /* Petit « pop » à chaque changement de valeur (la clé du <span> change avec le nombre). */
 .badge-pop {
   animation: badge-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);

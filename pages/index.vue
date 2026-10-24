@@ -70,16 +70,29 @@ const groupedByCategory = computed<CategoryGroup[]>(() => {
 })
 const showCategorySections = computed(() => activeFilterCount.value === 0)
 
-// Mosaïque « Prochainement » : 1 grande affiche + 2 ou 4 vignettes (jamais de
-// case vide). En dessous de 3 événements, la mosaïque n'a pas de sens : on
-// laisse les sections par catégorie parler.
-const upcoming = computed(() => {
-  const sorted = [...events.value].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
-  if (sorted.length >= 5) return sorted.slice(0, 5)
-  if (sorted.length >= 3) return sorted.slice(0, 3)
-  return []
+// Lignes de l'accueil : « Prochainement » (les 8 événements les plus proches),
+// puis une ligne par catégorie. En dessous de 3 événements, « Prochainement »
+// n'a pas de sens : on laisse les catégories parler.
+interface HomeRow {
+  key: string
+  name: string
+  sub: string
+  events: EventCardData[]
+  category: string | null
+}
+const rows = computed<HomeRow[]>(() => {
+  const list: HomeRow[] = []
+  if (events.value.length >= 3) {
+    const next = [...events.value]
+      .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+      .slice(0, 8)
+    list.push({ key: '__upcoming', name: t('home.upcoming'), sub: t('home.upcomingSub'), events: next, category: null })
+  }
+  for (const g of groupedByCategory.value) {
+    list.push({ key: g.key, name: g.name, sub: t('home.eventsCount', g.events.length), events: g.events, category: g.name })
+  }
+  return list
 })
-const upcomingRest = computed(() => upcoming.value.slice(1))
 
 // Pastilles des filtres actifs (cliquer = retirer ce filtre).
 const activeChips = computed(() => {
@@ -108,101 +121,81 @@ function scrollRow(key: string, dir: 1 | -1) {
   rowRefs.value[key]?.scrollBy({ left: dir * 360, behavior: 'smooth' })
 }
 
-function seeAllCategory(name: string) {
-  setCategory(name)
+function seeAll(category: string | null) {
+  if (category) setCategory(category)
 }
 </script>
 
 <template>
-  <div class="pb-6">
-    <!-- Progression de lecture (fine barre en haut de l'écran) -->
-    <ScrollProgress />
-
+  <div class="type-scope bg-tikeo-surface-alt">
     <HeroSection />
 
     <CategoriesRow />
 
-    <QuickActionsGrid />
-
-    <FeaturedEventsBand />
-
-    <!-- Bandeau de mots piloté par le scroll -->
-    <MarqueeBand />
-
     <!-- ======================= SANS FILTRE ======================= -->
     <template v-if="showCategorySections">
       <!-- Chargement -->
-      <section v-if="loading" class="mx-auto max-w-tikeo-container px-4 pt-10 md:px-6">
-        <div class="mb-5 h-8 w-56 animate-pulse bg-tikeo-border" />
-        <div class="no-scrollbar flex gap-3 overflow-x-auto md:gap-5">
-          <div v-for="i in 4" :key="i" class="h-72 w-[72vw] max-w-[260px] shrink-0 animate-pulse bg-tikeo-border md:w-[17rem]" />
+      <section v-if="loading" class="mx-auto max-w-tikeo-container px-4 pt-6 md:px-6">
+        <div class="mb-5 h-8 w-56 animate-pulse rounded-lg bg-tikeo-border" />
+        <div class="no-scrollbar flex gap-4 overflow-x-auto md:gap-5">
+          <div v-for="i in 4" :key="i" class="h-72 w-[72vw] max-w-[260px] shrink-0 animate-pulse rounded-2xl bg-tikeo-border md:w-[17.5rem]" />
         </div>
       </section>
 
       <!-- Aucun événement -->
       <section v-else-if="!hasAnyEvents" data-events-anchor class="mx-auto max-w-tikeo-container px-4 py-12 md:px-6">
-        <p class="border border-dashed border-tikeo-border bg-tikeo-surface p-10 text-center text-sm text-tikeo-gray-text">
+        <p class="rounded-2xl border border-dashed border-tikeo-border bg-tikeo-surface p-10 text-center text-sm text-tikeo-gray-text">
           {{ t('home.noEventsYet') }}
         </p>
       </section>
 
+      <!-- Une ligne par rubrique -->
       <template v-else>
-        <!-- Prochainement : la grande affiche + les vignettes -->
-        <section v-if="upcoming.length" data-events-anchor class="mx-auto max-w-tikeo-container px-4 pt-8 md:px-6 md:pt-14">
-          <div class="mb-5 max-w-xl">
-            <SplitHeading tag="h2" :text="t('home.upcoming')" class="font-display text-2xl font-extrabold tracking-tight text-tikeo-black md:text-4xl" />
-            <p v-reveal:up="140" class="mt-1.5 text-sm text-tikeo-gray-text md:text-base">{{ t('home.upcomingSub') }}</p>
-          </div>
-
-          <div
-            v-stagger:up="{ step: 110 }"
-            class="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 md:gap-5 lg:mx-0 lg:grid lg:h-[41rem] lg:grid-rows-2 lg:overflow-visible lg:px-0"
-            :class="upcomingRest.length === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'"
-          >
-            <EventCard :event="upcoming[0]" variant="feature" class="w-[86vw] max-w-[420px] snap-start lg:col-span-2 lg:row-span-2 lg:w-auto lg:max-w-none" />
-            <EventCard v-for="event in upcomingRest" :key="event.id" :event="event" variant="tile" class="snap-start" />
-          </div>
-        </section>
-
-        <!-- Une section par catégorie -->
-        <section v-for="group in groupedByCategory" :key="group.key" data-events-anchor class="mx-auto max-w-tikeo-container px-4 pt-9 md:px-6 md:pt-16">
-          <div class="mb-5 flex items-end justify-between gap-4">
+        <section
+          v-for="(row, idx) in rows"
+          :key="row.key"
+          :data-events-anchor="idx === 0 ? '' : undefined"
+          class="mx-auto max-w-tikeo-container px-4 pt-10 md:px-6 md:pt-16"
+        >
+          <div class="mb-4 flex items-end justify-between gap-4 md:mb-5">
             <div class="min-w-0">
-              <SplitHeading tag="h2" :text="group.name" class="font-display text-2xl font-extrabold tracking-tight text-tikeo-black md:text-3xl" />
-              <p v-reveal:up="120" class="mt-1 text-sm text-tikeo-gray-text">{{ t('home.eventsCount', group.events.length) }}</p>
+              <span class="mb-2.5 block h-1 w-10 rounded-full bg-tikeo-brand" aria-hidden="true" />
+              <h2 class="sec-title">{{ row.name }}</h2>
+              <p class="sec-sub mt-1.5">{{ row.sub }}</p>
             </div>
 
             <div class="flex shrink-0 items-center gap-2">
-              <template v-if="group.events.length > 4">
+              <template v-if="row.events.length > 4">
                 <button
                   type="button"
                   :aria-label="t('home.scrollPrev')"
-                  class="hidden h-10 w-10 items-center justify-center border border-tikeo-border bg-tikeo-surface text-tikeo-black transition-colors hover:border-tikeo-ink hover:bg-tikeo-ink hover:text-white md:flex"
-                  @click="scrollRow(group.key, -1)"
+                  class="hidden h-10 w-10 items-center justify-center rounded-full border border-tikeo-border bg-tikeo-surface text-tikeo-black shadow-sm transition-colors hover:bg-tikeo-ink hover:text-white md:flex"
+                  @click="scrollRow(row.key, -1)"
                 >
                   <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5l-7 7 7 7" /></svg>
                 </button>
                 <button
                   type="button"
                   :aria-label="t('home.scrollNext')"
-                  class="hidden h-10 w-10 items-center justify-center border border-tikeo-border bg-tikeo-surface text-tikeo-black transition-colors hover:border-tikeo-ink hover:bg-tikeo-ink hover:text-white md:flex"
-                  @click="scrollRow(group.key, 1)"
+                  class="hidden h-10 w-10 items-center justify-center rounded-full border border-tikeo-border bg-tikeo-surface text-tikeo-black shadow-sm transition-colors hover:bg-tikeo-ink hover:text-white md:flex"
+                  @click="scrollRow(row.key, 1)"
                 >
                   <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
                 </button>
               </template>
               <NuxtLink
                 to="/evenements"
-                class="flex h-10 items-center gap-1.5 px-1 text-sm font-bold text-tikeo-black underline decoration-tikeo-orange decoration-2 underline-offset-[6px] hover:text-tikeo-orange md:px-3"
-                @click="seeAllCategory(group.name)"
+                class="flex h-10 items-center gap-1.5 rounded-full border border-tikeo-border bg-tikeo-surface px-4 text-sm font-semibold text-tikeo-black transition-colors hover:border-tikeo-ink dark:hover:border-[#FF7A00]"
+                @click="seeAll(row.category)"
               >
                 {{ t('home.seeAll') }}
+                <AppIcon name="arrow-right" class="h-4 w-4" :stroke="2.4" />
               </NuxtLink>
             </div>
           </div>
 
-          <div :ref="(el) => setRowRef(group.key, el)" v-stagger:right="{ step: 80 }" class="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:gap-5 md:px-0 md:pb-3">
-            <EventCard v-for="event in group.events" :key="event.id" :event="event" variant="full" class="snap-start md:!w-[17rem]" />
+          <div :ref="(el) => setRowRef(row.key, el)" class="no-scrollbar -mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-4 md:mx-0 md:gap-5 md:px-0">
+            <EventCard v-for="event in row.events" :key="event.id" :event="event" variant="full" class="snap-start md:!w-[17.5rem]" />
           </div>
         </section>
       </template>
@@ -224,24 +217,24 @@ function seeAllCategory(name: string) {
           </button>
         </div>
 
-        <div v-if="!hasResults" class="border border-dashed border-tikeo-border bg-tikeo-surface p-6 text-center text-sm text-tikeo-gray-text">
+        <div v-if="!hasResults" class="rounded-2xl border border-dashed border-tikeo-border bg-tikeo-surface p-6 text-center text-sm text-tikeo-gray-text">
           {{ t('home.noResultsFilters') }}
-          <button type="button" class="mt-2 block w-full font-bold text-tikeo-orange" @click="resetFilters">{{ t('home.resetFilters') }}</button>
+          <button type="button" class="mt-2 block w-full font-bold text-[rgb(var(--tikeo-orange-strong))]" @click="resetFilters">{{ t('home.resetFilters') }}</button>
         </div>
-        <div v-else v-stagger:up="{ step: 60 }" class="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2">
+        <div v-else class="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2">
           <EventCard v-for="event in filteredEvents" :key="event.id" :event="event" variant="grid" />
         </div>
       </section>
 
       <!-- Desktop : grille + filtres latéraux -->
-      <section data-events-anchor class="mx-auto hidden max-w-tikeo-container gap-8 px-6 pt-10 md:grid md:grid-cols-[1fr_300px]">
+      <section data-events-anchor class="mx-auto hidden max-w-tikeo-container gap-8 px-6 pt-8 md:grid md:grid-cols-[1fr_300px]">
         <div>
           <div class="mb-4 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h2 class="font-display text-3xl font-extrabold tracking-tight text-tikeo-black">{{ t('home.discover') }}</h2>
+              <h2 class="sec-title">{{ t('home.discover') }}</h2>
               <p class="mt-1 text-sm text-tikeo-gray-text">{{ t('home.eventsCount', filteredEvents.length) }}</p>
             </div>
-            <select v-model="filters.date" class="input-field w-auto text-sm" :aria-label="t('filters.date')">
+            <select v-model="filters.date" class="input-field w-auto rounded-xl text-sm" :aria-label="t('filters.date')">
               <option v-for="opt in sortOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
             </select>
           </div>
@@ -253,11 +246,11 @@ function seeAllCategory(name: string) {
             </button>
           </div>
 
-          <div v-if="!hasResults" class="border border-dashed border-tikeo-border bg-tikeo-surface p-10 text-center text-sm text-tikeo-gray-text">
+          <div v-if="!hasResults" class="rounded-2xl border border-dashed border-tikeo-border bg-tikeo-surface p-10 text-center text-sm text-tikeo-gray-text">
             {{ t('home.noResultsFiltersCount', activeFilterCount) }}
-            <button type="button" class="mt-2 block w-full font-bold text-tikeo-orange" @click="resetFilters">{{ t('home.resetFilters') }}</button>
+            <button type="button" class="mt-2 block w-full font-bold text-[rgb(var(--tikeo-orange-strong))]" @click="resetFilters">{{ t('home.resetFilters') }}</button>
           </div>
-          <div v-else v-stagger:up="{ step: 60 }" class="grid grid-cols-2 gap-5 lg:grid-cols-3 2xl:grid-cols-4">
+          <div v-else class="grid grid-cols-2 gap-5 lg:grid-cols-3 2xl:grid-cols-4">
             <EventCard v-for="event in filteredEvents" :key="event.id" :event="event" variant="grid" />
           </div>
         </div>
@@ -266,21 +259,13 @@ function seeAllCategory(name: string) {
       </section>
     </template>
 
-    <CityExplorer :events="events" />
-
-    <!-- Vidéos pliables au scroll : présentation + ambiance (voir composables/useHomeVideos.ts) -->
-    <HomeVideoSections group="story" />
-
+    <!-- Pourquoi Babicho + moyens de paiement -->
     <TrustStats />
-    <AppDownloadSection />
-    <TestimonialsSection />
-    <BlogSection />
-    <PressStrip />
-    <PartnersSection />
-    <SiteFeedbackStrip />
 
-    <!-- Vidéo organisateurs, juste avant l'appel à créer un événement -->
-    <HomeVideoSections group="organizers" />
+    <!-- Appel aux organisateurs -->
     <OrganizerCtaBanner />
+
+    <!-- Application mobile (section remise sur l'accueil) -->
+    <AppDownloadSection />
   </div>
 </template>

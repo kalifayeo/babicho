@@ -20,7 +20,7 @@ const features = computed(() => [
 </script>
 
 <template>
-  <section class="relative mt-10 overflow-hidden bg-[#FF7A00] text-tikeo-ink md:mt-20" aria-labelledby="app-download-title">
+  <section class="relative overflow-hidden bg-[#FF7A00] text-tikeo-ink" aria-labelledby="app-download-title">
     <!-- trame de points, très discrète (glisse lentement) -->
     <div class="tk-deco pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       <div v-parallax="-0.06" class="absolute -inset-x-4 -inset-y-24 opacity-[0.13]" style="background-image: radial-gradient(circle, #0E2240 1.5px, transparent 1.8px); background-size: 22px 22px" />
@@ -31,10 +31,10 @@ const features = computed(() => [
 
     <div class="relative mx-auto grid max-w-tikeo-container gap-4 px-4 pt-8 md:gap-8 md:px-6 md:pt-16 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-6 lg:pt-0">
       <div class="lg:py-20">
-        <h2 id="app-download-title" v-reveal:title class="max-w-xl font-display text-[1.75rem] font-extrabold leading-[1.05] tracking-tight md:text-5xl">
+        <h2 id="app-download-title" v-reveal:title class="max-w-xl text-[1.9rem] font-bold leading-[1.06] tracking-[-0.035em] md:text-5xl lg:text-[3.4rem]">
           {{ t('appDownload.title') }}
         </h2>
-        <p v-reveal:up="120" class="mt-2.5 max-w-lg text-sm leading-relaxed text-tikeo-ink/85 md:mt-4 md:text-lg">{{ t('appDownload.subtitle') }}</p>
+        <p v-reveal:up="120" class="mt-3 max-w-lg text-[15px] font-medium leading-relaxed text-tikeo-ink/85 md:mt-5 md:text-lg">{{ t('appDownload.subtitle') }}</p>
 
         <!-- Avantages : 3 colonnes (icône + titre) sur mobile, liste détaillée dès md -->
         <ul v-stagger:left="{ step: 120, delay: 220 }" class="mt-5 grid grid-cols-3 gap-2 md:mt-7 md:max-w-xl md:grid-cols-1 md:gap-4">
@@ -43,8 +43,8 @@ const features = computed(() => [
               <AppIcon :name="f.icon" class="h-[18px] w-[18px] md:h-5 md:w-5" />
             </span>
             <div>
-              <p class="font-display text-[12px] font-bold leading-tight md:text-[17px]">{{ f.title }}</p>
-              <p class="mt-0.5 hidden text-sm leading-snug text-tikeo-ink/80 md:block">{{ f.text }}</p>
+              <p class="text-[13px] font-bold leading-tight md:text-[17px]">{{ f.title }}</p>
+              <p class="mt-1 hidden text-[15px] leading-snug text-tikeo-ink/80 md:block">{{ f.text }}</p>
             </div>
           </li>
         </ul>

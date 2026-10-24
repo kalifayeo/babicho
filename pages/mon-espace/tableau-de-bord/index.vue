@@ -2,9 +2,8 @@
 definePageMeta({ middleware: 'auth' })
 const { t, locale } = useI18n()
 const { profile } = useAuth()
-const { unreadCount } = useMyNotifications()
-const { orders, loading: ordersLoading, hideOrders } = useMyOrders()
-const { tickets, loading: ticketsLoading, hideTickets } = useMyTickets()
+const { orders, loading: ordersLoading } = useMyOrders()
+const { tickets, loading: ticketsLoading } = useMyTickets()
 const { favoriteIds } = useFavorites()
 
 const loading = computed(() => ordersLoading.value || ticketsLoading.value)
@@ -18,22 +17,14 @@ const upcomingTickets = computed(() =>
 )
 
 const recentOrders = computed(() => orders.value.slice(0, 3))
-
 const firstName = computed(() => (profile.value?.full_name || '').trim().split(/\s+/)[0] || '')
 
-// Chiffres clés affichés dans le hero (chacun mène à sa page).
+// Trois chiffres, chacun mène à sa page. Les raccourcis (billets, favoris,
+// profil…) ne sont plus répétés ici : ils sont déjà dans la barre de navigation.
 const stats = computed(() => [
-  { to: '/mon-espace/mes-billets', icon: 'ticket', label: t('buyerDashboard.statTickets'), value: loading.value ? '—' : validTicketsCount.value },
-  { to: '/mon-espace/mes-commandes', icon: 'wallet', label: t('buyerDashboard.statOrders'), value: loading.value ? '—' : orders.value.length },
-  { to: '/mon-espace/mes-favoris', icon: 'heart', label: t('buyerDashboard.statFavorites'), value: favoriteIds.value.length },
-])
-
-const quickLinks = computed(() => [
-  { to: '/mon-espace/mes-billets', icon: 'ticket', label: t('header.myTickets') },
-  { to: '/mon-espace/mes-favoris', icon: 'heart', label: t('header.favorites') },
-  { to: '/mon-espace/notifications', icon: 'bell', label: t('header.notifications'), badge: unreadCount.value || null },
-  { to: '/mon-espace/profil', icon: 'user', label: t('header.profile') },
-  { to: '/mon-espace/parametres', icon: 'settings', label: t('header.settings') },
+  { to: '/mon-espace/mes-billets', label: t('buyerDashboard.statTickets'), value: loading.value ? '—' : validTicketsCount.value },
+  { to: '/mon-espace/mes-commandes', label: t('buyerDashboard.statOrders'), value: loading.value ? '—' : orders.value.length },
+  { to: '/mon-espace/mes-favoris', label: t('buyerDashboard.statFavorites'), value: favoriteIds.value.length },
 ])
 
 // Talon de date (même présentation que la page événement).
@@ -67,29 +58,12 @@ const orderTag: Record<string, string> = {
 }
 
 function formatDate(d: string) {
-  return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
-}
-
-// Suppression depuis le tableau de bord (masquage de l'historique) avec confirmation.
-const toDelete = ref<{ kind: 'ticket' | 'order'; id: string } | null>(null)
-const deleting = ref(false)
-const deleteError = ref('')
-function askDelete(kind: 'ticket' | 'order', id: string) {
-  deleteError.value = ''
-  toDelete.value = { kind, id }
-}
-async function confirmDelete() {
-  if (!toDelete.value) return
-  deleting.value = true
-  const ok = toDelete.value.kind === 'ticket' ? await hideTickets([toDelete.value.id]) : await hideOrders([toDelete.value.id])
-  deleting.value = false
-  if (ok) toDelete.value = null
-  else deleteError.value = t('buyerDelete.error')
+  return new Date(d).toLocaleDateString(locale.value, { day: '2-digit', month: 'short', year: 'numeric' })
 }
 </script>
 
 <template>
-  <AccountShell :title="t('buyerDashboard.welcome', { name: firstName })" width="full" identity>
+  <AccountShell :title="t('buyerDashboard.welcome', { name: firstName })" :subtitle="t('buyerDashboard.subtitle')" width="full" identity>
     <template #actions>
       <NuxtLink to="/evenements" class="btn-brand !h-11 hover:!bg-white max-sm:w-full">
         {{ t('common.browseEvents') }}
@@ -97,168 +71,96 @@ async function confirmDelete() {
       </NuxtLink>
     </template>
 
-    <!-- Chiffres clés (dans le hero) -->
-    <template #stats>
-      <div class="grid grid-cols-3 gap-2.5 md:gap-4">
-        <NuxtLink
-          v-for="s in stats"
-          :key="s.to"
-          :to="s.to"
-          class="group flex items-center gap-3 border border-white/15 bg-white/[0.06] p-3 transition-colors duration-200 hover:border-[#FF7A00] md:p-4"
-        >
-          <span class="hidden h-11 w-11 shrink-0 items-center justify-center bg-[#FF7A00] text-tikeo-ink sm:flex">
-            <AppIcon :name="s.icon" class="h-5 w-5" />
-          </span>
-          <div class="min-w-0">
-            <p class="font-display text-2xl font-extrabold leading-none md:text-4xl">{{ s.value }}</p>
-            <p class="mt-1.5 truncate text-[10px] font-bold uppercase tracking-wider text-white/55 md:text-[11px]">{{ s.label }}</p>
-          </div>
-        </NuxtLink>
-      </div>
-    </template>
+    <!-- Trois chiffres clés -->
+    <div class="acc-panel grid grid-cols-3 divide-x divide-tikeo-border">
+      <NuxtLink
+        v-for="s in stats"
+        :key="s.to"
+        :to="s.to"
+        class="group px-3 py-4 text-center transition-colors hover:bg-tikeo-surface-alt md:px-6 md:py-5 md:text-left"
+      >
+        <p class="tx-number text-2xl md:text-4xl">{{ s.value }}</p>
+        <p class="tx-meta mt-1 truncate">{{ s.label }}</p>
+      </NuxtLink>
+    </div>
 
-    <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-12">
-      <!-- ============ Colonne principale : prochains billets ============ -->
+    <div class="mt-10 grid gap-10 md:mt-12 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-12">
+      <!-- ============ Prochains billets ============ -->
       <section class="min-w-0">
-        <div class="mb-5 flex items-end justify-between gap-3">
-          <div class="max-w-xl">
-            <h2 class="acc-h2">{{ t('buyerDashboard.upcomingTitle') }}</h2>
-            <p class="mt-1.5 text-sm text-tikeo-gray-text md:text-base">{{ t('account.upcomingSub') }}</p>
-          </div>
+        <div class="mb-4 flex items-baseline justify-between gap-3">
+          <h2 class="acc-h2">{{ t('buyerDashboard.upcomingTitle') }}</h2>
           <NuxtLink to="/mon-espace/mes-billets" class="acc-link shrink-0">{{ t('home.seeAll') }}</NuxtLink>
         </div>
 
-        <div v-if="loading" class="space-y-4">
-          <div v-for="i in 2" :key="i" class="h-32 animate-pulse bg-tikeo-border" />
+        <div v-if="loading" class="space-y-3">
+          <div v-for="i in 2" :key="i" class="h-24 animate-pulse bg-tikeo-border" />
         </div>
 
         <div v-else-if="upcomingTickets.length === 0" class="acc-empty">
-          <span class="flex h-14 w-14 items-center justify-center bg-tikeo-ink text-white dark:bg-[#FF7A00] dark:text-tikeo-ink">
-            <AppIcon name="ticket" class="h-7 w-7" />
+          <span class="flex h-12 w-12 items-center justify-center bg-tikeo-ink text-white dark:bg-[#FF7A00] dark:text-tikeo-ink">
+            <AppIcon name="ticket" class="h-6 w-6" />
           </span>
-          <p class="text-sm text-tikeo-gray-text">{{ t('buyerDashboard.noUpcoming') }}</p>
+          <p class="tx-body">{{ t('buyerDashboard.noUpcoming') }}</p>
           <NuxtLink to="/evenements" class="btn-ink">{{ t('common.browseEvents') }}</NuxtLink>
         </div>
 
-        <ul v-else class="space-y-4">
+        <ul v-else class="space-y-3">
           <li v-for="tk in upcomingTickets" :key="tk.id">
-            <article class="relative flex bg-tikeo-surface shadow-card transition-shadow duration-300 hover:shadow-card-hover">
-              <span class="w-1.5 shrink-0 bg-[#FF7A00]" aria-hidden="true" />
-
-              <!-- Talon de date -->
-              <div class="flex w-[4.75rem] shrink-0 flex-col items-center justify-center bg-tikeo-ink px-2 py-4 leading-none text-white md:w-28">
-                <span class="text-[11px] font-semibold capitalize text-white/70">{{ dateParts(tk.event!.start_date).weekday }}</span>
-                <span class="mt-1.5 font-display text-3xl font-extrabold md:text-4xl">{{ dateParts(tk.event!.start_date).day }}</span>
-                <span class="mt-1 text-xs font-semibold capitalize text-white/70">{{ dateParts(tk.event!.start_date).month }}</span>
+            <!-- Toute la carte est cliquable : un seul geste pour ouvrir le billet -->
+            <NuxtLink
+              to="/mon-espace/mes-billets"
+              class="group flex items-stretch bg-tikeo-surface shadow-card transition-shadow duration-200 hover:shadow-card-hover"
+            >
+              <div class="flex w-20 shrink-0 flex-col items-center justify-center bg-tikeo-ink px-2 py-4 text-white md:w-24">
+                <span class="text-xs font-medium capitalize text-white/70">{{ dateParts(tk.event!.start_date).weekday }}</span>
+                <span class="tx-number mt-1 text-3xl">{{ dateParts(tk.event!.start_date).day }}</span>
+                <span class="mt-0.5 text-xs font-medium capitalize text-white/70">{{ dateParts(tk.event!.start_date).month }}</span>
               </div>
 
-              <!-- Perforation -->
-              <div class="relative w-0 shrink-0" aria-hidden="true">
-                <span class="absolute -left-[11px] -top-[11px] h-[22px] w-[22px] rounded-full bg-tikeo-surface-alt" />
-                <span class="absolute -bottom-[11px] -left-[11px] h-[22px] w-[22px] rounded-full bg-tikeo-surface-alt" />
-                <span class="absolute inset-y-4 left-0 border-l-2 border-dashed border-tikeo-gray-text/35" />
-              </div>
-
-              <div class="min-w-0 flex-1 p-4 md:p-5">
-                <span class="acc-tag bg-[#FF7A00] text-tikeo-ink">{{ whenLabel(tk.event!.start_date) }}</span>
-                <h3 class="mt-1.5 truncate font-display text-lg font-bold leading-tight tracking-tight text-tikeo-black md:text-xl">{{ tk.event?.title }}</h3>
-                <p class="mt-1 flex items-center gap-1.5 text-sm text-tikeo-gray-text">
+              <div class="min-w-0 flex-1 px-4 py-3.5 md:px-5">
+                <p class="tx-eyebrow">{{ whenLabel(tk.event!.start_date) }}</p>
+                <h3 class="tx-h3 mt-0.5 truncate">{{ tk.event?.title }}</h3>
+                <p class="tx-meta mt-1 flex items-center gap-1.5">
                   <AppIcon name="pin" class="h-3.5 w-3.5 shrink-0" />
                   <span class="truncate">{{ tk.event?.city }}<template v-if="tk.ticket_type?.name"> · {{ tk.ticket_type.name }}</template></span>
                 </p>
-
-                <div class="mt-3.5 flex flex-wrap items-center gap-x-4 gap-y-2">
-                  <NuxtLink to="/mon-espace/mes-billets" class="btn-ink !h-9 !px-4 !text-[13px]">
-                    <AppIcon name="qr" class="h-4 w-4" />
-                    {{ t('account.viewTicket') }}
-                  </NuxtLink>
-                  <NuxtLink :to="`/e/${tk.event?.slug}`" class="text-[13px] font-bold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[5px] hover:text-tikeo-orange">
-                    {{ t('buyerOrders.viewEvent') }}
-                  </NuxtLink>
-                  <button
-                    type="button"
-                    class="ml-auto flex h-9 w-9 items-center justify-center border border-tikeo-border text-tikeo-gray-text transition-colors hover:border-tikeo-error hover:text-tikeo-error"
-                    :aria-label="t('buyerDelete.ticketAria', { number: tk.ticket_number })"
-                    :title="t('buyerDelete.delete')"
-                    @click="askDelete('ticket', tk.id)"
-                  >
-                    <TrashIcon />
-                  </button>
-                </div>
               </div>
-            </article>
+
+              <span class="flex shrink-0 items-center gap-2 pr-4 text-sm font-semibold text-tikeo-black md:pr-5">
+                <span class="hidden sm:inline">{{ t('account.viewTicket') }}</span>
+                <AppIcon name="chevron-right" class="h-4 w-4 transition-transform group-hover:translate-x-0.5" :stroke="2.4" />
+              </span>
+            </NuxtLink>
           </li>
         </ul>
       </section>
 
-      <!-- ============ Colonne latérale ============ -->
-      <aside class="min-w-0 space-y-10">
-        <!-- Dernières commandes -->
-        <section>
-          <div class="mb-4 flex items-end justify-between gap-3">
-            <div>
-              <h2 class="acc-h2">{{ t('buyerDashboard.recentOrdersTitle') }}</h2>
-              <p class="mt-1 text-sm text-tikeo-gray-text">{{ t('account.ordersSub') }}</p>
-            </div>
-            <NuxtLink to="/mon-espace/mes-commandes" class="acc-link shrink-0">{{ t('home.seeAll') }}</NuxtLink>
-          </div>
+      <!-- ============ Dernières commandes ============ -->
+      <aside class="min-w-0">
+        <div class="mb-4 flex items-baseline justify-between gap-3">
+          <h2 class="acc-h2">{{ t('buyerDashboard.recentOrdersTitle') }}</h2>
+          <NuxtLink to="/mon-espace/mes-commandes" class="acc-link shrink-0">{{ t('home.seeAll') }}</NuxtLink>
+        </div>
 
-          <div v-if="loading" class="h-24 animate-pulse bg-tikeo-border" />
-          <p v-else-if="recentOrders.length === 0" class="border border-dashed border-tikeo-border bg-tikeo-surface p-6 text-center text-sm text-tikeo-gray-text">
-            {{ t('buyerDashboard.noOrders') }}
-          </p>
-          <ul v-else class="acc-panel divide-y divide-tikeo-border">
-            <li v-for="order in recentOrders" :key="order.id" class="flex items-center gap-3 px-4 py-3.5">
-              <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-bold text-tikeo-black">{{ order.event?.title || order.order_number }}</p>
-                <p class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-tikeo-gray-text">
-                  <span>{{ formatDate(order.created_at) }}</span>
-                  <span class="acc-tag" :class="orderTag[order.status]">{{ t(`orderStatus.${order.status}`) }}</span>
-                </p>
-              </div>
-              <p class="shrink-0 text-right font-display text-sm font-extrabold text-tikeo-black">
-                {{ order.total.toLocaleString('fr-FR') }} <span class="text-[11px] font-semibold text-tikeo-gray-text">FCFA</span>
+        <div v-if="loading" class="h-24 animate-pulse bg-tikeo-border" />
+        <p v-else-if="recentOrders.length === 0" class="acc-empty tx-body !py-8">
+          {{ t('buyerDashboard.noOrders') }}
+        </p>
+        <ul v-else class="acc-panel divide-y divide-tikeo-border">
+          <li v-for="order in recentOrders" :key="order.id" class="flex items-center gap-3 px-4 py-3.5">
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-[15px] font-semibold text-tikeo-black">{{ order.event?.title || order.order_number }}</p>
+              <p class="tx-meta mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span>{{ formatDate(order.created_at) }}</span>
+                <span class="acc-tag" :class="orderTag[order.status]">{{ t(`orderStatus.${order.status}`) }}</span>
               </p>
-              <button
-                v-if="order.status !== 'pending'"
-                type="button"
-                class="flex h-8 w-8 shrink-0 items-center justify-center text-tikeo-gray-text transition-colors hover:text-tikeo-error"
-                :aria-label="t('buyerDelete.orderAria', { number: order.order_number })"
-                :title="t('buyerDelete.delete')"
-                @click="askDelete('order', order.id)"
-              >
-                <TrashIcon />
-              </button>
-            </li>
-          </ul>
-        </section>
-
-        <!-- Accès rapide -->
-        <section>
-          <h2 class="acc-h2 mb-4">{{ t('account.shortcuts') }}</h2>
-          <ul class="acc-panel divide-y divide-tikeo-border">
-            <li v-for="q in quickLinks" :key="q.to">
-              <NuxtLink :to="q.to" class="drawer-row">
-                <span class="drawer-icon"><AppIcon :name="q.icon" class="h-5 w-5" /></span>
-                <span class="flex-1">{{ q.label }}</span>
-                <span v-if="q.badge" class="flex h-5 min-w-5 items-center justify-center bg-[#FF7A00] px-1.5 text-[11px] font-bold text-tikeo-ink">{{ q.badge }}</span>
-                <AppIcon name="chevron-right" class="h-4 w-4 shrink-0 text-tikeo-gray-text" :stroke="2.4" />
-              </NuxtLink>
-            </li>
-          </ul>
-        </section>
+            </div>
+            <p class="tx-number shrink-0 text-right text-[15px]">
+              {{ order.total.toLocaleString('fr-FR') }} <span class="text-xs font-medium text-tikeo-gray-text">FCFA</span>
+            </p>
+          </li>
+        </ul>
       </aside>
     </div>
-
-    <ConfirmDeleteModal
-      :open="!!toDelete"
-      :title="toDelete?.kind === 'ticket' ? t('buyerDelete.ticketTitle') : t('buyerDelete.orderTitle')"
-      :message="toDelete?.kind === 'ticket' ? t('buyerDelete.ticketBody') : t('buyerDelete.orderBody')"
-      :warning="toDelete?.kind === 'ticket' ? t('buyerDelete.ticketValidWarning') : ''"
-      :loading="deleting"
-      :error-message="deleteError"
-      @confirm="confirmDelete"
-      @cancel="toDelete = null"
-    />
   </AccountShell>
 </template>

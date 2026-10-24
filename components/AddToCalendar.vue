@@ -85,8 +85,8 @@ function downloadIcs() {
   <div class="relative inline-block" @keyup.esc="open = false">
     <button
       type="button"
-      class="inline-flex h-11 items-center gap-2 border px-4 text-sm font-semibold transition-colors"
-      :class="dark ? 'border-white/30 text-white hover:bg-white hover:text-tikeo-ink' : 'border-tikeo-border text-tikeo-black hover:border-tikeo-orange hover:text-tikeo-orange'"
+      class="inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors"
+      :class="dark ? 'border-white/30 text-white hover:bg-white hover:text-tikeo-ink' : 'border-tikeo-border bg-tikeo-surface text-tikeo-black hover:bg-tikeo-surface-alt'"
       :aria-expanded="open"
       aria-haspopup="true"
       @click="open = !open"
@@ -94,7 +94,7 @@ function downloadIcs() {
       <AppIcon name="calendar-plus" class="h-[18px] w-[18px]" />
       {{ t('event.addToCalendar') }}
     </button>
-    <div v-if="open" class="absolute left-0 top-full z-30 mt-1 w-60 border border-tikeo-border bg-tikeo-surface py-1 shadow-card-hover">
+    <div v-if="open" class="absolute left-0 top-full z-30 mt-1 w-60 overflow-hidden rounded-xl border border-tikeo-border bg-tikeo-surface py-1 shadow-card-hover">
       <a :href="googleUrl" target="_blank" rel="noopener" class="block px-4 py-2.5 text-sm text-tikeo-black hover:bg-tikeo-gray-light" @click="open = false">Google Agenda</a>
       <button type="button" class="block w-full px-4 py-2.5 text-left text-sm text-tikeo-black hover:bg-tikeo-gray-light" @click="downloadIcs">{{ t('event.calendarIcs') }}</button>
     </div>

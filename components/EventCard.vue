@@ -58,7 +58,7 @@ const eventUrl = computed(() => `/e/${props.event.slug}`)
   <!-- ===================== AFFICHE (événement mis en avant) ===================== -->
   <article
     v-if="isFeature"
-    class="group relative flex min-h-[26rem] shrink-0 flex-col justify-end overflow-hidden bg-tikeo-ink text-white shadow-card transition-shadow duration-300 hover:shadow-card-hover"
+    class="group relative flex min-h-[26rem] shrink-0 flex-col justify-end overflow-hidden rounded-2xl bg-tikeo-ink text-white shadow-card transition-shadow duration-300 hover:shadow-card-hover"
   >
     <img
       :src="event.coverImage"
@@ -69,7 +69,7 @@ const eventUrl = computed(() => `/e/${props.event.slug}`)
     />
     <div class="absolute inset-0 bg-gradient-to-t from-tikeo-ink via-tikeo-ink/55 to-transparent" aria-hidden="true" />
 
-    <div class="absolute left-4 top-4 flex flex-col items-center bg-white px-3 py-2 leading-none text-tikeo-ink">
+    <div class="absolute left-4 top-4 flex flex-col items-center rounded-xl bg-white px-3 py-2 leading-none text-tikeo-ink shadow-sm">
       <span class="text-[11px] font-semibold capitalize text-tikeo-ink/70">{{ dateParts.weekday }}</span>
       <span class="mt-1 font-display text-3xl font-extrabold">{{ dateParts.day }}</span>
       <span class="mt-0.5 text-xs font-semibold capitalize text-tikeo-ink/70">{{ dateParts.month }}</span>
@@ -108,7 +108,7 @@ const eventUrl = computed(() => `/e/${props.event.slug}`)
             <template v-else>{{ formattedPrice }} <span class="text-sm font-semibold">FCFA</span></template>
           </span>
         </p>
-        <span class="bg-[#FF7A00] px-5 py-2.5 text-sm font-bold text-tikeo-ink">{{ t('home.buyShort') }}</span>
+        <span class="rounded-full bg-[#FF7A00] px-5 py-2.5 text-sm font-bold text-tikeo-ink">{{ t('home.buyShort') }}</span>
       </div>
     </div>
   </article>
@@ -116,7 +116,7 @@ const eventUrl = computed(() => `/e/${props.event.slug}`)
   <!-- ===================== BILLET (carte standard) ===================== -->
   <article
     v-else
-    class="group relative flex shrink-0 flex-col bg-tikeo-surface shadow-card transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-card-hover"
+    class="group relative flex shrink-0 flex-col overflow-hidden rounded-2xl border border-tikeo-border bg-tikeo-surface shadow-card transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-card-hover"
     :class="[
       variant === 'full' || isTile ? 'w-[72vw] max-w-[260px] md:w-full md:max-w-none' : 'w-full',
       isTile ? 'h-full' : '',
@@ -134,7 +134,7 @@ const eventUrl = computed(() => `/e/${props.event.slug}`)
       <div class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/45 to-transparent" aria-hidden="true" />
 
       <!-- Talon de date -->
-      <div class="absolute left-3 top-3 flex min-w-[2.9rem] flex-col items-center bg-white px-2 py-1.5 leading-none text-tikeo-ink shadow-sm">
+      <div class="absolute left-3 top-3 flex min-w-[2.9rem] flex-col items-center rounded-xl bg-white px-2 py-1.5 leading-none text-tikeo-ink shadow-sm">
         <span class="font-display text-xl font-extrabold">{{ dateParts.day }}</span>
         <span class="mt-0.5 text-[11px] font-semibold capitalize text-tikeo-ink/70">{{ dateParts.month }}</span>
       </div>
@@ -144,20 +144,13 @@ const eventUrl = computed(() => `/e/${props.event.slug}`)
       </span>
     </div>
 
-    <!-- Perforation du billet -->
-    <div class="relative h-0" aria-hidden="true">
-      <span class="absolute -left-[11px] -top-[11px] h-[22px] w-[22px] rounded-full bg-tikeo-surface-alt" />
-      <span class="absolute -right-[11px] -top-[11px] h-[22px] w-[22px] rounded-full bg-tikeo-surface-alt" />
-      <span class="absolute inset-x-4 top-0 border-t-2 border-dashed border-tikeo-gray-text/35" />
-    </div>
-
     <!-- Infos -->
     <div class="flex flex-col gap-2 px-4 pb-4 pt-4">
-      <h3 class="line-clamp-2 font-display font-bold leading-snug tracking-tight text-tikeo-black" :class="variant === 'full' ? 'min-h-[2.5rem] text-[15px]' : 'min-h-[2.75rem] text-base'">
+      <h3 class="line-clamp-2 font-display font-bold leading-snug tracking-tight text-tikeo-black" :class="variant === 'full' ? 'min-h-[2.6rem] text-base' : 'min-h-[2.9rem] text-[17px]'">
         <NuxtLink :to="eventUrl" class="after:absolute after:inset-0 after:z-[1] after:content-['']">{{ event.title }}</NuxtLink>
       </h3>
 
-      <p class="flex items-center gap-1.5 truncate text-[13px] text-tikeo-gray-text">
+      <p class="flex items-center gap-1.5 truncate text-sm font-medium text-tikeo-gray-text">
         <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4.5-4-7-7.4-7-10.5A7 7 0 0119 10.5C19 13.6 16.5 17 12 21z" />
           <circle cx="12" cy="10.5" r="2.2" />
@@ -167,13 +160,13 @@ const eventUrl = computed(() => `/e/${props.event.slug}`)
 
       <div class="mt-1 flex items-end justify-between gap-3">
         <p class="leading-tight">
-          <span class="block text-[11px] text-tikeo-gray-text">{{ t('home.from') }}</span>
-          <span class="font-display text-[17px] font-bold text-tikeo-black">
+          <span class="block text-xs font-medium text-tikeo-gray-text">{{ t('home.from') }}</span>
+          <span class="font-display text-lg font-bold tracking-tight text-tikeo-black">
             <template v-if="isFree">{{ t('home.free') }}</template>
             <template v-else>{{ formattedPrice }} <span class="text-xs font-semibold text-tikeo-gray-text">FCFA</span></template>
           </span>
         </p>
-        <span class="bg-tikeo-orange px-3.5 py-2 text-[13px] font-bold text-white transition-colors duration-200 group-hover:bg-[rgb(var(--tikeo-orange-strong-hover))]">
+        <span class="rounded-full bg-tikeo-orange px-4 py-2 text-sm font-bold text-white transition-colors duration-200 group-hover:bg-[rgb(var(--tikeo-orange-strong-hover))]">
           {{ t('home.buyShort') }}
         </span>
       </div>

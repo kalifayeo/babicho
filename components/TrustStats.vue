@@ -1,6 +1,7 @@
 <script setup lang="ts">
+// « Pourquoi Babicho » : 3 engagements + moyens de paiement acceptés.
+// (Les chiffres clés sont dans la bannière d'accueil.)
 const { t } = useI18n()
-const { stats } = useHomeStats()
 
 const badges = computed(() => [
   {
@@ -20,12 +21,6 @@ const badges = computed(() => [
   },
 ])
 
-const statItems = computed(() => [
-  { value: stats.value.events, suffix: '+', label: t('trustStats.statEvents') },
-  { value: stats.value.organizers, suffix: '+', label: t('trustStats.statOrganizers') },
-  { value: stats.value.cities, suffix: '', label: t('trustStats.statCities') },
-])
-
 // Logos réellement utilisés au paiement (public/paiement/*).
 const payments = [
   { name: 'Orange Money', src: '/paiement/orange-money.png' },
@@ -35,49 +30,40 @@ const payments = [
   { name: 'Djamo', src: '/paiement/djamo.png' },
   { name: 'Carte bancaire', src: '/paiement/carte.png' },
 ]
-const showStats = computed(() => stats.value.loaded && stats.value.events > 0)
 </script>
 
 <template>
-  <section class="mt-14 border-y border-tikeo-border bg-tikeo-surface md:mt-20">
-    <div class="mx-auto max-w-tikeo-container px-4 py-12 md:px-6 md:py-16">
-      <div class="grid gap-10 lg:gap-16" :class="showStats ? 'lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)]' : ''">
-        <!-- Chiffres réels (calculés en base, jamais inventés) -->
-        <div v-if="showStats">
-          <h2 v-reveal:title class="font-display text-2xl font-extrabold tracking-tight text-tikeo-black md:text-4xl">{{ t('trustStats.title') }}</h2>
-          <p v-reveal:up="140" class="mt-2 text-sm text-tikeo-gray-text md:text-base">{{ t('trustStats.subtitle') }}</p>
-          <dl v-stagger:up="{ step: 140, delay: 200 }" class="mt-8 grid grid-cols-3 gap-4">
-            <div v-for="item in statItems" :key="item.label" class="flex flex-col-reverse justify-end">
-              <dt class="mt-1 text-xs leading-snug text-tikeo-gray-text md:text-sm">{{ item.label }}</dt>
-              <dd class="font-display text-3xl font-extrabold text-tikeo-black md:text-5xl"><OrgCountUp :value="item.value" :suffix="item.suffix" :duration="1800" on-view /></dd>
-            </div>
-          </dl>
-        </div>
-
-        <div>
-          <h2 v-if="!showStats" v-reveal:title class="mb-8 font-display text-2xl font-extrabold tracking-tight text-tikeo-black md:text-4xl">{{ t('trustStats.title') }}</h2>
-          <ul v-stagger:up="{ step: 130 }" class="grid gap-6 md:grid-cols-3">
-            <li v-for="badge in badges" :key="badge.title" class="flex gap-4 md:flex-col md:gap-3">
-              <span class="flex h-11 w-11 shrink-0 items-center justify-center bg-tikeo-ink text-white dark:bg-tikeo-orange dark:text-tikeo-ink">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                  <path stroke-linecap="round" stroke-linejoin="round" :d="badge.icon" />
-                </svg>
-              </span>
-              <div>
-                <h3 class="font-display text-base font-bold text-tikeo-black">{{ badge.title }}</h3>
-                <p class="mt-1 text-sm leading-relaxed text-tikeo-gray-text">{{ badge.text }}</p>
-              </div>
-            </li>
-          </ul>
-        </div>
+  <section class="mt-14 border-y border-tikeo-border bg-tikeo-surface py-14 md:mt-20 md:py-20">
+    <div class="mx-auto max-w-tikeo-container px-4 md:px-6">
+      <div class="mx-auto max-w-2xl text-center">
+        <h2 class="sec-title">{{ t('trustStats.title') }}</h2>
+        <p class="sec-sub mt-3">{{ t('trustStats.subtitle') }}</p>
       </div>
 
-      <!-- Moyens de paiement -->
-      <div class="mt-10 flex flex-col gap-4 border-t border-tikeo-border pt-6 md:flex-row md:items-center md:gap-8">
-        <p class="text-sm font-semibold text-tikeo-black">{{ t('trustStats.payWith') }}</p>
-        <ul v-stagger:pop="{ step: 70 }" class="flex flex-wrap items-center gap-2.5">
+      <ul class="mt-9 grid gap-4 md:mt-12 md:grid-cols-3 md:gap-6">
+        <li
+          v-for="(badge, i) in badges"
+          :key="badge.title"
+          class="group relative flex gap-4 overflow-hidden rounded-2xl border border-tikeo-border bg-tikeo-surface-alt p-5 transition-all duration-300 hover:-translate-y-1 hover:border-[#FF7A00]/40 hover:bg-tikeo-surface hover:shadow-card-hover md:flex-col md:p-8"
+        >
+          <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-tikeo-ink text-white md:h-14 md:w-14 dark:bg-[#FF7A00] dark:text-tikeo-ink">
+            <svg class="h-6 w-6 md:h-7 md:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" :d="badge.icon" />
+            </svg>
+          </span>
+          <div>
+            <h3 class="text-lg font-bold tracking-[-0.015em] text-tikeo-black md:text-xl">{{ badge.title }}</h3>
+            <p class="tx-body mt-1.5 md:mt-2">{{ badge.text }}</p>
+          </div>
+          <span class="pointer-events-none absolute right-5 top-4 text-5xl font-bold leading-none tracking-tighter text-tikeo-ink/[0.05] dark:text-white/[0.06] max-md:hidden" aria-hidden="true">0{{ i + 1 }}</span>
+        </li>
+      </ul>
+
+      <div class="mt-10 flex flex-col items-center gap-4 md:mt-14">
+        <p class="text-sm font-semibold text-tikeo-gray-text">{{ t('trustStats.payWith') }}</p>
+        <ul class="flex flex-wrap items-center justify-center gap-3">
           <li v-for="p in payments" :key="p.name">
-            <img :src="p.src" :alt="p.name" :title="p.name" width="44" height="44" loading="lazy" class="h-11 w-11 border border-tikeo-border bg-white object-contain p-1" />
+            <img :src="p.src" :alt="p.name" :title="p.name" width="52" height="52" loading="lazy" class="h-12 w-12 rounded-xl border border-tikeo-border bg-white object-contain p-1.5 shadow-sm md:h-[3.25rem] md:w-[3.25rem]" />
           </li>
         </ul>
       </div>

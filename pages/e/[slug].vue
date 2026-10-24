@@ -437,8 +437,139 @@ useHead({
   ],
 })
 
+
+// ===================== Refonte « billet » : ajouts =====================
+const endDateObj = computed(() => (event.value?.endDate ? new Date(event.value.endDate) : null))
+const formattedEndTime = computed(() => {
+  const s = startDateObj.value
+  const e = endDateObj.value
+  if (!s || !e || e <= s) return ''
+  return e.toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' })
+})
+const durationLabel = computed(() => {
+  const s = startDateObj.value
+  const e = endDateObj.value
+  if (!s || !e) return ''
+  const min = Math.round((e.getTime() - s.getTime()) / 60000)
+  if (min <= 0 || min > 60 * 24 * 3) return ''
+  const d = Math.floor(min / 1440)
+  const h = Math.floor((min % 1440) / 60)
+  const m = min % 60
+  if (d > 0) return `${d} ${locale.value === 'fr' ? 'j' : 'd'}${h ? ` ${h} h` : ''}`
+  if (h > 0) return `${h} h${m ? ` ${String(m).padStart(2, '0')}` : ''}`
+  return `${m} min`
+})
+
+// Part de billets déjà vendus (barre de progression d'un type de billet).
+function soldPercent(tt: { quantity: number | null; remaining: number | null }): number | null {
+  if (!tt.quantity || tt.remaining == null) return null
+  return Math.min(100, Math.max(0, Math.round(((tt.quantity - tt.remaining) / tt.quantity) * 100)))
+}
+
+// Répartition des notes (calculée sur les avis chargés).
+const ratingBars = computed(() => {
+  const list = reviews.value ?? []
+  const total = list.length || 1
+  return [5, 4, 3, 2, 1].map((n) => {
+    const c = list.filter((r: any) => r.rating === n).length
+    return { n, c, pct: Math.round((c / total) * 100) }
+  })
+})
+
+// Itinéraire : Waze en plus de Google Maps, et copie de l'adresse.
+const wazeUrl = computed(() => {
+  const e = event.value
+  if (!e) return ''
+  return e.latitude != null && e.longitude != null
+    ? `https://waze.com/ul?ll=${e.latitude},${e.longitude}&navigate=yes`
+    : `https://waze.com/ul?q=${encodeURIComponent(calendarLocation.value)}&navigate=yes`
+})
+const addressCopied = ref(false)
+async function copyAddress() {
+  try {
+    await navigator.clipboard.writeText([event.value?.locationName, placeLine.value].filter(Boolean).join(', '))
+    addressCopied.value = true
+    setTimeout(() => (addressCopied.value = false), 2000)
+  } catch {
+    /* presse-papiers indisponible : rien à afficher */
+  }
+}
+
+// --- Barre d'onglets collante : section active + CTA compact quand le hero est sorti ---
+const sectionsWithFaq = computed(() => {
+  const list = [...sections.value]
+  return list
+})
+const activeSection = ref('billets')
+let spyObserver: IntersectionObserver | null = null
+function setupSpy() {
+  spyObserver?.disconnect()
+  spyObserver = null
+  if (typeof IntersectionObserver === 'undefined') return
+  spyObserver = new IntersectionObserver(
+    (entries) => {
+      for (const en of entries) if (en.isIntersecting) activeSection.value = en.target.id
+    },
+    { rootMargin: '-30% 0px -60% 0px' }
+  )
+  for (const s of sectionsWithFaq.value) {
+    const el = document.getElementById(s.id)
+    if (el) spyObserver.observe(el)
+  }
+}
+watch(event, () => nextTick(setupSpy), { flush: 'post' })
+
+const heroSentinel = ref<HTMLElement | null>(null)
+const heroOut = ref(false)
+let heroObserver: IntersectionObserver | null = null
+watch(
+  heroSentinel,
+  (el) => {
+    heroObserver?.disconnect()
+    heroObserver = null
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    heroObserver = new IntersectionObserver(([en]) => (heroOut.value = !en.isIntersecting && en.boundingClientRect.top < 0))
+    heroObserver.observe(el)
+  },
+  { flush: 'post' }
+)
+
+// Le header du site se cache pendant le scroll : la barre d'onglets se cale dessous
+// (ou tout en haut quand il est masqué).
+const tabsTop = ref(0)
+let tabsTimer: ReturnType<typeof setTimeout> | null = null
+function syncTabsTop() {
+  const h = document.querySelector('header')?.getBoundingClientRect()
+  tabsTop.value = h && h.bottom > 1 ? Math.round(h.bottom) : 0
+}
+function onScrollTabs() {
+  syncTabsTop()
+  if (tabsTimer) clearTimeout(tabsTimer)
+  tabsTimer = setTimeout(syncTabsTop, 850)
+}
+onMounted(() => {
+  syncTabsTop()
+  window.addEventListener('scroll', onScrollTabs, { passive: true })
+  nextTick(setupSpy)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', onScrollTabs)
+  if (tabsTimer) clearTimeout(tabsTimer)
+  spyObserver?.disconnect()
+  heroObserver?.disconnect()
+})
+
+// Questions fréquentes (billetterie uniquement)
+const faqItems = computed(() => [
+  { q: t('event.faq1q'), a: t('event.faq1a') },
+  { q: t('event.faq2q'), a: event.value?.allowTicketTransfers === false ? t('event.faq2aNo') : t('event.faq2aYes') },
+  { q: t('event.faq3q'), a: t('event.faq3a') },
+  { q: t('event.faq4q'), a: t('event.faq4a'), link: '/remboursement', linkLabel: t('event.faqRefundLink') },
+])
+const paymentChips = ['Wave', 'Orange Money', 'MTN MoMo', 'Moov Money', 'Visa / Mastercard']
+
 // Styles partagés
-const h2Class = 'font-display text-2xl font-extrabold tracking-tight text-tikeo-black md:text-3xl'
+const h2Class = 'flex items-center gap-3 font-display text-xl font-extrabold tracking-tight text-tikeo-black md:text-2xl'
 const pill =
   'flex h-11 shrink-0 items-center gap-2 border border-tikeo-border bg-tikeo-surface px-4 text-sm font-semibold text-tikeo-black transition-colors duration-200 hover:border-tikeo-ink active:scale-[0.97] dark:hover:border-tikeo-orange'
 const stepBtn =
@@ -446,27 +577,26 @@ const stepBtn =
 </script>
 
 <template>
-  <div>
+  <div class="bg-tikeo-surface-alt">
     <!-- ============================ Chargement ============================ -->
     <div v-if="loading">
       <div class="bg-tikeo-ink">
-        <div class="mx-auto grid max-w-tikeo-container gap-6 px-4 py-8 md:px-6 md:py-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-14">
-          <div class="aspect-[16/10] animate-pulse bg-tikeo-ink-soft lg:aspect-auto lg:min-h-[26rem]" />
+        <div class="mx-auto grid max-w-tikeo-container gap-8 px-4 py-8 md:px-6 lg:grid-cols-[460px_1fr] lg:gap-12">
+          <div class="aspect-square animate-pulse bg-white/10" />
           <div class="space-y-4">
-            <div class="h-6 w-24 animate-pulse bg-tikeo-ink-soft" />
-            <div class="h-12 w-4/5 animate-pulse bg-tikeo-ink-soft" />
-            <div class="h-16 w-full animate-pulse bg-tikeo-ink-soft" />
-            <div class="h-16 w-full animate-pulse bg-tikeo-ink-soft" />
+            <div class="h-6 w-40 animate-pulse bg-white/10" />
+            <div class="h-14 w-3/4 animate-pulse bg-white/10" />
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div class="h-24 animate-pulse bg-white/10" />
+              <div class="h-24 animate-pulse bg-white/10" />
+            </div>
+            <div class="h-20 w-2/3 animate-pulse bg-white/10" />
           </div>
         </div>
       </div>
-      <div class="mx-auto grid max-w-tikeo-container gap-8 px-4 py-8 md:px-6 lg:grid-cols-[minmax(0,1fr)_380px]">
-        <div class="space-y-4">
-          <div class="h-8 w-56 animate-pulse bg-tikeo-border" />
-          <div class="h-28 w-full animate-pulse bg-tikeo-border" />
-          <div class="h-28 w-full animate-pulse bg-tikeo-border" />
-        </div>
-        <div class="hidden h-64 animate-pulse bg-tikeo-border lg:block" />
+      <div class="mx-auto max-w-tikeo-container space-y-4 px-4 py-8 md:px-6">
+        <div class="h-32 animate-pulse bg-tikeo-border" />
+        <div class="h-32 animate-pulse bg-tikeo-border" />
       </div>
     </div>
 
@@ -480,27 +610,23 @@ const stepBtn =
 
     <!-- ============================ Contenu ============================ -->
     <template v-else-if="event">
-      <!-- ============ HERO : même univers que l'accueil (fond encre, affiche, infos) ============ -->
+      <!-- ================= HERO « billet » ================= -->
       <section class="relative isolate overflow-hidden bg-tikeo-ink text-white">
-        <!-- Affiche floutée en toile de fond -->
-        <img :src="event.coverImage" alt="" aria-hidden="true" class="absolute inset-0 -z-10 h-full w-full scale-125 object-cover opacity-25 blur-2xl" />
-        <div class="absolute inset-0 -z-10 bg-gradient-to-b from-tikeo-ink/70 via-tikeo-ink/85 to-tikeo-ink" aria-hidden="true" />
-
-        <!-- Trame de points : rappelle la perforation d'un billet -->
+        <!-- Perforation à gauche -->
         <div
           class="pointer-events-none absolute inset-y-0 left-0 hidden w-3 lg:block"
-          style="background-image: radial-gradient(circle, rgb(243 245 249) 3px, transparent 3.5px); background-size: 12px 18px; background-position: -6px 0"
+          style="background-image: radial-gradient(circle, rgb(var(--tikeo-surface-alt)) 3px, transparent 3.5px); background-size: 12px 18px; background-position: -6px 0"
           aria-hidden="true"
         />
 
-        <div class="mx-auto max-w-tikeo-container px-4 pb-8 pt-4 md:px-6 md:pb-12 md:pt-6 lg:pb-14">
-          <!-- Retour (mobile) / fil d'Ariane (desktop) -->
-          <div class="mb-4 md:mb-6">
-            <button type="button" class="flex h-10 items-center gap-1.5 bg-white/10 pl-2.5 pr-4 text-sm font-semibold text-white backdrop-blur-sm transition-colors active:bg-white active:text-tikeo-ink md:hidden" @click="goBack">
+        <div class="mx-auto max-w-tikeo-container px-4 pb-10 pt-5 md:px-6 md:pb-12 md:pt-7">
+          <!-- Retour (mobile) / fil d'Ariane (ordinateur) -->
+          <div>
+            <button type="button" class="flex h-10 items-center gap-1.5 border border-white/25 pl-2.5 pr-4 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-tikeo-ink md:hidden" @click="goBack">
               <AppIcon name="chevron-left" class="h-4 w-4" :stroke="2.4" />
               {{ t('common.back') }}
             </button>
-            <nav class="hidden items-center gap-2 text-sm text-white/65 md:flex" aria-label="Fil d'Ariane">
+            <nav class="hidden items-center gap-2 text-sm text-white/60 md:flex" aria-label="Fil d'Ariane">
               <NuxtLink to="/" class="transition-colors hover:text-white">{{ t('nav.home') }}</NuxtLink>
               <AppIcon name="chevron-right" class="h-3.5 w-3.5 shrink-0" :stroke="2.4" />
               <template v-if="event.category">
@@ -511,23 +637,20 @@ const stepBtn =
             </nav>
           </div>
 
-          <div class="grid gap-6 md:gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-stretch lg:gap-14">
-            <!-- Affiche -->
-            <div class="relative aspect-[16/10] overflow-hidden bg-tikeo-ink-soft shadow-card-hover sm:aspect-[16/9] lg:aspect-auto lg:min-h-[28rem]">
+          <div class="mt-5 grid items-stretch gap-6 lg:grid-cols-2 lg:gap-10">
+            <!-- Image : prend toute la hauteur des infos -->
+            <div class="relative min-h-[16rem] overflow-hidden bg-tikeo-ink-soft sm:min-h-[20rem]">
               <img :src="event.coverImage" :alt="event.title" fetchpriority="high" decoding="async" class="absolute inset-0 h-full w-full object-cover" />
-              <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/45 to-transparent" aria-hidden="true" />
 
-              <!-- Talon de date -->
-              <div class="absolute left-4 top-4 flex min-w-[3.4rem] flex-col items-center bg-white px-3 py-2 leading-none text-tikeo-ink shadow-sm">
+              <div class="absolute left-4 top-4 flex min-w-[3.4rem] flex-col items-center bg-white px-3 py-2 leading-none text-tikeo-ink shadow-md">
                 <span class="text-[11px] font-semibold capitalize text-tikeo-ink/70">{{ dateParts.weekday }}</span>
                 <span class="mt-1 font-display text-3xl font-extrabold">{{ dateParts.day }}</span>
                 <span class="mt-0.5 text-xs font-semibold capitalize text-tikeo-ink/70">{{ dateParts.month }}</span>
               </div>
 
-              <!-- Favori -->
               <button
                 type="button"
-                class="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-tikeo-ink shadow-sm transition-transform active:scale-90"
+                class="absolute right-4 top-4 flex h-11 w-11 items-center justify-center bg-white text-tikeo-ink shadow-md transition-transform active:scale-90"
                 :aria-pressed="isFavorite(event.id)"
                 :aria-label="isFavorite(event.id) ? t('home.removeFavorite') : t('event.favorite')"
                 @click="handleFavoriteClick"
@@ -538,123 +661,79 @@ const stepBtn =
               </button>
             </div>
 
-            <!-- Informations -->
-            <div class="flex min-w-0 flex-col justify-center gap-5">
+            <!-- Infos essentielles -->
+            <div class="flex min-w-0 flex-col gap-5">
               <div>
                 <div class="flex flex-wrap items-center gap-2">
-                  <span v-if="event.category" class="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur-sm">{{ event.category }}</span>
-                  <span v-if="event.verified" class="inline-flex items-center gap-1 rounded-full bg-[#FF7A00] px-3 py-1 text-xs font-bold text-tikeo-ink">
+                  <span v-if="event.verified" class="inline-flex items-center gap-1.5 border border-[#FF7A00]/50 bg-[#FF7A00]/15 px-3 py-1 text-xs font-bold text-[#FFB066]">
                     <AppIcon name="check" class="h-3.5 w-3.5" :stroke="3" />{{ t('home.verified') }}
                   </span>
+                  <button v-if="event.category" type="button" class="border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-white hover:text-tikeo-ink" @click="goCategory(event.category!)">{{ event.category }}</button>
                 </div>
-                <h1 class="mt-3 font-display text-[2rem] font-extrabold leading-[1.05] tracking-tight sm:text-4xl lg:text-[3.25rem]">{{ event.title }}</h1>
-                <button v-if="hasReviews" type="button" class="mt-3 inline-flex items-center gap-2 text-sm text-white/85 hover:text-white" @click="scrollToSection('avis')">
-                  <AppIcon name="star" class="h-4 w-4 fill-current text-[#FF9A3D]" />
-                  <span class="font-bold">{{ reviewStats!.average_rating }}</span>
-                  <span class="text-white/65 underline decoration-white/30 underline-offset-4">{{ t('event.reviewsCount', { n: reviewStats!.review_count }) }}</span>
-                </button>
+                <h1 class="mt-3 font-display text-3xl font-extrabold leading-[1.08] tracking-tight text-white md:text-4xl">{{ event.title }}</h1>
+                <p v-if="event.organizerName" class="mt-2 flex items-center gap-1.5 text-sm text-white/65">
+                  {{ t('event.publishedBy') }} <span class="font-bold text-white">{{ event.organizerName }}</span>
+                  <AppIcon v-if="event.verified" name="shield-check" class="h-4 w-4 text-[#FFB066]" :aria-label="t('home.verified')" />
+                </p>
               </div>
 
-              <!-- Date + lieu -->
-              <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                <li class="flex items-start gap-3 border border-white/15 bg-white/[0.06] p-3.5">
-                  <span class="flex h-11 w-11 shrink-0 items-center justify-center bg-[#FF7A00] text-tikeo-ink"><AppIcon name="calendar" class="h-5 w-5" /></span>
+              <ul class="space-y-3">
+                <li class="flex items-start gap-3.5">
+                  <span class="flex h-11 w-11 shrink-0 items-center justify-center bg-[#FF7A00]/15 text-[#FF9A3D]"><AppIcon name="calendar" class="h-5 w-5" /></span>
                   <div class="min-w-0">
-                    <p class="text-[11px] font-bold uppercase tracking-wider text-white/55">{{ t('event.dateLabel') }}</p>
-                    <p class="font-semibold capitalize leading-snug">{{ formattedDate }}</p>
-                    <p class="flex items-center gap-1.5 text-sm text-white/75"><AppIcon name="clock" class="h-3.5 w-3.5" />{{ formattedTime }}</p>
+                    <p class="font-display text-base font-bold capitalize leading-snug text-white">{{ formattedDate }}</p>
+                    <p class="text-sm text-white/65">{{ formattedTime }}<template v-if="formattedEndTime"> – {{ formattedEndTime }}</template></p>
                   </div>
                 </li>
-                <li class="flex items-start gap-3 border border-white/15 bg-white/[0.06] p-3.5">
-                  <span class="flex h-11 w-11 shrink-0 items-center justify-center bg-[#FF7A00] text-tikeo-ink"><AppIcon name="pin" class="h-5 w-5" /></span>
+                <li class="flex items-start gap-3.5">
+                  <span class="flex h-11 w-11 shrink-0 items-center justify-center bg-[#FF7A00]/15 text-[#FF9A3D]"><AppIcon name="pin" class="h-5 w-5" /></span>
                   <div class="min-w-0">
-                    <p class="text-[11px] font-bold uppercase tracking-wider text-white/55">{{ t('event.locationLabel') }}</p>
-                    <p class="font-semibold leading-snug">{{ event.locationName || event.city }}</p>
-                    <p class="break-words text-sm text-white/75">{{ placeLine }}</p>
+                    <p class="font-display text-base font-bold leading-snug text-white">{{ event.locationName || event.city }}</p>
+                    <p class="break-words text-sm text-white/65">{{ placeLine }}</p>
                   </div>
                 </li>
               </ul>
 
-              <!-- Organisateur -->
-              <div v-if="event.organizerName" class="flex items-center gap-3">
-                <span v-if="!event.organizerLogo" class="flex h-10 w-10 shrink-0 items-center justify-center bg-white text-xs font-bold text-tikeo-ink">
-                  {{ event.organizerName.slice(0, 2).toUpperCase() }}
-                </span>
-                <img v-else :src="event.organizerLogo" :alt="event.organizerName" loading="lazy" decoding="async" class="h-10 w-10 shrink-0 bg-white object-cover" />
-                <p class="min-w-0 text-sm leading-tight text-white/65">
-                  {{ t('home.publishedBy') }}
-                  <span class="block truncate text-base font-bold text-white">{{ event.organizerName }}</span>
-                </p>
-              </div>
-
-              <EventCountdown :start-date="event.startDate" :remaining="totalRemaining" :sold-out="allSoldOut" />
-
-              <!-- Prix + actions -->
-              <div class="flex flex-wrap items-center gap-3 border-t border-white/15 pt-5">
-                <div v-if="minPrice !== null && !allSoldOut" class="mr-auto leading-tight">
-                  <span class="block text-xs text-white/65">{{ t('home.from') }}</span>
-                  <span class="font-display text-2xl font-extrabold md:text-3xl">
-                    <template v-if="minPrice === 0">{{ t('home.free') }}</template>
-                    <template v-else>{{ minPrice.toLocaleString('fr-FR') }} <span class="text-sm font-semibold">FCFA</span></template>
+              <!-- Prix + bouton, toujours en bas : aligné avec le bas de l'image -->
+              <div class="mt-auto flex flex-wrap items-end justify-between gap-4 border-t border-dashed border-white/25 pt-5">
+                <div v-if="minPrice !== null" class="leading-none">
+                  <span class="block text-[11px] font-bold uppercase tracking-wider text-white/55">{{ t('home.from') }}</span>
+                  <span class="mt-1 block font-display text-3xl font-extrabold text-white">
+                    <template v-if="minPrice === 0">{{ t('event.free') }}</template>
+                    <template v-else>{{ minPrice.toLocaleString('fr-FR') }} <span class="text-sm font-semibold text-white/60">FCFA</span></template>
                   </span>
                 </div>
-                <button v-if="hasAvailableTickets" type="button" class="btn-brand !h-11 hover:!bg-white max-sm:flex-1" @click="scrollToSection('billets')">
-                  {{ allSoldOut ? tk('joinWaitlist') : tk('selectTickets') }}
-                  <AppIcon name="arrow-right" class="h-4 w-4" :stroke="2.4" />
-                </button>
-                <AddToCalendar
-                  dark
-                  :title="event.title"
-                  :start-date="event.startDate"
-                  :end-date="event.endDate"
-                  :location="calendarLocation"
-                  :description="event.description"
-                  :url="canonicalEventUrl"
-                />
-              </div>
-
-              <!-- Partage explicite (cahier des charges §35 : WhatsApp | Facebook | Copier le lien) -->
-              <div class="flex flex-wrap items-center gap-2 text-sm">
-                <span class="mr-1 text-xs font-bold uppercase tracking-wider text-white/55">{{ t('event.share') }}</span>
-                <a :href="whatsappShareUrl" target="_blank" rel="noopener" class="flex h-10 items-center border border-white/25 px-3.5 font-semibold text-white transition-colors hover:bg-white hover:text-tikeo-ink">WhatsApp</a>
-                <a :href="facebookShareUrl" target="_blank" rel="noopener" class="flex h-10 items-center border border-white/25 px-3.5 font-semibold text-white transition-colors hover:bg-white hover:text-tikeo-ink">Facebook</a>
-                <button type="button" class="relative flex h-10 items-center gap-2 border border-white/25 px-3.5 font-semibold text-white transition-colors hover:bg-white hover:text-tikeo-ink" @click="handleShare">
-                  <AppIcon :name="shareCopied ? 'check' : 'link'" class="h-4 w-4" :stroke="2" />
-                  {{ shareCopied ? t('event.shareCopied') : t('event.shareCopy') }}
-                </button>
+                <div class="flex items-center gap-2">
+                  <button type="button" class="flex h-12 w-12 items-center justify-center border border-white/25 text-white transition-colors hover:bg-white hover:text-tikeo-ink" :aria-label="t('event.share')" @click="handleShare">
+                    <AppIcon :name="shareCopied ? 'check' : 'share'" class="h-5 w-5" :stroke="2" />
+                  </button>
+                  <button v-if="hasAvailableTickets" type="button" class="btn-brand group/cta !h-12 !px-7" @click="scrollToSection('billets')">
+                    {{ allSoldOut ? tk('joinWaitlist') : tk('selectTickets') }}
+                    <AppIcon name="arrow-right" class="h-5 w-5 transition-transform duration-200 group-hover/cta:translate-x-1" :stroke="2.4" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
+      <div ref="heroSentinel" class="h-px" aria-hidden="true" />
 
-      <!-- ============ Barre de sections (même gabarit que les catégories de l'accueil) ============ -->
-      <nav class="border-b border-tikeo-border bg-tikeo-surface" :aria-label="t('event.navLabel')">
-        <div class="mx-auto max-w-tikeo-container px-4 py-3.5 md:px-6">
-          <div class="no-scrollbar flex gap-2 overflow-x-auto">
-            <button v-for="s in sections" :key="s.id" type="button" :class="pill" @click="scrollToSection(s.id)">
-              <AppIcon :name="s.icon" class="h-[18px] w-[18px]" />
-              {{ s.label }}
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      <!-- ============ Corps ============ -->
-      <div class="mx-auto max-w-tikeo-container px-4 pt-8 md:px-6 md:pt-12">
-        <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-10">
-          <div class="min-w-0 space-y-12 md:space-y-16">
-            <!-- ---------- Billets ---------- -->
-            <section id="billets" class="scroll-mt-28">
+      <!-- ================= Corps de page ================= -->
+      <div class="mx-auto max-w-tikeo-container px-4 pb-10 pt-8 md:px-6 md:pt-10">
+        <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-10">
+          <div class="min-w-0 space-y-10 md:space-y-12">
+            <!-- ============ Billets ============ -->
+            <section id="billets" class="scroll-mt-32">
               <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
                 <div class="max-w-xl">
-                  <h2 :class="h2Class">{{ tk('chooseTickets') }}</h2>
-                  <p class="mt-1.5 text-sm text-tikeo-gray-text md:text-base">{{ tk('chooseTicketsSub') }}</p>
+                  <h2 :class="h2Class"><span class="h-7 w-1.5 shrink-0 bg-[#FF7A00]" aria-hidden="true" />{{ tk('chooseTickets') }}</h2>
+                  <p class="mt-1.5 text-sm text-tikeo-gray-text">{{ tk('chooseTicketsSub') }}</p>
                 </div>
                 <button
                   v-if="event.seatingPlanUrl && !isCause"
                   type="button"
-                  class="inline-flex h-11 items-center gap-2 border border-tikeo-ink px-4 text-sm font-bold text-tikeo-black transition-colors hover:bg-tikeo-ink hover:text-white dark:border-[#FF7A00] dark:hover:bg-[#FF7A00] dark:hover:text-tikeo-ink"
+                  class="inline-flex h-10 items-center gap-2 border border-tikeo-border bg-tikeo-surface px-4 text-sm font-semibold text-tikeo-black transition-colors hover:border-tikeo-ink dark:hover:border-[#FF7A00]"
                   @click="seatingPlanOpen = true"
                 >
                   <AppIcon name="map" class="h-[18px] w-[18px]" />
@@ -662,8 +741,8 @@ const stepBtn =
                 </button>
               </div>
 
-              <p v-if="event.maxTicketsPerBuyer && !isCause" class="mb-4 flex items-center gap-2 border-l-4 border-[#FF7A00] bg-tikeo-surface px-4 py-2.5 text-sm text-tikeo-gray-text">
-                <AppIcon name="info" class="h-4 w-4 shrink-0 text-tikeo-orange" />
+              <p v-if="event.maxTicketsPerBuyer && !isCause" class="mb-4 flex items-center gap-2 border-l-4 border-[#FF7A00] bg-[#FF7A00]/10 px-4 py-2.5 text-sm text-tikeo-black">
+                <AppIcon name="info" class="h-4 w-4 shrink-0 text-[rgb(var(--tikeo-orange-strong))]" />
                 {{ t('event.maxTicketsPerBuyerNotice', { n: event.maxTicketsPerBuyer }) }}
               </p>
 
@@ -673,146 +752,130 @@ const stepBtn =
                 <article
                   v-for="tt in event.ticketTypes"
                   :key="tt.id"
-                  class="relative flex bg-tikeo-surface shadow-card transition-shadow duration-300 hover:shadow-card-hover"
-                  :class="(quantities[tt.id] ?? 0) > 0 ? 'ring-2 ring-[#FF7A00]' : ''"
+                  class="relative overflow-hidden border bg-tikeo-surface transition-all duration-200"
+                  :class="
+                    (quantities[tt.id] ?? 0) > 0
+                      ? 'border-[#FF7A00] shadow-[0_0_0_1px_#FF7A00]'
+                      : 'border-tikeo-border shadow-card hover:border-tikeo-ink/40 dark:hover:border-white/30'
+                  "
                 >
-                  <span class="w-1.5 shrink-0" :class="tt.soldOut ? 'bg-tikeo-border' : 'bg-[#FF7A00]'" aria-hidden="true" />
+                  <span class="absolute inset-y-0 left-0 w-1.5" :class="tt.soldOut ? 'bg-tikeo-border' : (quantities[tt.id] ?? 0) > 0 ? 'bg-[#FF7A00]' : 'bg-tikeo-ink dark:bg-white/30'" aria-hidden="true" />
 
-                  <!-- Corps du billet -->
-                  <div class="min-w-0 flex-1 p-4 md:p-5">
-                    <div class="flex flex-wrap items-center gap-2">
-                      <span v-if="tt.soldOut" class="bg-tikeo-error/10 px-2 py-0.5 text-[11px] font-bold uppercase text-tikeo-error">{{ tk('soldOut') }}</span>
-                      <span v-else-if="demandLevel(tt)" class="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold" :class="DEMAND_STYLE[demandLevel(tt)!].cls">
-                        <AppIcon :name="DEMAND_STYLE[demandLevel(tt)!].icon" class="h-3.5 w-3.5" :stroke="2.4" />{{ tk(DEMAND_STYLE[demandLevel(tt)!].key) }}
-                      </span>
-                    </div>
-                    <div class="mt-1 flex items-start gap-2">
-                      <h3 class="min-w-0 flex-1 font-display text-lg font-bold leading-tight tracking-tight text-tikeo-black md:text-xl" :class="tt.soldOut ? 'opacity-60' : ''">{{ tt.name }}</h3>
+                  <div class="grid sm:grid-cols-[minmax(0,1fr)_12rem]">
+                    <!-- Partie gauche : informations -->
+                    <div class="min-w-0 p-5 pl-6 md:p-6 md:pl-8">
+                      <div v-if="tt.soldOut || demandLevel(tt)" class="mb-2 flex flex-wrap items-center gap-2">
+                        <span v-if="tt.soldOut" class="bg-tikeo-error/10 px-2.5 py-0.5 text-[11px] font-bold uppercase text-tikeo-error">{{ tk('soldOut') }}</span>
+                        <span v-else class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold" :class="DEMAND_STYLE[demandLevel(tt)!].cls">
+                          <AppIcon :name="DEMAND_STYLE[demandLevel(tt)!].icon" class="h-3.5 w-3.5" :stroke="2.4" />{{ tk(DEMAND_STYLE[demandLevel(tt)!].key) }}
+                        </span>
+                      </div>
+                      <h3 class="font-display text-xl font-extrabold leading-tight tracking-tight text-tikeo-black" :class="tt.soldOut ? 'opacity-50' : ''">{{ tt.name }}</h3>
+                      <p class="mt-1.5 font-display text-2xl font-extrabold leading-none text-tikeo-black" :class="tt.soldOut ? 'opacity-50' : ''">
+                        <template v-if="tt.price === 0">{{ t('event.free') }}</template>
+                        <template v-else>{{ tt.price.toLocaleString('fr-FR') }} <span class="text-sm font-semibold text-tikeo-gray-text">FCFA</span></template>
+                      </p>
+
+                      <p v-if="!tt.soldOut && tt.remaining !== null && tt.remaining <= 10" class="mt-2 text-xs font-bold text-[rgb(var(--tikeo-orange-strong))]">{{ tk('remaining', { n: tt.remaining }) }}</p>
+
+                      <!-- Détails (dépliables) -->
                       <button
                         type="button"
-                        class="flex h-7 w-7 shrink-0 items-center justify-center border border-tikeo-border text-tikeo-gray-text transition-colors hover:border-[#FF7A00] hover:text-tikeo-orange focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF7A00]"
-                        :class="expandedTicketDetails[tt.id] ? 'border-[#FF7A00] text-tikeo-orange' : ''"
+                        class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-tikeo-blue hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF7A00] dark:text-[#8FBBF2]"
                         :aria-expanded="!!expandedTicketDetails[tt.id]"
                         :aria-controls="`ticket-desc-${tt.id}`"
-                        :aria-label="expandedTicketDetails[tt.id] ? tk('hideTicketDetails') : tk('ticketDetails')"
-                        :title="expandedTicketDetails[tt.id] ? tk('hideTicketDetails') : tk('ticketDetails')"
                         @click="toggleTicketDetails(tt.id)"
                       >
-                        <AppIcon name="chevron-down" class="h-4 w-4 transition-transform duration-300" :class="expandedTicketDetails[tt.id] ? 'rotate-180' : ''" :stroke="2.6" />
+                        {{ expandedTicketDetails[tt.id] ? tk('hideTicketDetails') : tk('ticketDetails') }}
+                        <AppIcon name="chevron-down" class="h-4 w-4 transition-transform duration-300" :class="expandedTicketDetails[tt.id] ? 'rotate-180' : ''" :stroke="2.4" />
                       </button>
-                    </div>
-                    <p class="mt-1.5 font-display text-2xl font-extrabold leading-none text-tikeo-black" :class="tt.soldOut ? 'opacity-60' : ''">
-                      <template v-if="tt.price === 0">{{ t('event.free') }}</template>
-                      <template v-else>{{ tt.price.toLocaleString('fr-FR') }} <span class="text-sm font-semibold text-tikeo-gray-text">FCFA</span></template>
-                    </p>
+                      <div
+                        :id="`ticket-desc-${tt.id}`"
+                        class="grid transition-[grid-template-rows,opacity] duration-300 ease-out"
+                        :class="expandedTicketDetails[tt.id] ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+                      >
+                        <div class="overflow-hidden">
+                          <p class="mt-2 whitespace-pre-line border-l-2 border-tikeo-border bg-tikeo-surface-alt px-3.5 py-3 text-sm leading-relaxed text-tikeo-gray-text">{{ ticketDescription(tt) }}</p>
+                        </div>
+                      </div>
 
-                    <p v-if="!tt.soldOut && tt.remaining !== null && tt.remaining <= 10" class="mt-2 text-xs font-semibold text-tikeo-orange">{{ tk('remaining', { n: tt.remaining }) }}</p>
-
-                    <!-- Petite description du type (dépliée par la flèche) -->
-                    <div
-                      :id="`ticket-desc-${tt.id}`"
-                      class="grid transition-[grid-template-rows,opacity] duration-300 ease-out"
-                      :class="expandedTicketDetails[tt.id] ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
-                    >
-                      <div class="overflow-hidden">
-                        <p class="mt-3 whitespace-pre-line border-l-2 border-[#FF7A00] bg-tikeo-surface-alt/60 px-3 py-2.5 text-sm leading-relaxed text-tikeo-gray-text">{{ ticketDescription(tt) }}</p>
+                      <!-- Liste d'attente (billet épuisé) -->
+                      <div v-if="tt.soldOut" class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                        <button
+                          v-if="!waitlistJoinedIds.has(tt.id)"
+                          type="button"
+                          class="btn-secondary !h-10 !py-0 text-sm"
+                          :disabled="joiningWaitlist"
+                          @click="handleJoinWaitlist(tt.id)"
+                        >
+                          {{ tk('joinWaitlist') }}
+                        </button>
+                        <span v-else class="inline-flex items-center gap-1.5 text-sm font-bold text-tikeo-success"><AppIcon name="check" class="h-4 w-4" :stroke="2.6" />{{ t('event.waitlistJoined') }}</span>
+                        <span v-if="waitlistCounts[tt.id]" class="text-xs text-tikeo-gray-text">{{ t('event.waitlistCount', { n: waitlistCounts[tt.id] }) }}</span>
+                        <span v-if="waitlistErrorCode" class="text-xs text-tikeo-error">{{ te(`event.waitlistErrors.${waitlistErrorCode}`) ? t(`event.waitlistErrors.${waitlistErrorCode}`) : '' }}</span>
                       </div>
                     </div>
 
-                    <!-- Liste d'attente (billet épuisé) -->
-                    <div v-if="tt.soldOut" class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-                      <button
-                        v-if="!waitlistJoinedIds.has(tt.id)"
-                        type="button"
-                        class="btn-secondary !h-10 !py-0 text-sm"
-                        :disabled="joiningWaitlist"
-                        @click="handleJoinWaitlist(tt.id)"
-                      >
-                        {{ tk('joinWaitlist') }}
-                      </button>
-                      <span v-else class="inline-flex items-center gap-1.5 text-sm font-bold text-tikeo-success"><AppIcon name="check" class="h-4 w-4" :stroke="2.6" />{{ t('event.waitlistJoined') }}</span>
-                      <span v-if="waitlistCounts[tt.id]" class="text-xs text-tikeo-gray-text">{{ t('event.waitlistCount', { n: waitlistCounts[tt.id] }) }}</span>
-                      <span v-if="waitlistErrorCode" class="text-xs text-tikeo-error">{{ te(`event.waitlistErrors.${waitlistErrorCode}`) ? t(`event.waitlistErrors.${waitlistErrorCode}`) : '' }}</span>
+                    <!-- Quantité -->
+                    <div class="flex items-center justify-between gap-4 border-t border-tikeo-border px-6 py-4 sm:justify-center sm:border-l sm:border-t-0">
+                      <div v-if="!tt.soldOut" class="flex items-center gap-2.5">
+                        <button
+                          type="button"
+                          :class="[stepBtn, 'border-tikeo-border bg-tikeo-surface text-tikeo-black enabled:hover:border-tikeo-ink']"
+                          :disabled="(quantities[tt.id] ?? 0) === 0"
+                          :aria-label="'− ' + tt.name"
+                          @click="decrement(tt.id)"
+                        >
+                          <AppIcon name="minus" class="h-4 w-4" :stroke="2.6" />
+                        </button>
+                        <span class="w-8 text-center font-display text-2xl font-extrabold tabular-nums text-tikeo-black" aria-live="polite">{{ quantities[tt.id] ?? 0 }}</span>
+                        <button
+                          type="button"
+                          :class="[stepBtn, 'border-tikeo-ink bg-tikeo-ink text-white enabled:hover:border-[#FF7A00] enabled:hover:bg-[#FF7A00] enabled:hover:text-tikeo-ink dark:border-[#FF7A00] dark:bg-[#FF7A00] dark:text-tikeo-ink']"
+                          :aria-label="'+ ' + tt.name"
+                          @click="increment(tt.id)"
+                        >
+                          <AppIcon name="plus" class="h-4 w-4" :stroke="2.6" />
+                        </button>
+                      </div>
+                      <span v-else class="text-sm font-bold uppercase text-tikeo-error">{{ tk('soldOut') }}</span>
                     </div>
                   </div>
-
-                  <!-- Perforation + souche (sélecteur de quantité) -->
-                  <template v-if="!tt.soldOut">
-                    <div class="relative w-0 shrink-0" aria-hidden="true">
-                      <span class="absolute -left-[11px] -top-[11px] h-[22px] w-[22px] rounded-full bg-tikeo-surface-alt" />
-                      <span class="absolute -bottom-[11px] -left-[11px] h-[22px] w-[22px] rounded-full bg-tikeo-surface-alt" />
-                      <span class="absolute inset-y-4 left-0 border-l-2 border-dashed border-tikeo-gray-text/35" />
-                    </div>
-                    <div class="flex w-[4.75rem] shrink-0 flex-col-reverse items-center justify-center gap-1 px-2 md:w-40 md:flex-row md:gap-1.5 md:px-4">
-                      <button
-                        type="button"
-                        :class="[stepBtn, 'border-tikeo-border text-tikeo-black enabled:hover:border-tikeo-ink']"
-                        :disabled="(quantities[tt.id] ?? 0) === 0"
-                        :aria-label="'− ' + tt.name"
-                        @click="decrement(tt.id)"
-                      >
-                        <AppIcon name="minus" class="h-4 w-4" :stroke="2.6" />
-                      </button>
-                      <span class="w-8 text-center font-display text-xl font-extrabold tabular-nums text-tikeo-black" aria-live="polite">{{ quantities[tt.id] ?? 0 }}</span>
-                      <button
-                        type="button"
-                        :class="[stepBtn, 'border-tikeo-ink bg-tikeo-ink text-white enabled:hover:bg-[#FF7A00] enabled:hover:text-tikeo-ink enabled:hover:border-[#FF7A00] dark:border-[#FF7A00] dark:bg-[#FF7A00] dark:text-tikeo-ink']"
-                        :aria-label="'+ ' + tt.name"
-                        @click="increment(tt.id)"
-                      >
-                        <AppIcon name="plus" class="h-4 w-4" :stroke="2.6" />
-                      </button>
-                    </div>
-                  </template>
                 </article>
               </div>
             </section>
 
-            <!-- ---------- À propos ---------- -->
-            <section v-if="event.description || event.organizerName" id="apropos" class="scroll-mt-28">
-              <h2 :class="h2Class">{{ t('event.descriptionLabel') }}</h2>
+            <!-- ============ À propos ============ -->
+            <section v-if="event.description" id="apropos" class="scroll-mt-32">
+              <h2 :class="h2Class"><span class="h-7 w-1.5 shrink-0 bg-[#FF7A00]" aria-hidden="true" />{{ t('event.descriptionLabel') }}</h2>
 
-              <div v-if="event.description" class="mt-5 bg-tikeo-surface p-5 shadow-card md:p-7">
-                <p class="whitespace-pre-line text-[15px] leading-[1.75] text-tikeo-gray-text md:text-base">{{ descriptionPreview }}</p>
+              <div v-if="event.description" class="mt-5 border border-tikeo-border bg-tikeo-surface p-5 shadow-card md:p-7">
+                <p class="whitespace-pre-line text-[15px] leading-[1.8] text-tikeo-black/80 md:text-base dark:text-tikeo-gray-text">{{ descriptionPreview }}</p>
                 <button
                   v-if="descriptionIsLong"
                   type="button"
-                  class="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-tikeo-black underline decoration-tikeo-orange decoration-2 underline-offset-[6px] hover:text-tikeo-orange"
+                  class="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-tikeo-blue hover:underline dark:text-[#8FBBF2]"
                   @click="descriptionExpanded = !descriptionExpanded"
                 >
                   {{ descriptionExpanded ? t('event.readLess') : t('event.readMore') }}
+                  <AppIcon name="chevron-down" class="h-4 w-4 transition-transform" :class="descriptionExpanded ? 'rotate-180' : ''" :stroke="2.4" />
                 </button>
               </div>
 
-              <!-- Organisateur -->
-              <div v-if="event.organizerName" class="mt-4 flex items-start gap-4 bg-tikeo-ink p-5 text-white md:items-center md:p-6">
-                <span v-if="!event.organizerLogo" class="flex h-14 w-14 shrink-0 items-center justify-center bg-[#FF7A00] font-display text-lg font-extrabold text-tikeo-ink">
-                  {{ event.organizerName.slice(0, 2).toUpperCase() }}
-                </span>
-                <img v-else :src="event.organizerLogo" :alt="event.organizerName" loading="lazy" decoding="async" class="h-14 w-14 shrink-0 bg-white object-cover" />
-                <div class="min-w-0 flex-1">
-                  <p class="text-[11px] font-bold uppercase tracking-wider text-white/55">{{ t('event.organizerLabel') }}</p>
-                  <div class="flex items-center gap-2">
-                    <p class="truncate font-display text-lg font-extrabold">{{ event.organizerName }}</p>
-                    <AppIcon v-if="event.verified" name="shield-check" class="h-5 w-5 shrink-0 text-[#FF9A3D]" :aria-label="t('home.verified')" />
-                  </div>
-                  <p v-if="event.organizerDescription" class="mt-1 line-clamp-3 text-sm leading-relaxed text-white/70">{{ event.organizerDescription }}</p>
-                </div>
-              </div>
             </section>
 
-            <!-- ---------- Lieu ---------- -->
-            <section id="lieu" class="scroll-mt-28">
-              <h2 :class="h2Class">{{ t('event.venueTitle') }}</h2>
+            <!-- ============ Lieu ============ -->
+            <section id="lieu" class="scroll-mt-32">
+              <h2 :class="h2Class"><span class="h-7 w-1.5 shrink-0 bg-[#FF7A00]" aria-hidden="true" />{{ t('event.venueTitle') }}</h2>
 
-              <div class="mt-5 overflow-hidden bg-tikeo-surface shadow-card">
-                <div class="flex flex-wrap items-center gap-4 p-5 md:p-6">
-                  <span class="flex h-12 w-12 shrink-0 items-center justify-center bg-tikeo-ink text-white dark:bg-[#FF7A00] dark:text-tikeo-ink"><AppIcon name="pin" class="h-6 w-6" /></span>
+              <div class="mt-5 overflow-hidden border border-tikeo-border bg-tikeo-surface shadow-card">
+                <div class="flex flex-wrap items-center gap-4 p-5">
+                  <span class="flex h-11 w-11 shrink-0 items-center justify-center bg-tikeo-ink text-white dark:bg-[#FF7A00] dark:text-tikeo-ink"><AppIcon name="pin" class="h-5 w-5" /></span>
                   <div class="min-w-0 flex-1">
-                    <p class="font-display text-lg font-bold leading-tight text-tikeo-black">{{ event.locationName || event.city }}</p>
+                    <p class="font-display text-base font-bold leading-tight text-tikeo-black">{{ event.locationName || event.city }}</p>
                     <p class="mt-0.5 break-words text-sm text-tikeo-gray-text">{{ placeLine }}</p>
                   </div>
-                  <a :href="directionsUrl" target="_blank" rel="noopener" class="btn-ink !h-11 max-sm:w-full">
+                  <a :href="directionsUrl" target="_blank" rel="noopener" class="btn-ink !h-10 max-sm:w-full">
                     {{ t('event.directions') }}
                     <AppIcon name="arrow-up-right" class="h-4 w-4" :stroke="2.4" />
                   </a>
@@ -827,19 +890,18 @@ const stepBtn =
               </div>
             </section>
 
-            <!-- ---------- Avis ---------- -->
-            <section id="avis" class="scroll-mt-28">
-              <div class="flex flex-wrap items-end justify-between gap-3">
-                <h2 :class="h2Class">{{ t('event.reviewsTitle') }}</h2>
+            <!-- ============ Avis ============ -->
+            <section v-if="hasReviews || (isAuthenticated && canReview)" id="avis" class="scroll-mt-32">
+              <h2 :class="h2Class"><span class="h-7 w-1.5 shrink-0 bg-[#FF7A00]" aria-hidden="true" />{{ t('event.reviewsTitle') }}</h2>
+
+              <div class="mt-5 space-y-3">
                 <p v-if="hasReviews" class="flex items-center gap-2">
-                  <span class="font-display text-3xl font-extrabold text-tikeo-black">{{ reviewStats!.average_rating }}</span>
-                  <AppIcon name="star" class="h-5 w-5 fill-current text-tikeo-orange" />
+                  <span class="font-display text-2xl font-extrabold text-tikeo-black">{{ reviewStats!.average_rating }}</span>
+                  <AppIcon name="star" class="h-5 w-5 fill-current text-[#FF7A00]" />
                   <span class="text-sm text-tikeo-gray-text">{{ t('event.reviewsCount', { n: reviewStats!.review_count }) }}</span>
                 </p>
-              </div>
 
-              <div class="mt-5 space-y-4">
-                <form v-if="isAuthenticated && canReview" class="bg-tikeo-surface p-5 shadow-card md:p-6" @submit.prevent="handleSubmitReview">
+                <form v-if="isAuthenticated && canReview" class="border border-tikeo-border bg-tikeo-surface p-5 shadow-card md:p-6" @submit.prevent="handleSubmitReview">
                   <p class="mb-2 font-display text-base font-bold text-tikeo-black">{{ myReview ? t('event.editYourReview') : t('event.leaveReview') }}</p>
                   <div class="mb-3 flex gap-1">
                     <button
@@ -847,7 +909,7 @@ const stepBtn =
                       :key="n"
                       type="button"
                       class="p-0.5 transition-transform active:scale-90"
-                      :class="n <= reviewDraftRating ? 'text-tikeo-orange' : 'text-tikeo-border'"
+                      :class="n <= reviewDraftRating ? 'text-[#FF7A00]' : 'text-tikeo-border'"
                       :aria-label="`${n} / 5`"
                       @click="reviewDraftRating = n"
                     ><AppIcon name="star" class="h-8 w-8" :class="n <= reviewDraftRating ? 'fill-current' : ''" /></button>
@@ -860,14 +922,14 @@ const stepBtn =
                 </form>
 
                 <p v-if="!reviews.length" class="border border-dashed border-tikeo-border bg-tikeo-surface p-8 text-center text-sm text-tikeo-gray-text">{{ t('event.noReviews') }}</p>
-                <article v-for="r in reviews" :key="r.id" class="bg-tikeo-surface p-5 shadow-card md:p-6">
+                <article v-for="r in reviews" :key="r.id" class="border border-tikeo-border bg-tikeo-surface p-5 shadow-card">
                   <div class="flex items-center gap-3">
-                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-tikeo-ink text-sm font-bold text-white">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center bg-tikeo-ink text-sm font-bold text-white dark:bg-[#FF7A00] dark:text-tikeo-ink">
                       {{ (r.author?.full_name || t('event.anonymousReviewer')).slice(0, 1).toUpperCase() }}
                     </span>
                     <div class="min-w-0 flex-1">
                       <p class="truncate text-sm font-bold text-tikeo-black">{{ r.author?.full_name || t('event.anonymousReviewer') }}</p>
-                      <p class="flex gap-0.5 text-tikeo-orange" :aria-label="`${r.rating} / 5`"><AppIcon v-for="n in 5" :key="n" name="star" class="h-4 w-4" :class="n <= r.rating ? 'fill-current' : 'opacity-30'" /></p>
+                      <p class="flex gap-0.5 text-[#FF7A00]" :aria-label="`${r.rating} / 5`"><AppIcon v-for="n in 5" :key="n" name="star" class="h-4 w-4" :class="n <= r.rating ? 'fill-current' : 'opacity-30'" /></p>
                     </div>
                   </div>
                   <p v-if="r.comment" class="mt-3 text-sm leading-relaxed text-tikeo-gray-text">{{ r.comment }}</p>
@@ -878,16 +940,20 @@ const stepBtn =
                 </article>
               </div>
             </section>
+
           </div>
 
-          <!-- ---------- Récapitulatif (desktop, collant : panier persistant) ---------- -->
-          <aside class="mt-10 hidden lg:sticky lg:top-24 lg:mt-0 lg:block">
-            <div class="overflow-hidden bg-tikeo-surface shadow-card">
-              <div class="flex items-center gap-3 bg-tikeo-ink px-5 py-4 text-white">
-                <span class="flex h-10 w-10 items-center justify-center bg-[#FF7A00] text-tikeo-ink"><AppIcon name="ticket" class="h-5 w-5" /></span>
-                <div class="min-w-0">
-                  <h2 class="font-display text-lg font-extrabold leading-tight">{{ tk('yourSelection') }}</h2>
-                  <p class="truncate text-xs text-white/65">{{ event.title }}</p>
+          <!-- ============ Récapitulatif « reçu » (ordinateur, collant) ============ -->
+          <aside class="mt-10 hidden transition-[top] duration-300 ease-out lg:sticky lg:mt-0 lg:block" :style="{ top: tabsTop + 16 + 'px' }">
+            <div class="relative overflow-hidden border border-tikeo-border bg-tikeo-surface shadow-[0_24px_50px_-24px_rgba(14,34,64,0.4)]">
+              <!-- En-tête encre -->
+              <div class="relative bg-tikeo-ink px-5 py-4 text-white">
+                <div class="absolute inset-x-0 top-0 h-1 bg-tikeo-brand" aria-hidden="true" />
+                <div class="flex items-center gap-3 pt-1">
+                  <div class="min-w-0">
+                    <h2 class="font-display text-lg font-extrabold leading-tight">{{ tk('yourSelection') }}</h2>
+                    <p class="truncate text-xs text-white/65">{{ event.title }}</p>
+                  </div>
                 </div>
               </div>
 
@@ -895,15 +961,19 @@ const stepBtn =
                 <template v-if="totalQuantity === 0">
                   <div v-if="minPrice !== null" class="mb-3 leading-tight">
                     <span class="block text-xs text-tikeo-gray-text">{{ t('home.from') }}</span>
-                    <span class="font-display text-2xl font-extrabold text-tikeo-black">{{ formatPrice(minPrice) }}</span>
+                    <span class="font-display text-3xl font-extrabold text-tikeo-black">{{ formatPrice(minPrice) }}</span>
                   </div>
                   <p class="text-sm text-tikeo-gray-text">{{ tk('selectToSeeSummary') }}</p>
+                  <button v-if="hasAvailableTickets" type="button" class="btn-brand mt-4 w-full" @click="scrollToSection('billets')">
+                    {{ allSoldOut ? tk('joinWaitlist') : tk('selectTickets') }}
+                    <AppIcon name="arrow-down" class="h-4 w-4" :stroke="2.4" />
+                  </button>
                 </template>
 
                 <template v-else>
                   <div class="space-y-3">
                     <div v-for="line in cartLines" :key="line.ticketTypeId" class="flex items-start justify-between gap-3 text-sm">
-                      <span class="min-w-0 text-tikeo-black"><span class="font-bold">{{ line.quantity }} ×</span> {{ line.name }}</span>
+                      <span class="min-w-0 text-tikeo-black"><span class="font-bold">{{ line.quantity }} ×</span> {{ line.name }}<span class="block text-xs text-tikeo-gray-text">{{ formatPrice(line.unitPrice) }}</span></span>
                       <span class="shrink-0 font-semibold text-tikeo-black">{{ formatPrice(line.unitPrice * line.quantity) }}</span>
                     </div>
                   </div>
@@ -925,12 +995,12 @@ const stepBtn =
                     </p>
                   </div>
 
-                  <div class="mt-5 flex items-end justify-between border-t-2 border-dashed border-tikeo-border pt-4">
+                  <div class="mt-5 flex items-end justify-between border-t border-dashed border-tikeo-border pt-4">
                     <span class="text-sm font-semibold text-tikeo-gray-text">{{ t('event.total') }}</span>
-                    <span class="font-display text-2xl font-extrabold text-tikeo-black">{{ formatPrice(totalPrice) }}</span>
+                    <span class="font-display text-3xl font-extrabold leading-none text-tikeo-black">{{ formatPrice(totalPrice) }}</span>
                   </div>
 
-                  <p v-if="orderError" class="mt-3 border-l-4 border-tikeo-error bg-tikeo-error/10 px-3 py-2 text-xs font-medium text-tikeo-error">{{ orderError }}</p>
+                  <p v-if="orderError" class="mt-3 bg-tikeo-error/10 px-3 py-2 text-xs font-medium text-tikeo-error">{{ orderError }}</p>
 
                   <button type="button" class="btn-brand mt-4 w-full" :disabled="totalQuantity === 0 || submitting" @click="handleReserve">
                     <span v-if="submitting">{{ tk('reserving') }}</span>
@@ -940,12 +1010,16 @@ const stepBtn =
                 </template>
               </div>
 
-              <!-- Réassurance : mêmes arguments que sur l'accueil -->
-              <ul class="space-y-3 border-t border-tikeo-border bg-tikeo-surface-alt/60 px-5 py-4 text-sm">
-                <li class="flex items-center gap-3 text-tikeo-black"><AppIcon name="card" class="h-5 w-5 shrink-0 text-tikeo-orange" />{{ t('trustStats.badgePaymentTitle') }}</li>
-                <li class="flex items-center gap-3 text-tikeo-black"><AppIcon name="qr" class="h-5 w-5 shrink-0 text-tikeo-orange" />{{ t('trustStats.badgeQrTitle') }}</li>
-                <li class="flex items-center gap-3 text-tikeo-black"><AppIcon name="headset" class="h-5 w-5 shrink-0 text-tikeo-orange" />{{ t('trustStats.badgeSupportTitle') }}</li>
-              </ul>
+              <!-- Perforation + réassurance -->
+              <div class="relative border-t border-dashed border-tikeo-border bg-tikeo-surface-alt">
+                <span class="absolute -left-2.5 -top-2.5 h-5 w-5 rounded-full bg-tikeo-surface-alt" aria-hidden="true" />
+                <span class="absolute -right-2.5 -top-2.5 h-5 w-5 rounded-full bg-tikeo-surface-alt" aria-hidden="true" />
+                <ul class="space-y-3 px-5 py-4 text-sm">
+                  <li class="flex items-center gap-3 text-tikeo-black"><AppIcon name="card" class="h-5 w-5 shrink-0 text-[rgb(var(--tikeo-orange-strong))]" />{{ t('trustStats.badgePaymentTitle') }}</li>
+                  <li class="flex items-center gap-3 text-tikeo-black"><AppIcon name="qr" class="h-5 w-5 shrink-0 text-[rgb(var(--tikeo-orange-strong))]" />{{ t('trustStats.badgeQrTitle') }}</li>
+                  <li class="flex items-center gap-3 text-tikeo-black"><AppIcon name="headset" class="h-5 w-5 shrink-0 text-[rgb(var(--tikeo-orange-strong))]" />{{ t('trustStats.badgeSupportTitle') }}</li>
+                </ul>
+              </div>
             </div>
           </aside>
         </div>
@@ -956,7 +1030,7 @@ const stepBtn =
       <!-- Repère de fin de contenu : la barre mobile se retire dès qu'il apparaît -->
       <div ref="endSentinel" class="h-px" aria-hidden="true" />
 
-      <!-- Barre de réservation mobile : toujours là tant qu'il reste des billets. Posée AU-DESSUS de la barre de navigation du bas (MobileBottomNav, ~96 px) pour ne jamais être masquée. -->
+      <!-- Barre de réservation mobile : posée AU-DESSUS de la barre de navigation du bas (MobileBottomNav, ~96 px). -->
       <Transition
         enter-active-class="transition duration-250 ease-out"
         leave-active-class="transition duration-200 ease-in"
@@ -965,7 +1039,7 @@ const stepBtn =
       >
         <div
           v-if="showMobileBar"
-          class="fixed inset-x-0 z-[45] border-t border-tikeo-border bg-tikeo-surface shadow-[0_-6px_20px_rgba(0,0,0,0.12)] transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none md:hidden"
+          class="fixed inset-x-0 z-[45] border-t-2 border-[#FF7A00] bg-tikeo-surface shadow-[0_-8px_24px_rgba(14,34,64,0.15)] transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none md:hidden"
           :class="scrolling ? 'pointer-events-none translate-y-[150%] opacity-0' : ''"
           style="bottom: var(--bottom-nav-h, calc(env(safe-area-inset-bottom, 0px) + 72px))"
           role="region"
@@ -975,7 +1049,7 @@ const stepBtn =
             <button
               v-if="!showMobilePromo && !promoCodeInput"
               type="button"
-              class="text-xs font-bold text-tikeo-orange"
+              class="text-xs font-bold text-[rgb(var(--tikeo-orange-strong))]"
               @click="showMobilePromo = true"
             >
               + {{ t('event.promoCodePlaceholder') }}
@@ -1030,11 +1104,11 @@ const stepBtn =
         enter-from-class="opacity-0"
         leave-to-class="opacity-0"
       >
-        <div v-if="seatingPlanOpen" class="fixed inset-0 z-[70] flex items-center justify-center bg-tikeo-ink/80 p-4 backdrop-blur-sm" @click.self="seatingPlanOpen = false">
-          <div class="max-h-[90vh] w-full max-w-2xl overflow-auto bg-tikeo-surface">
-            <div class="flex items-center justify-between bg-tikeo-ink p-3 pl-5 text-white">
-              <p class="font-display text-base font-bold">{{ t('event.seatingPlan') }}</p>
-              <button type="button" class="flex h-9 w-9 items-center justify-center text-white/80 hover:bg-white/10 hover:text-white" :aria-label="t('event.close')" @click="seatingPlanOpen = false">
+        <div v-if="seatingPlanOpen" class="fixed inset-0 z-[70] flex items-center justify-center bg-tikeo-ink/70 p-4 backdrop-blur-sm" @click.self="seatingPlanOpen = false">
+          <div class="max-h-[90vh] w-full max-w-2xl overflow-auto bg-tikeo-surface shadow-2xl">
+            <div class="flex items-center justify-between border-b border-tikeo-border p-3 pl-5">
+              <p class="font-display text-base font-bold text-tikeo-black">{{ t('event.seatingPlan') }}</p>
+              <button type="button" class="flex h-9 w-9 items-center justify-center bg-tikeo-surface-alt text-tikeo-black hover:bg-tikeo-border" :aria-label="t('event.close')" @click="seatingPlanOpen = false">
                 <AppIcon name="close" class="h-5 w-5" :stroke="2" />
               </button>
             </div>

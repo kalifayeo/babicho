@@ -39,7 +39,7 @@ const bodyWidth = computed(() => ({ full: '', wide: 'max-w-5xl', narrow: 'max-w-
 </script>
 
 <template>
-  <div class="pb-10 md:pb-16">
+  <div class="type-scope pb-10 md:pb-16">
     <!-- ============ Hero ============ -->
     <section class="relative isolate overflow-hidden bg-tikeo-ink text-white">
       <!-- Filet de marque -->
@@ -65,14 +65,14 @@ const bodyWidth = computed(() => ({ full: '', wide: 'max-w-5xl', narrow: 'max-w-
               text-class="text-xl md:text-2xl"
             />
             <div class="min-w-0">
-              <p class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-white/60">
+              <p class="flex items-center gap-2 text-sm font-semibold text-white/70">
                 <span class="h-[3px] w-6 bg-[#FF7A00]" aria-hidden="true" />
                 {{ t('account.eyebrow') }}
               </p>
-              <h1 class="mt-2 font-display text-[1.9rem] font-extrabold leading-[1.05] tracking-tight sm:text-4xl md:text-5xl">
+              <h1 class="mt-2 text-[1.75rem] sm:text-4xl md:text-[2.75rem]">
                 {{ title }}
               </h1>
-              <p v-if="subtitle" class="mt-2 max-w-xl text-sm leading-relaxed text-white/75 md:text-base">{{ subtitle }}</p>
+              <p v-if="subtitle" class="mt-2 max-w-xl text-[15px] leading-relaxed text-white/75 md:text-base">{{ subtitle }}</p>
             </div>
           </div>
 
