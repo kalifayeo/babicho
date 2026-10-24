@@ -46,6 +46,9 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
   devtools: { enabled: false },
 
+  // Corrige l'erreur « Failed to resolve import #app-manifest » en mode dev.
+  experimental: { appManifest: false },
+
   modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@nuxtjs/i18n'],
 
   css: ['~/assets/css/main.css'],

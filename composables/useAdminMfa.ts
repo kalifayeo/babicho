@@ -32,7 +32,7 @@ export function useAdminMfa() {
    * ne renvoie QUE les facteurs vérifiés : on lit donc `all` pour retrouver et
    * supprimer ces restes avant de recommencer, et on donne un nom unique.
    */
-  async function startEnroll(): Promise<{ factorId: string; qrCode: string; secret: string }> {
+  async function startEnroll(): Promise<{ factorId: string; qrCode: string; secret: string; uri: string }> {
     const supabase = useSupabase()
     const { data: existing } = await supabase.auth.mfa.listFactors()
     for (const f of existing?.all ?? []) {
@@ -46,7 +46,7 @@ export function useAdminMfa() {
       issuer: 'Babicho',
     })
     if (err) throw err
-    return { factorId: data.id, qrCode: data.totp.qr_code, secret: data.totp.secret }
+    return { factorId: data.id, qrCode: data.totp.qr_code, secret: data.totp.secret, uri: data.totp.uri }
   }
 
   /** Confirme l'inscription avec le code à 6 chiffres généré par l'application d'authentification. */

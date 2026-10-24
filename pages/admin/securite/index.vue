@@ -21,6 +21,8 @@ const step = ref<'status' | 'enroll' | 'disable'>('status')
 const pendingFactorId = ref<string | null>(null)
 const qrCode = ref('')
 const secret = ref('')
+const otpUri = ref('')
+const secretGroups = computed(() => secret.value.replace(/\s+/g, '').match(/.{1,4}/g) ?? [])
 const code = ref('')
 const disableCode = ref('')
 const submitting = ref(false)
@@ -75,6 +77,7 @@ async function beginEnroll() {
     pendingFactorId.value = r.factorId
     qrCode.value = r.qrCode
     secret.value = r.secret
+    otpUri.value = r.uri
     code.value = ''
     step.value = 'enroll'
   } catch (e: any) {
@@ -170,18 +173,43 @@ async function handleLogout() {
 
     <!-- ================= Inscription ================= -->
     <template v-else-if="step === 'enroll'">
-      <div class="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-start">
-        <div class="mx-auto">
-          <p class="acc-label mb-2 flex items-center gap-2"><span class="flex h-5 w-5 items-center justify-center bg-tikeo-ink text-[11px] text-white dark:bg-[#FF7A00] dark:text-tikeo-ink">1</span>{{ t('adminMfa.enrollStep1').replace(/^1\.\s*/, '') }}</p>
-          <img :src="qrCode" :alt="t('adminMfa.qrAlt')" class="mx-auto h-44 w-44 border border-tikeo-border bg-white p-2" />
+      <!-- Étape 1 : QR code puis clé manuelle, empilés et centrés -->
+      <p class="acc-label mb-4 flex items-center gap-2.5">
+        <span class="flex h-5 w-5 shrink-0 items-center justify-center bg-tikeo-ink text-[11px] text-white dark:bg-[#FF7A00] dark:text-tikeo-ink">1</span>
+        {{ t('adminMfa.enrollStep1').replace(/^1\.\s*/, '') }}
+      </p>
+
+      <div class="relative mx-auto w-fit bg-white p-3 shadow-sm ring-1 ring-tikeo-border">
+        <span class="absolute -left-px -top-px h-3 w-3 border-l-2 border-t-2 border-[#FF7A00]" aria-hidden="true" />
+        <span class="absolute -right-px -top-px h-3 w-3 border-r-2 border-t-2 border-[#FF7A00]" aria-hidden="true" />
+        <span class="absolute -bottom-px -left-px h-3 w-3 border-b-2 border-l-2 border-[#FF7A00]" aria-hidden="true" />
+        <span class="absolute -bottom-px -right-px h-3 w-3 border-b-2 border-r-2 border-[#FF7A00]" aria-hidden="true" />
+        <img :src="qrCode" :alt="t('adminMfa.qrAlt')" class="h-48 w-48" />
+      </div>
+
+      <div class="my-5 flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest text-tikeo-gray-text">
+        <span class="h-px flex-1 bg-tikeo-border" /><span>{{ t('adminMfa.or') }}</span><span class="h-px flex-1 bg-tikeo-border" />
+      </div>
+
+      <div class="border border-dashed border-tikeo-border bg-tikeo-surface-alt p-4">
+        <p class="acc-label mb-3 text-center">{{ t('adminMfa.manualEntry') }}</p>
+        <div class="grid grid-cols-4 gap-2" aria-label="Clé secrète">
+          <span
+            v-for="(g, i) in secretGroups"
+            :key="i"
+            class="select-all border border-tikeo-border bg-tikeo-surface py-2 text-center font-mono text-[13px] font-bold tracking-[0.12em] text-tikeo-black sm:text-sm"
+          >{{ g }}</span>
         </div>
-        <div class="min-w-0">
-          <p class="acc-label mb-2">{{ t('adminMfa.manualEntry') }}</p>
-          <button type="button" class="group flex w-full items-center justify-between gap-2 border border-dashed border-tikeo-border bg-tikeo-surface-alt px-3 py-2.5 text-left transition-colors hover:border-tikeo-ink dark:hover:border-[#FF7A00]" @click="copySecret">
-            <span class="break-all font-mono text-xs font-bold tracking-wider text-tikeo-black">{{ secret }}</span>
-            <AppIcon :name="secretCopied ? 'check' : 'copy'" class="h-4 w-4 shrink-0" :class="secretCopied ? 'text-tikeo-success' : 'text-tikeo-gray-text'" />
+        <div class="mt-3 grid gap-2 sm:grid-cols-2">
+          <button type="button" class="acc-btn-ghost w-full" @click="copySecret">
+            <AppIcon :name="secretCopied ? 'check' : 'copy'" class="h-4 w-4" :class="secretCopied ? 'text-tikeo-success' : ''" />
+            {{ secretCopied ? t('adminMfa.copied') : t('adminMfa.copyKey') }}
           </button>
+          <a v-if="otpUri" :href="otpUri" class="acc-btn-ghost w-full">
+            <AppIcon name="external-link" class="h-4 w-4" />{{ t('adminMfa.openApp') }}
+          </a>
         </div>
+        <p class="mt-3 text-center text-[11px] leading-relaxed text-tikeo-gray-text">{{ t('adminMfa.manualHint') }}</p>
       </div>
 
       <div class="mt-6 border-t border-dashed border-tikeo-border pt-6">
