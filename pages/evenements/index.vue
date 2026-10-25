@@ -38,19 +38,26 @@ useSeoMeta({
 
     <section class="mx-auto max-w-tikeo-container gap-6 px-4 pt-3 md:grid md:grid-cols-[1fr_300px] md:px-6 md:pt-6">
       <div>
-        <div class="mb-4 flex items-center justify-between gap-2">
-          <h1 class="text-lg font-semibold capitalize text-tikeo-black md:text-xl">{{ pageTitle }}</h1>
+        <div class="mb-5 flex items-end justify-between gap-3">
+          <div class="min-w-0">
+            <h1 class="truncate font-display text-2xl font-extrabold capitalize leading-tight tracking-tight text-tikeo-black md:text-[1.75rem]">{{ pageTitle }}</h1>
+            <p v-if="!loading" class="mt-1 text-sm font-medium text-tikeo-gray-text">{{ t('home.eventsCount', filteredEvents.length) }}</p>
+          </div>
           <MobileFiltersDrawer class="md:hidden" />
         </div>
 
-        <div v-if="loading" class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
-          <div v-for="i in 8" :key="i" class="card h-56 animate-pulse bg-tikeo-surface-alt md:h-64" />
+        <div v-if="loading" class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 md:gap-5 lg:grid-cols-2 xl:grid-cols-3">
+          <div v-for="i in 6" :key="i" class="h-[26rem] animate-pulse rounded-2xl bg-tikeo-surface-alt" />
         </div>
-        <div v-else-if="!hasResults" class="border border-dashed border-tikeo-border p-10 text-center text-sm text-tikeo-gray-text">
-          Aucun événement ne correspond à ces filtres{{ activeFilterCount ? ` (${activeFilterCount} actif${activeFilterCount > 1 ? 's' : ''})` : '' }}.
-          <button type="button" class="block w-full font-semibold text-tikeo-orange" @click="resetFilters">Réinitialiser les filtres</button>
+        <div v-else-if="!hasResults" class="rounded-2xl border border-dashed border-tikeo-border bg-tikeo-surface p-10 text-center">
+          <p class="text-sm text-tikeo-gray-text">
+            Aucun événement ne correspond à ces filtres{{ activeFilterCount ? ` (${activeFilterCount} actif${activeFilterCount > 1 ? 's' : ''})` : '' }}.
+          </p>
+          <button type="button" class="mt-4 inline-flex h-11 items-center rounded-full bg-[#FF7A00] px-6 text-sm font-extrabold text-tikeo-ink transition-colors hover:bg-[#F06F00]" @click="resetFilters">
+            Réinitialiser les filtres
+          </button>
         </div>
-        <div v-else class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
+        <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-1 md:gap-5 lg:grid-cols-2 xl:grid-cols-3">
           <EventCard v-for="event in filteredEvents" :key="event.id" :event="event" variant="grid" />
         </div>
       </div>

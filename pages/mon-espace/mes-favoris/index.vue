@@ -6,7 +6,7 @@ const { events, loading } = useFavoriteEvents()
 
 <template>
   <AccountShell :title="t('header.favorites')" :subtitle="t('account.subtitleFavorites')" width="full">
-    <div v-if="loading" class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-5 lg:grid-cols-4 xl:grid-cols-5">
+    <div v-if="loading" class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-3 xl:grid-cols-4">
       <div v-for="i in 5" :key="i" class="h-72 animate-pulse bg-tikeo-border" />
     </div>
 
@@ -18,7 +18,7 @@ const { events, loading } = useFavoriteEvents()
       <NuxtLink to="/evenements" class="btn-ink">{{ t('common.browseEvents') }}</NuxtLink>
     </div>
 
-    <div v-else class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-5 lg:grid-cols-4 xl:grid-cols-5">
+    <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-3 xl:grid-cols-4">
       <EventCard v-for="event in events" :key="event.id" :event="event" variant="grid" />
     </div>
   </AccountShell>

@@ -94,13 +94,13 @@ onMounted(() => {
       </select>
     </div>
 
-    <div v-if="loading" class="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
+    <div v-if="loading" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <div v-for="i in 8" :key="i" class="card h-64 animate-pulse bg-tikeo-surface-alt" />
     </div>
     <div v-else-if="results.length === 0" class="border border-dashed border-tikeo-border p-10 text-center text-sm text-tikeo-gray-text">
       {{ t('search.noResults') }}
     </div>
-    <div v-else class="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
+    <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <EventCard v-for="event in results" :key="event.id" :event="event" variant="grid" />
     </div>
   </div>

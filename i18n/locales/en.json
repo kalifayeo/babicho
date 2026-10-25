@@ -161,6 +161,7 @@
     "settings": "Settings"
   },
   "home": {
+    "entry": "Entry",
     "discover": "Discover events",
     "categories": "Categories",
     "ticket": "Ticket",

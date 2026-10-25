@@ -12,14 +12,14 @@ function close() {
   <div class="md:hidden">
     <button
       type="button"
-      class="flex items-center gap-1.5 border border-tikeo-border bg-tikeo-surface px-3.5 py-2 text-xs font-semibold text-tikeo-black"
+      class="flex h-10 items-center gap-2 rounded-full border border-tikeo-border bg-tikeo-surface px-4 text-[13px] font-bold text-tikeo-black shadow-sm transition-colors hover:border-tikeo-ink"
       @click="open = true"
     >
       <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M7 12h10M10 18h4" />
       </svg>
       {{ t('filters.openFilters') }}
-      <span v-if="activeFilterCount > 0" class="flex h-4 w-4 items-center justify-center rounded-full bg-tikeo-orange text-[10px] font-bold text-white">
+      <span v-if="activeFilterCount > 0" class="flex h-5 w-5 items-center justify-center rounded-full bg-[#FF7A00] text-[11px] font-extrabold text-tikeo-ink">
         {{ activeFilterCount }}
       </span>
     </button>

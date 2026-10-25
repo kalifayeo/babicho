@@ -138,7 +138,7 @@ function seeAll(category: string | null) {
       <section v-if="loading" class="mx-auto max-w-tikeo-container px-4 pt-6 md:px-6">
         <div class="mb-5 h-8 w-56 animate-pulse rounded-lg bg-tikeo-border" />
         <div class="no-scrollbar flex gap-4 overflow-x-auto md:gap-5">
-          <div v-for="i in 4" :key="i" class="h-72 w-[72vw] max-w-[260px] shrink-0 animate-pulse rounded-2xl bg-tikeo-border md:w-[17.5rem]" />
+          <div v-for="i in 4" :key="i" class="h-[26rem] w-[78vw] max-w-[300px] shrink-0 animate-pulse rounded-2xl bg-tikeo-border md:w-[17.5rem]" />
         </div>
       </section>
 
