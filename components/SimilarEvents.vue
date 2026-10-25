@@ -16,7 +16,7 @@ async function load() {
     const supabase = useSupabase()
     const { data } = await supabase
       .from('events')
-      .select('id, slug, title, city, country, start_date, end_date, cover_image, category:categories(name), organizer:organizers(name, status), ticket_types(price)')
+      .select(EVENT_CARD_SELECT)
       .eq('status', 'published')
       .neq('id', props.eventId)
       .or(upcomingEventsOrFilter())
@@ -26,31 +26,17 @@ async function load() {
     const scored = ((data as any[]) ?? [])
       .filter((e) => !isEventPast(e.start_date, e.end_date))
       .map((e) => {
-      const prices = (e.ticket_types ?? []).map((tt: any) => Number(tt.price)).filter((p: number) => !Number.isNaN(p))
       const score = (props.city && e.city === props.city ? 2 : 0) + (props.category && e.category?.name === props.category ? 1 : 0)
-      return {
-        score,
-        card: {
-          id: e.id,
-          slug: e.slug,
-          title: e.title,
-          city: e.city ?? '',
-          country: e.country ?? '',
-          startDate: e.start_date,
-          coverImage: e.cover_image || '/sample-event.jpg',
-          priceFrom: prices.length ? Math.min(...prices) : 0,
-          category: e.category?.name,
-          verified: e.organizer?.status === 'approved',
-          organizerName: e.organizer?.name,
-        } as EventCardData,
-      }
+      return { score, card: mapEventCard(e) }
     })
     // Meilleure pertinence d'abord, puis date la plus proche (le tri de départ est conservé à score égal).
-    events.value = scored
-      .map((s, i) => ({ ...s, i }))
-      .sort((a, b) => b.score - a.score || a.i - b.i)
-      .slice(0, 4)
-      .map((s) => s.card)
+    events.value = await enrichCards(
+      scored
+        .map((s, i) => ({ ...s, i }))
+        .sort((a, b) => b.score - a.score || a.i - b.i)
+        .slice(0, 4)
+        .map((s) => s.card),
+    )
   } catch {
     events.value = [] // section décorative : jamais d'erreur visible
   }

@@ -389,8 +389,13 @@ export interface EventCardData {
   verified?: boolean
   /** Nombre de personnes ayant mis l'événement en favori */
   favoritesCount?: number
+  organizerId?: string
   organizerName?: string
   organizerAvatar?: string | null
+  /** Cotisation : montant déjà récolté (FCFA) */
+  raisedAmount?: number
+  /** Cotisation : objectif (FCFA), null/absent = pas de barre de progression */
+  goalAmount?: number | null
 }
 
 // Détail complet d'un événement (page publique /e/[slug]) : au-delà des

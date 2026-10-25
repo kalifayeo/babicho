@@ -6,28 +6,9 @@ export interface FeaturedEventItem {
   event: EventCardData
 }
 
-const EVENT_COLUMNS = `id, slug, title, city, country, start_date, end_date, cover_image, status,
-  category:categories(name),
-  organizer:organizers(name, status),
-  ticket_types(price)`
+const EVENT_COLUMNS = `${EVENT_CARD_SELECT}, status`
 
-export function mapEventRow(e: any): EventCardData {
-  const prices = (e.ticket_types ?? []).map((t: any) => Number(t.price)).filter((p: number) => !Number.isNaN(p))
-  return {
-    id: e.id,
-    slug: e.slug,
-    title: e.title,
-    city: e.city ?? '',
-    country: e.country ?? '',
-    startDate: e.start_date,
-    endDate: e.end_date ?? null,
-    coverImage: e.cover_image || '/sample-event.jpg',
-    priceFrom: prices.length > 0 ? Math.min(...prices) : 0,
-    category: e.category?.name,
-    verified: e.organizer?.status === 'approved',
-    organizerName: e.organizer?.name,
-  }
-}
+export const mapEventRow = mapEventCard
 
 /** Nombre d'événements affichés dans le bandeau « À la une ». */
 export const FEATURED_MAX = 3
@@ -79,6 +60,8 @@ export function useFeaturedEvents() {
       // Épinglés d'abord, puis les prochains événements ; jamais deux fois le même.
       const seen = new Set<string>()
       items.value = [...pinned, ...auto].filter((i) => (seen.has(i.event.id) ? false : (seen.add(i.event.id), true)))
+      const enriched = await enrichCards(items.value.map((i) => i.event))
+      items.value = items.value.map((i, k) => ({ ...i, event: enriched[k] }))
       loaded.value = !(pinnedRes.error && upcomingRes.error)
     } catch {
       items.value = []

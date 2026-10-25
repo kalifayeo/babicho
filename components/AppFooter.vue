@@ -80,9 +80,9 @@ const columns = computed(() => [
   <footer class="mt-12 border-t border-tikeo-border bg-tikeo-surface text-tikeo-black">
     <!-- Engagements -->
     <div class="border-b border-tikeo-border">
-      <ul class="mx-auto grid max-w-tikeo-container grid-cols-2 gap-x-4 gap-y-6 px-4 py-6 md:px-6 lg:grid-cols-4 lg:gap-8 lg:py-7">
+      <ul class="mx-auto grid max-w-tikeo-container grid-cols-2 gap-x-4 gap-y-4 px-4 py-4 md:px-6 lg:grid-cols-4 lg:gap-8 lg:py-4">
         <li v-for="item in trust" :key="item.title" class="flex items-start gap-3">
-          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-tikeo-border bg-tikeo-surface-alt text-tikeo-black">
+          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-tikeo-border bg-tikeo-surface-alt text-tikeo-black">
             <AppIcon :name="item.icon" class="h-5 w-5" :stroke="1.7" />
           </span>
           <div class="min-w-0">
@@ -93,16 +93,16 @@ const columns = computed(() => [
       </ul>
     </div>
 
-    <div class="mx-auto max-w-tikeo-container px-4 pb-24 pt-10 md:px-6 md:pb-6 md:pt-12">
-      <div class="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,2.85fr)] lg:gap-14">
+    <div class="mx-auto max-w-tikeo-container px-4 pb-24 pt-8 md:px-6 md:pb-4 md:pt-8">
+      <div class="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,2.85fr)] lg:gap-12">
         <!-- Marque + contact -->
         <div>
           <NuxtLink to="/" class="inline-block" aria-label="Babicho">
             <SiteLogo />
           </NuxtLink>
-          <p class="mt-4 max-w-xs text-sm leading-relaxed text-tikeo-gray-text">{{ t('footer.tagline') }}</p>
+          <p class="mt-3 max-w-xs text-sm leading-relaxed text-tikeo-gray-text">{{ t('footer.tagline') }}</p>
 
-          <ul class="mt-5 space-y-2.5 text-sm">
+          <ul class="mt-4 space-y-2 text-sm">
             <li v-if="contact.email">
               <a :href="`mailto:${contact.email}`" class="group inline-flex items-center gap-2.5 text-tikeo-black transition-colors hover:text-tikeo-orange">
                 <AppIcon name="mail" class="h-4 w-4 shrink-0 text-tikeo-gray-text transition-colors group-hover:text-tikeo-orange" />{{ contact.email }}
@@ -120,39 +120,16 @@ const columns = computed(() => [
               <AppIcon name="clock" class="mt-0.5 h-4 w-4 shrink-0" />{{ contact.hours }}
             </li>
           </ul>
-
-          <div v-if="socialLinks.length" class="mt-5">
-            <p class="mb-2 text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text">{{ t('footer.followUs') }}</p>
-            <ul class="flex flex-wrap gap-2">
-              <li v-for="s in socialLinks" :key="s.name">
-                <a
-                  :href="s.href"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  :aria-label="s.name"
-                  :title="s.name"
-                  class="flex h-10 w-10 items-center justify-center rounded-xl border border-tikeo-border text-tikeo-black transition-all duration-200 hover:-translate-y-0.5 hover:border-tikeo-ink hover:bg-tikeo-ink hover:text-white dark:hover:border-[#FF7A00] dark:hover:bg-[#FF7A00] dark:hover:text-tikeo-ink"
-                >
-                  <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="currentColor"><path :d="s.path" /></svg>
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div class="mt-5">
-            <p class="mb-2 text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text">{{ t('footer.downloadApp') }}</p>
-            <StoreBadges size="sm" />
-          </div>
         </div>
 
         <!-- Liens -->
-        <nav class="grid grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-4" aria-label="Babicho">
+        <nav class="grid grid-cols-2 gap-x-6 gap-y-7 sm:grid-cols-4" aria-label="Babicho">
           <div v-for="col in columns" :key="col.title">
-            <h3 class="mb-4 flex items-center gap-2 text-[13px] font-extrabold uppercase tracking-wider text-tikeo-black">
+            <h3 class="mb-3 flex items-center gap-2 text-[13px] font-extrabold uppercase tracking-wider text-tikeo-black">
               <AppIcon :name="col.icon" class="h-4 w-4 text-tikeo-gray-text" :stroke="2" />
               {{ col.title }}
             </h3>
-            <ul class="space-y-2.5 text-[13px] leading-snug">
+            <ul class="space-y-2 text-[13px] leading-snug">
               <li v-for="l in col.links" :key="l.label">
                 <NuxtLink :to="l.to" class="group inline-flex items-start gap-2 text-tikeo-gray-text transition-colors hover:text-tikeo-black">
                   <AppIcon :name="l.icon" class="mt-px h-[15px] w-[15px] shrink-0 opacity-70 transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-tikeo-orange group-hover:opacity-100" :stroke="1.8" />
@@ -164,20 +141,48 @@ const columns = computed(() => [
         </nav>
       </div>
 
-      <!-- Moyens de paiement -->
-      <div class="mt-10 flex flex-col gap-4 border-t border-tikeo-border pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <p class="flex items-center gap-2 text-xs font-semibold text-tikeo-gray-text">
-          <AppIcon name="shield-check" class="h-4 w-4" />{{ t('footer.payTitle') }}
-        </p>
-        <ul class="flex flex-wrap gap-2">
-          <li v-for="p in payments" :key="p.name">
-            <img :src="p.src" :alt="p.name" :title="p.name" width="40" height="40" loading="lazy" class="h-10 w-10 rounded-lg border border-tikeo-border bg-white object-contain p-1.5" />
-          </li>
-        </ul>
+      <!-- Une seule ligne : réseaux · application · paiement -->
+      <div class="mt-7 flex flex-col gap-4 border-t border-tikeo-border pt-5 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-x-8 xl:flex-nowrap">
+        <!-- Suivez-nous -->
+        <div v-if="socialLinks.length" class="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text">{{ t('footer.followUs') }}</p>
+          <ul class="flex flex-wrap gap-1.5">
+            <li v-for="s in socialLinks" :key="s.name">
+              <a
+                :href="s.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                :aria-label="s.name"
+                :title="s.name"
+                class="flex h-9 w-9 items-center justify-center rounded-xl border border-tikeo-border text-tikeo-black transition-all duration-200 hover:-translate-y-0.5 hover:border-tikeo-ink hover:bg-tikeo-ink hover:text-white dark:hover:border-[#FF7A00] dark:hover:bg-[#FF7A00] dark:hover:text-tikeo-ink"
+              >
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path :d="s.path" /></svg>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Téléchargez l'application -->
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text">{{ t('footer.downloadApp') }}</p>
+          <StoreBadges size="sm" />
+        </div>
+
+        <!-- Paiement mobile & carte sécurisés -->
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <p class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text">
+            <AppIcon name="shield-check" class="h-4 w-4" />{{ t('footer.payTitle') }}
+          </p>
+          <ul class="flex flex-wrap gap-1.5">
+            <li v-for="p in payments" :key="p.name">
+              <img :src="p.src" :alt="p.name" :title="p.name" width="36" height="36" loading="lazy" class="h-9 w-9 rounded-lg border border-tikeo-border bg-white object-contain p-1" />
+            </li>
+          </ul>
+        </div>
       </div>
 
       <!-- Barre basse -->
-      <div class="mt-6 flex flex-col gap-4 border-t border-tikeo-border pt-5 md:flex-row md:items-center md:justify-between">
+      <div class="mt-5 flex flex-col gap-3 border-t border-tikeo-border pt-4 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-tikeo-gray-text">
           <span>© {{ year }} Babicho. {{ t('footer.rights') }}</span>
           <NuxtLink to="/confidentialite" class="inline-flex items-center gap-1.5 transition-colors hover:text-tikeo-black"><AppIcon name="lock" class="h-3.5 w-3.5" />{{ t('footer.privacy') }}</NuxtLink>
@@ -187,12 +192,20 @@ const columns = computed(() => [
         </div>
 
         <div class="flex items-center justify-between gap-4 md:justify-end">
-          <p class="flex items-center gap-1.5 text-xs text-tikeo-gray-text"><AppIcon name="heart" class="h-3.5 w-3.5" />{{ t('footer.madeIn') }}</p>
+          <NuxtLink
+            to="/contact"
+            :title="t('footer.contactUs')"
+            class="group inline-flex items-center gap-1.5 text-xs text-tikeo-gray-text transition-colors hover:text-tikeo-black"
+          >
+            <AppIcon name="heart" class="h-3.5 w-3.5 text-tikeo-orange transition-transform duration-200 group-hover:scale-125" />
+            <span>{{ t('footer.madeBy') }}</span>
+            <span class="font-semibold underline decoration-tikeo-border underline-offset-2 group-hover:decoration-tikeo-orange">· {{ t('footer.contactUs') }}</span>
+          </NuxtLink>
           <div class="flex items-center gap-2">
             <LanguageSwitcher up />
             <button
               type="button"
-              class="flex h-10 w-10 items-center justify-center rounded-xl border border-tikeo-border text-tikeo-black transition-all duration-200 hover:-translate-y-0.5 hover:border-tikeo-ink hover:bg-tikeo-ink hover:text-white dark:hover:border-[#FF7A00] dark:hover:bg-[#FF7A00] dark:hover:text-tikeo-ink"
+              class="flex h-9 w-9 items-center justify-center rounded-xl border border-tikeo-border text-tikeo-black transition-all duration-200 hover:-translate-y-0.5 hover:border-tikeo-ink hover:bg-tikeo-ink hover:text-white dark:hover:border-[#FF7A00] dark:hover:bg-[#FF7A00] dark:hover:text-tikeo-ink"
               :aria-label="t('footer.backToTop')"
               @click="scrollTop"
             >

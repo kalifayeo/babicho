@@ -12,28 +12,8 @@ export const EVENT_SORT_OPTIONS: { value: EventSortBy; labelKey: string }[] = [
   { value: 'price_desc', labelKey: 'search.sortPriceDesc' },
 ]
 
-function mapRow(e: any): EventCardData {
-  const prices = (e.ticket_types ?? []).map((t: any) => Number(t.price)).filter((p: number) => !Number.isNaN(p))
-  return {
-    id: e.id,
-    slug: e.slug,
-    title: e.title,
-    city: e.city ?? '',
-    country: e.country ?? '',
-    startDate: e.start_date,
-    endDate: e.end_date ?? null,
-    coverImage: e.cover_image || '/sample-event.jpg',
-    priceFrom: prices.length > 0 ? Math.min(...prices) : 0,
-    category: e.category?.name,
-    verified: e.organizer?.status === 'approved',
-    organizerName: e.organizer?.name,
-  }
-}
-
-const EVENT_SELECT = `id, slug, title, city, country, start_date, end_date, cover_image,
-  category:categories(name),
-  organizer:organizers(name, status),
-  ticket_types(price)`
+const mapRow = mapEventCard
+const EVENT_SELECT = EVENT_CARD_SELECT
 
 function sortResults(events: EventCardData[], sortBy: EventSortBy) {
   const list = [...events]
@@ -120,7 +100,7 @@ export function useEventSearch() {
         }
       }
 
-      results.value = sortResults(merged, sortBy)
+      results.value = sortResults(await enrichCards(merged), sortBy)
       return results.value
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Erreur de recherche'

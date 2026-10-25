@@ -27,12 +27,7 @@ export function useEventsList(limit = 40) {
       const supabase = useSupabase()
       const { data, error: sbError } = await supabase
         .from('events')
-        .select(
-          `id, slug, title, city, country, start_date, end_date, cover_image,
-           category:categories(name),
-           organizer:organizers(name, status),
-           ticket_types(price)`
-        )
+        .select(EVENT_CARD_SELECT)
         .eq('status', 'published')
         // Uniquement les événements à venir / en cours (voir utils/eventLifecycle.ts)
         .or(upcomingEventsOrFilter())
@@ -42,23 +37,7 @@ export function useEventsList(limit = 40) {
       if (sbError) throw sbError
 
       now.value = Date.now()
-      allEvents.value = (data ?? []).map((e: any) => {
-        const prices = (e.ticket_types ?? []).map((t: any) => Number(t.price)).filter((p: number) => !Number.isNaN(p))
-        return {
-          id: e.id,
-          slug: e.slug,
-          title: e.title,
-          city: e.city ?? '',
-          country: e.country ?? '',
-          startDate: e.start_date,
-          endDate: e.end_date ?? null,
-          coverImage: e.cover_image || '/sample-event.jpg',
-          priceFrom: prices.length > 0 ? Math.min(...prices) : 0,
-          category: e.category?.name,
-          verified: e.organizer?.status === 'approved',
-          organizerName: e.organizer?.name,
-        } satisfies EventCardData
-      })
+      allEvents.value = await enrichCards((data ?? []).map(mapEventCard))
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Erreur de chargement des événements'
       allEvents.value = []
@@ -115,32 +94,12 @@ export function useFavoriteEvents() {
       const supabase = useSupabase()
       const { data, error: sbError } = await supabase
         .from('events')
-        .select(
-          `id, slug, title, city, country, start_date, cover_image,
-           category:categories(name),
-           organizer:organizers(name, status),
-           ticket_types(price)`
-        )
+        .select(EVENT_CARD_SELECT)
         .in('id', favoriteIds.value)
 
       if (sbError) throw sbError
 
-      events.value = (data ?? []).map((e: any) => {
-        const prices = (e.ticket_types ?? []).map((t: any) => Number(t.price)).filter((p: number) => !Number.isNaN(p))
-        return {
-          id: e.id,
-          slug: e.slug,
-          title: e.title,
-          city: e.city ?? '',
-          country: e.country ?? '',
-          startDate: e.start_date,
-          coverImage: e.cover_image || '/sample-event.jpg',
-          priceFrom: prices.length > 0 ? Math.min(...prices) : 0,
-          category: e.category?.name,
-          verified: e.organizer?.status === 'approved',
-          organizerName: e.organizer?.name,
-        } satisfies EventCardData
-      })
+      events.value = await enrichCards((data ?? []).map(mapEventCard))
       loadedIds.value = events.value.map((e) => e.id)
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Erreur de chargement des favoris'
