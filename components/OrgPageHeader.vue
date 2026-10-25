@@ -17,39 +17,31 @@ defineProps<{
 </script>
 
 <template>
-  <section class="relative isolate overflow-hidden bg-tikeo-ink text-white">
-    <div class="org-line absolute inset-x-0 top-0 h-1 bg-tikeo-brand" aria-hidden="true" />
-    <div
-      class="pointer-events-none absolute inset-y-0 left-0 hidden w-3 lg:block"
-      style="background-image: radial-gradient(circle, rgb(243 245 249) 3px, transparent 3.5px); background-size: 12px 18px; background-position: -6px 0"
-      aria-hidden="true"
-    />
-    <div class="pointer-events-none absolute -right-24 -top-24 -z-10 h-72 w-72 rounded-full bg-[#FF7A00]/15 blur-3xl" aria-hidden="true" />
-    <div class="pointer-events-none absolute -bottom-32 left-1/3 -z-10 h-64 w-64 rounded-full bg-[#0057B8]/20 blur-3xl" aria-hidden="true" />
+  <section class="px-4 pt-4 md:px-8 md:pt-6">
+    <div class="admin-hero org-hero relative isolate mx-auto max-w-6xl overflow-hidden rounded-3xl p-5 text-white md:p-8">
+      <div class="pointer-events-none absolute -right-16 -top-20 -z-10 h-64 w-64 rounded-full bg-[#FF7A00]/35 blur-3xl" aria-hidden="true" />
+      <div class="pointer-events-none absolute -bottom-24 left-1/3 -z-10 h-56 w-56 rounded-full bg-[#2D8CFF]/30 blur-3xl" aria-hidden="true" />
+      <div class="admin-hero-dots pointer-events-none absolute inset-0 -z-10" aria-hidden="true" />
 
-    <div class="mx-auto max-w-6xl px-4 pb-7 pt-7 md:px-8 md:pb-9 md:pt-9">
       <NuxtLink
         v-if="back"
         :to="back.to"
-        class="org-rise mb-4 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white/70 transition-colors hover:text-[#FF7A00]"
+        class="org-rise mb-4 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white/80 ring-1 ring-white/15 transition-colors hover:bg-white/20 hover:text-white"
       >
         <AppIcon name="arrow-left" class="h-4 w-4" />
         {{ back.label }}
       </NuxtLink>
 
       <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div class="org-rise min-w-0" style="--i: 1">
-          <p v-if="eyebrow" class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-white/60">
-            <span class="h-[3px] w-6 bg-[#FF7A00]" aria-hidden="true" />
-            {{ eyebrow }}
-          </p>
-          <h1 class="mt-2 flex items-center gap-3 font-display text-[1.7rem] font-extrabold leading-[1.05] tracking-tight sm:text-4xl">
-            <span v-if="icon" class="hidden h-11 w-11 shrink-0 items-center justify-center bg-[#FF7A00] text-tikeo-ink sm:flex">
-              <AppIcon :name="icon" class="h-6 w-6" :stroke="2" />
-            </span>
-            <span class="min-w-0 break-words">{{ title }}</span>
-          </h1>
-          <p v-if="subtitle" class="mt-2 max-w-xl text-sm leading-relaxed text-white/75 md:text-base">{{ subtitle }}</p>
+        <div class="org-rise flex min-w-0 items-center gap-4 md:gap-5" style="--i: 1">
+          <span v-if="icon" class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/12 text-[#FFB066] ring-1 ring-white/25 backdrop-blur md:h-16 md:w-16">
+            <AppIcon :name="icon" class="h-6 w-6 md:h-8 md:w-8" :stroke="1.9" />
+          </span>
+          <div class="min-w-0">
+            <p v-if="eyebrow" class="text-[11px] font-bold uppercase tracking-[0.16em] text-white/60 md:text-xs">{{ eyebrow }}</p>
+            <h1 class="mt-1 break-words font-display text-2xl font-extrabold leading-tight tracking-tight md:text-4xl">{{ title }}</h1>
+            <p v-if="subtitle" class="mt-2 max-w-xl text-sm leading-relaxed text-white/75 md:text-base">{{ subtitle }}</p>
+          </div>
         </div>
         <div v-if="$slots.actions" class="org-rise flex flex-wrap items-center gap-3 max-sm:w-full" style="--i: 2">
           <slot name="actions" />

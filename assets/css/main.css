@@ -1259,3 +1259,135 @@ html.ui-reduce-motion [data-stagger='split'] .sw__in { transform: none !importan
 }
 html.ui-reduce-motion .sv__play-ring,
 html.ui-data-saver .sv__play-ring { animation: none; }
+
+
+/* ------------------------------------------------------------------
+   Administration — habillage « doux » (cartes arrondies, menu flottant)
+   ------------------------------------------------------------------
+   Tout est préfixé par .admin-shell (layouts/admin.vue) : le site public et
+   l'espace organisateur gardent leur style carré. Les pages admin existantes
+   héritent de ces arrondis sans avoir à être modifiées une par une. */
+.admin-shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60rem 30rem at 85% -10%, rgb(255 122 0 / 0.09), transparent 60%),
+    radial-gradient(50rem 30rem at -5% 105%, rgb(0 87 184 / 0.09), transparent 60%);
+}
+.admin-side {
+  background:
+    radial-gradient(18rem 14rem at 100% 0%, rgb(255 122 0 / 0.18), transparent 70%),
+    linear-gradient(180deg, #0f2448 0%, #0b1c38 55%, #081529 100%);
+  box-shadow: 0 24px 48px -20px rgb(8 21 41 / 0.7), inset 0 0 0 1px rgb(255 255 255 / 0.07);
+}
+.admin-nav-link.is-active {
+  box-shadow: 0 10px 22px -10px rgb(255 122 0 / 0.85);
+}
+.admin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 0.18) transparent;
+}
+.admin-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.admin-scroll::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 0.18);
+  border-radius: 999px;
+}
+.admin-hero {
+  background: linear-gradient(120deg, #0e2240 0%, #16305a 55%, #0b4a9c 100%);
+  box-shadow: 0 24px 50px -28px rgb(14 34 64 / 0.75);
+}
+.admin-hero-dots {
+  background-image: radial-gradient(rgb(255 255 255 / 0.12) 1px, transparent 1.5px);
+  background-size: 18px 18px;
+  mask-image: linear-gradient(90deg, transparent 20%, #000 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 20%, #000 100%);
+}
+
+/* Arrondis des briques communes (cartes, champs, boutons, tableaux) */
+.admin-shell :is(.org-panel, .acc-panel, .acc-empty) {
+  border-radius: 1.25rem;
+}
+.admin-shell :is(.btn-ink, .btn-brand, .acc-btn-ghost, .acc-btn-danger, .org-icon-btn, .admin-chip, .field-input, .admin-search > input) {
+  border-radius: 0.75rem;
+}
+.admin-shell :is(.acc-alert-error, .acc-alert-success, .acc-alert-info) {
+  border-radius: 0.75rem;
+}
+.admin-shell .acc-tag {
+  border-radius: 999px;
+  padding-inline: 0.65rem;
+}
+.admin-shell :is(.admin-main, .org-main) :is(input:not([type='checkbox'], [type='radio'], [type='range'], [type='file']), select, textarea) {
+  border-radius: 0.75rem;
+}
+.admin-shell :is(.admin-main, .org-main) :is(div, section, article, a, li)[class~='border'][class*='bg-tikeo-surface'] {
+  border-radius: 1.25rem;
+}
+.admin-shell :is(.admin-main, .org-main) .overflow-x-auto {
+  border-radius: 1.25rem;
+  border: 1px solid rgb(var(--tikeo-border));
+  box-shadow: 0 10px 30px -18px rgb(14 34 64 / 0.25);
+}
+.admin-shell :is(.admin-main, .org-main) table thead th {
+  background: rgb(var(--tikeo-surface-alt) / 0.8);
+}
+.admin-shell .admin-header :is(button):not(.org-icon-btn) {
+  border-radius: 0.75rem;
+}
+.admin-shell .pill-success,
+.admin-shell .pill-warning,
+.admin-shell .pill-error,
+.admin-shell .pill-info,
+.admin-shell .pill-neutral {
+  border-radius: 999px;
+}
+.admin-shell .org-card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 22px 40px -22px rgb(14 34 64 / 0.4);
+}
+
+/* Bandeau des pages organisateur : tuiles de chiffres arrondies, boutons doux */
+.org-hero :is(div, a)[class*='border-white'] {
+  border-radius: 1rem;
+}
+.org-hero :is(.btn-brand, .btn-ink, .acc-btn-ghost) {
+  border-radius: 0.75rem;
+}
+
+/* Formulaires (création / modification d'événement) : boutons et champs doux */
+.admin-shell :is(.btn-primary, .btn-secondary, .input-field) {
+  border-radius: 0.875rem;
+}
+.admin-shell .input-field {
+  min-height: 2.9rem;
+}
+.admin-shell .btn-primary {
+  background-image: linear-gradient(90deg, #ff7a00 0%, #ff9a3d 100%);
+  color: #0e2240;
+  font-weight: 700;
+  box-shadow: 0 14px 28px -14px rgb(255 122 0 / 0.9);
+}
+.admin-shell .btn-primary:hover {
+  filter: brightness(1.05);
+  transform: translateY(-2px);
+}
+.admin-shell .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+.admin-shell .btn-secondary {
+  border-color: rgb(var(--tikeo-border));
+  color: rgb(var(--tikeo-text-primary));
+  background: rgb(var(--tikeo-surface));
+}
+.admin-shell .btn-secondary:hover {
+  background: rgb(var(--tikeo-surface-alt));
+  color: rgb(var(--tikeo-text-primary));
+  border-color: #ff7a00;
+}

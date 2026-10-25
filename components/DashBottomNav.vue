@@ -16,6 +16,8 @@ const props = defineProps<{
   items: NavItem[]
   center?: { to: string; label: string; icon: string }
   ariaLabel?: string
+  /** Variante douce (admin) : barre et éléments arrondis. */
+  rounded?: boolean
 }>()
 const emit = defineEmits<{ (e: 'action', item: NavItem): void }>()
 
@@ -39,11 +41,14 @@ function badgeText(n: number) {
     :class="scrolling ? 'pointer-events-none translate-y-[150%] opacity-0' : ''"
     :aria-label="ariaLabel"
   >
-    <div class="mx-auto flex max-w-md items-stretch justify-between border border-tikeo-border bg-tikeo-surface/95 px-1.5 py-1 shadow-card-hover backdrop-blur">
+    <div
+      class="mx-auto flex max-w-md items-stretch justify-between border border-tikeo-border bg-tikeo-surface/95 px-1.5 py-1 shadow-card-hover backdrop-blur"
+      :class="rounded ? 'rounded-3xl !px-2 !py-1.5' : ''"
+    >
       <template v-for="slot in slots" :key="slot.kind === 'item' ? slot.item.label : 'center'">
         <!-- Bouton central -->
         <NuxtLink v-if="slot.kind === 'center'" :to="center!.to" :aria-label="center!.label" class="relative flex flex-1 items-start justify-center">
-          <span class="dash-center -mt-6 flex h-14 w-14 items-center justify-center bg-tikeo-brand text-white shadow-card-hover ring-4 ring-tikeo-surface transition-transform duration-200 active:scale-90">
+          <span class="dash-center -mt-6 flex h-14 w-14 items-center justify-center bg-tikeo-brand text-white shadow-card-hover ring-4 ring-tikeo-surface transition-transform duration-200 active:scale-90" :class="rounded ? 'rounded-2xl' : ''">
             <AppIcon :name="center!.icon" class="h-7 w-7" :stroke="2.4" />
           </span>
         </NuxtLink>
@@ -54,11 +59,11 @@ function badgeText(n: number) {
           v-else
           v-bind="slot.item.to && !slot.item.action ? { to: slot.item.to } : { type: 'button' }"
           class="relative flex min-w-0 flex-1 flex-col items-center gap-0.5 px-0.5 pb-1 pt-2 text-[10px] font-semibold leading-tight transition-colors duration-200 active:bg-tikeo-surface-alt"
-          :class="slot.item.active ? 'bg-tikeo-orange/10 text-tikeo-orange' : 'text-tikeo-gray-text'"
+          :class="[slot.item.active ? 'bg-tikeo-orange/10 text-tikeo-orange' : 'text-tikeo-gray-text', rounded ? 'rounded-2xl' : '']"
           :aria-current="slot.item.active ? 'page' : undefined"
           @click="slot.item.action ? emit('action', slot.item) : undefined"
         >
-          <span v-if="slot.item.active" class="dash-line absolute inset-x-3 top-0 h-[3px] bg-[#FF7A00]" aria-hidden="true" />
+          <span v-if="slot.item.active" class="dash-line absolute inset-x-4 top-0 h-[3px] bg-[#FF7A00]" :class="rounded ? 'rounded-full' : ''" aria-hidden="true" />
           <span class="relative flex h-6 w-6 items-center justify-center transition-transform duration-200" :class="slot.item.active ? '-translate-y-px scale-110' : ''">
             <AppIcon :name="slot.item.icon" class="h-[22px] w-[22px]" :stroke="slot.item.active ? 2.2 : 1.8" />
             <span

@@ -190,16 +190,16 @@ onUnmounted(() => {
 })
 
 const iconBtn =
-  'relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-tikeo-gray-text transition-colors duration-200 hover:bg-tikeo-surface-alt hover:text-tikeo-black'
+  'relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-tikeo-gray-text transition-colors duration-200 hover:bg-tikeo-surface-alt hover:text-tikeo-black'
 </script>
 
 <template>
   <header
-    class="sticky top-0 bg-tikeo-surface/95 backdrop-blur transition-[transform,box-shadow] duration-300 ease-out"
-    :class="[accountOpen ? 'z-[46]' : 'z-40', headerVisible ? 'translate-y-0' : '-translate-y-full', scrolled ? 'shadow-card' : 'border-b border-tikeo-border']"
+    class="sticky top-0 border-b border-tikeo-border bg-tikeo-surface/90 backdrop-blur-xl transition-[transform,box-shadow] duration-300 ease-out"
+    :class="[accountOpen ? 'z-[46]' : 'z-40', headerVisible ? 'translate-y-0' : '-translate-y-full', scrolled ? 'shadow-[0_10px_30px_-18px_rgba(14,34,64,0.35)]' : '']"
   >
-    <!-- Filet de marque : orange → bleu, comme le logo -->
-    <div v-if="showBrandStrip" class="h-[3px] w-full bg-tikeo-brand" aria-hidden="true" />
+    <!-- Filet de marque (réglage admin) : un simple trait sobre -->
+    <div v-if="showBrandStrip" class="h-0.5 w-full bg-tikeo-ink dark:bg-[#FF7A00]" aria-hidden="true" />
 
     <div class="mx-auto flex h-[3.75rem] max-w-tikeo-container items-center gap-2 px-3 md:h-[4.75rem] md:gap-4 md:px-6">
       <NuxtLink to="/" class="flex min-w-0 shrink-0 items-center" :aria-label="brandName + ' — ' + t('nav.home')">
@@ -215,12 +215,12 @@ const iconBtn =
             v-model="searchQuery"
             type="search"
             :placeholder="t('header.searchPlaceholder')"
-            class="h-11 w-full rounded-full border border-tikeo-border bg-tikeo-surface-alt pl-11 pr-14 text-sm text-tikeo-black transition-colors placeholder:text-tikeo-gray-text/70 focus:border-tikeo-ink focus:bg-tikeo-surface focus:outline-none dark:focus:border-[#FF7A00]"
+            class="h-11 w-full rounded-xl border border-tikeo-border bg-tikeo-surface-alt pl-11 pr-14 text-sm text-tikeo-black transition-colors placeholder:text-tikeo-gray-text/70 focus:border-tikeo-ink focus:bg-tikeo-surface focus:outline-none dark:focus:border-[#FF7A00]"
             autocomplete="off"
             @focus="focusSuggestions"
             @keyup.esc="showSuggestions = false"
           />
-          <button type="submit" class="absolute right-1 top-1 flex h-9 w-10 items-center justify-center rounded-full bg-tikeo-ink text-white transition-colors duration-200 hover:bg-[#FF7A00] hover:text-tikeo-ink dark:bg-[#FF7A00] dark:text-tikeo-ink dark:hover:bg-white" :aria-label="t('header.search')">
+          <button type="submit" class="absolute right-1 top-1 flex h-9 w-10 items-center justify-center rounded-lg bg-tikeo-ink text-white transition-colors duration-200 hover:bg-[#FF7A00] hover:text-tikeo-ink dark:bg-[#FF7A00] dark:text-tikeo-ink dark:hover:bg-white" :aria-label="t('header.search')">
             <AppIcon name="search" class="h-4 w-4" :stroke="2.2" />
           </button>
         </form>
@@ -252,7 +252,7 @@ const iconBtn =
             :class="isActive(l.to) ? 'text-tikeo-black' : 'text-tikeo-gray-text hover:text-tikeo-black'"
           >
             {{ l.label }}
-            <span v-if="isActive(l.to)" class="absolute inset-x-3 -bottom-0.5 h-0.5 bg-[#FF7A00]" />
+            <span v-if="isActive(l.to)" class="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-tikeo-black" />
           </NuxtLink>
         </nav>
 
@@ -263,7 +263,7 @@ const iconBtn =
           :class="isActive('/organisateur/tarifs') ? 'text-tikeo-black' : 'text-tikeo-gray-text hover:text-tikeo-black'"
         >
           {{ t('header.pricing') }}
-          <span v-if="isActive('/organisateur/tarifs')" class="absolute inset-x-3 -bottom-0.5 h-0.5 bg-[#FF7A00]" />
+          <span v-if="isActive('/organisateur/tarifs')" class="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-tikeo-black" />
         </NuxtLink>
 
         <span class="inline-flex" data-tour="theme"><ThemeToggle compact /></span>
@@ -281,7 +281,7 @@ const iconBtn =
         </NuxtLink>
 
         <!-- CTA « Publier un événement » : texte complet dès lg, simple « + » sur tablette -->
-        <NuxtLink to="/organisateur/evenements/nouveau" data-tour="publish" class="btn-ink ml-1 !rounded-full !px-4 max-lg:!w-11 max-lg:!px-0" :aria-label="t('header.publish')">
+        <NuxtLink to="/organisateur/evenements/nouveau" data-tour="publish" class="btn-ink ml-1 !rounded-xl !px-4 max-lg:!w-11 max-lg:!px-0" :aria-label="t('header.publish')">
           <AppIcon name="plus" class="h-[18px] w-[18px]" :stroke="2.4" />
           <span class="hidden lg:inline">{{ t('header.publish') }}</span>
         </NuxtLink>
@@ -290,7 +290,7 @@ const iconBtn =
         <button
           type="button"
           data-tour="account"
-          class="menu-btn ml-1 flex h-11 items-center gap-2.5 rounded-full border border-tikeo-border bg-tikeo-surface py-1 pl-1 pr-4 shadow-sm transition-colors hover:border-slate-300 hover:bg-tikeo-surface-alt"
+          class="menu-btn ml-1 flex h-11 items-center gap-2.5 rounded-xl border border-tikeo-border bg-tikeo-surface py-1 pl-1 pr-4 shadow-sm transition-colors hover:border-slate-300 hover:bg-tikeo-surface-alt"
           :aria-label="t('header.menu')"
           :aria-expanded="drawerOpen"
           aria-haspopup="dialog"
@@ -312,7 +312,7 @@ const iconBtn =
         <button
           type="button"
           data-tour="search"
-          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors"
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors"
           :class="mobileSearchOpen ? 'bg-tikeo-ink text-white dark:bg-[#FF7A00] dark:text-tikeo-ink' : 'text-tikeo-black'"
           :aria-label="t('header.search')"
           :aria-expanded="mobileSearchOpen"
@@ -321,12 +321,12 @@ const iconBtn =
           <AppIcon :name="mobileSearchOpen ? 'close' : 'search'" class="h-[22px] w-[22px]" />
         </button>
 
-        <NuxtLink to="/mon-espace/notifications" data-tour="notifications" class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-tikeo-black" :aria-label="t('header.notifications') + (unreadCount > 0 ? ` (${unreadCount})` : '')">
+        <NuxtLink to="/mon-espace/notifications" data-tour="notifications" class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-tikeo-black" :aria-label="t('header.notifications') + (unreadCount > 0 ? ` (${unreadCount})` : '')">
           <AppIcon name="bell" class="h-[22px] w-[22px]" />
           <span v-if="unreadCount > 0" :key="unreadCount" class="badge-pop pointer-events-none absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FF7A00] px-1 text-[10px] font-bold leading-none text-tikeo-ink ring-2 ring-tikeo-surface" aria-hidden="true">{{ badgeText(unreadCount) }}</span>
         </NuxtLink>
 
-        <NuxtLink to="/mon-espace/mes-favoris" data-tour="favorites" class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-tikeo-black" :aria-label="t('header.favorites') + (favoritesCount > 0 ? ` (${favoritesCount})` : '')">
+        <NuxtLink to="/mon-espace/mes-favoris" data-tour="favorites" class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-tikeo-black" :aria-label="t('header.favorites') + (favoritesCount > 0 ? ` (${favoritesCount})` : '')">
           <AppIcon name="heart" class="h-[22px] w-[22px]" />
           <span v-if="favoritesCount > 0" :key="favoritesCount" class="badge-pop pointer-events-none absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FF7A00] px-1 text-[10px] font-bold leading-none text-tikeo-ink ring-2 ring-tikeo-surface" aria-hidden="true">{{ badgeText(favoritesCount) }}</span>
         </NuxtLink>
@@ -334,7 +334,7 @@ const iconBtn =
         <button
           type="button"
           data-tour="account"
-          class="menu-btn ml-1 flex h-10 shrink-0 items-center gap-2 rounded-full border border-tikeo-border bg-tikeo-surface py-1 pl-1 pr-3.5 shadow-sm transition-colors active:bg-tikeo-surface-alt"
+          class="menu-btn ml-1 flex h-10 shrink-0 items-center gap-2 rounded-xl border border-tikeo-border bg-tikeo-surface py-1 pl-1 pr-3.5 shadow-sm transition-colors active:bg-tikeo-surface-alt"
           :aria-label="t('header.menu')"
           :aria-expanded="drawerOpen"
           aria-haspopup="dialog"
@@ -415,10 +415,10 @@ const iconBtn =
               <div class="min-w-0">
                 <p class="truncate font-display text-base font-extrabold leading-tight text-tikeo-black">{{ profile?.full_name || t('header.myAccount') }}</p>
                 <p class="truncate text-sm text-tikeo-gray-text">{{ user?.email }}</p>
-                <span v-if="roleLabel" class="mt-1.5 inline-block rounded-full bg-[#FF7A00]/15 px-2.5 py-0.5 text-[11px] font-bold text-[rgb(var(--tikeo-orange-strong))]">{{ roleLabel }}</span>
+                <span v-if="roleLabel" class="mt-1.5 inline-block rounded-full bg-tikeo-black/10 px-2.5 py-0.5 text-[11px] font-bold text-tikeo-black">{{ roleLabel }}</span>
               </div>
             </div>
-            <div v-else class="rounded-2xl border border-[#FF7A00]/20 bg-gradient-to-br from-[#FFF3E6] to-[#EAF2FC] p-4 dark:from-tikeo-surface-alt dark:to-tikeo-surface-alt">
+            <div v-else class="rounded-2xl border border-tikeo-border bg-tikeo-surface-alt p-4">
               <p class="font-display text-xl font-extrabold leading-tight text-tikeo-black">{{ t('header.welcomeTitle') }}</p>
               <p class="mt-1.5 text-sm leading-relaxed text-tikeo-gray-text">{{ t('header.welcomeText') }}</p>
               <div class="mt-4 grid grid-cols-2 gap-2.5">
@@ -439,7 +439,7 @@ const iconBtn =
                 :to="l.to"
                 class="flex items-center gap-3 rounded-2xl border border-tikeo-border bg-tikeo-surface p-3 transition-colors hover:bg-tikeo-surface-alt"
               >
-                <span class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF7A00]/10 text-[rgb(var(--tikeo-orange-strong))]">
+                <span class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-tikeo-surface-alt text-tikeo-black">
                   <AppIcon :name="l.icon" class="h-5 w-5" />
                   <span v-if="l.badge" :key="l.badge" class="badge-pop absolute -right-1.5 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FF7A00] px-1 text-[10px] font-bold leading-none text-tikeo-ink ring-2 ring-tikeo-surface">{{ badgeText(l.badge) }}</span>
                 </span>
@@ -448,11 +448,11 @@ const iconBtn =
             </div>
 
             <!-- Publier -->
-            <NuxtLink to="/organisateur/evenements/nouveau" class="mt-3 flex items-center gap-3.5 rounded-2xl bg-[#FF7A00] p-4 text-tikeo-ink shadow-sm transition-colors hover:bg-[#FF8F26]">
-              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-tikeo-ink text-white"><AppIcon name="plus" class="h-5 w-5" :stroke="2.4" /></span>
+            <NuxtLink to="/organisateur/evenements/nouveau" class="mt-3 flex items-center gap-3.5 rounded-2xl bg-tikeo-ink p-4 text-white shadow-sm transition-colors hover:bg-tikeo-ink-soft">
+              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF7A00] text-tikeo-ink"><AppIcon name="plus" class="h-5 w-5" :stroke="2.4" /></span>
               <span class="min-w-0 flex-1">
                 <span class="block font-display text-base font-extrabold leading-tight">{{ t('header.publish') }}</span>
-                <span class="block text-xs font-medium text-tikeo-ink/75">{{ t('header.publishHint') }}</span>
+                <span class="block text-xs font-medium text-white/70">{{ t('header.publishHint') }}</span>
               </span>
               <AppIcon name="arrow-right" class="h-5 w-5 shrink-0" :stroke="2.2" />
             </NuxtLink>

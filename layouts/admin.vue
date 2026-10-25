@@ -92,6 +92,12 @@ const initials = computed(() => {
   return user.value?.email?.slice(0, 2).toUpperCase() || 'AD'
 })
 
+const firstName = computed(() => {
+  const name = profile.value?.full_name?.trim()
+  if (name) return name.split(/\s+/)[0]
+  return user.value?.email?.split('@')[0] || ''
+})
+
 function isActive(to: string) {
   return to === '/admin' ? route.path === '/admin' : route.path.startsWith(to)
 }
@@ -144,180 +150,159 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="flex min-h-screen bg-tikeo-gray-light">
-    <!-- ============ Menu latéral (desktop) ============ -->
+  <div class="admin-shell relative flex min-h-screen bg-tikeo-gray-light">
+    <!-- ============ Menu latéral flottant (desktop) ============ -->
     <aside
-      class="sticky top-0 hidden h-screen shrink-0 overflow-hidden border-r border-tikeo-border bg-tikeo-surface transition-[width,border-color] duration-300 ease-out md:block"
-      :class="sidebarCollapsed ? 'md:w-0 md:border-transparent' : 'md:w-64'"
+      class="sticky top-0 z-20 hidden h-screen shrink-0 overflow-hidden transition-[width,padding] duration-300 ease-out md:block"
+      :class="sidebarCollapsed ? 'md:w-0 md:p-0' : 'md:w-[18rem] md:p-3'"
       :aria-hidden="sidebarCollapsed ? 'true' : undefined"
       :inert="sidebarCollapsed || undefined"
     >
-      <div class="flex h-full w-64 flex-col">
-      <NuxtLink to="/admin" class="group relative flex items-center gap-2.5 border-b border-tikeo-border px-5 py-4">
-        <span class="absolute inset-x-0 top-0 h-1 bg-tikeo-brand" aria-hidden="true" />
-        <img src="/logo-babicho.png" alt="Babicho" class="h-10 w-auto transition-transform duration-300 group-hover:scale-105" />
-        <span class="bg-tikeo-ink px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white dark:bg-[#FF7A00] dark:text-tikeo-ink">{{ t('adminNav.badge') }}</span>
-      </NuxtLink>
-
-      <nav class="flex-1 overflow-y-auto px-3 py-4">
-        <div v-for="group in navGroups" :key="group.label" class="mb-5">
-          <p class="mb-2 flex items-center gap-2 px-2 text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text">
-            <span class="h-[3px] w-4 bg-[#FF7A00]" aria-hidden="true" />{{ group.label }}
-          </p>
-          <ul class="space-y-1">
-            <li v-for="item in group.items" :key="item.to">
-              <NuxtLink
-                :to="item.to"
-                :aria-current="isActive(item.to) ? 'page' : undefined"
-                class="group relative flex h-10 items-center gap-3 border px-3 text-sm font-semibold transition-all duration-200"
-                :class="
-                  isActive(item.to)
-                    ? 'border-tikeo-ink bg-tikeo-ink text-white dark:border-[#FF7A00] dark:bg-[#FF7A00] dark:text-tikeo-ink'
-                    : 'border-transparent text-tikeo-black hover:translate-x-1 hover:border-tikeo-border hover:bg-tikeo-surface-alt'
-                "
-              >
-                <AppIcon :name="item.icon" class="h-[18px] w-[18px] shrink-0 transition-transform duration-300 group-hover:scale-110" />
-                <span class="flex-1 truncate">{{ item.label }}</span>
-                <span v-if="item.badge && item.badge.value > 0" class="flex h-5 min-w-5 items-center justify-center bg-[#FF7A00] px-1.5 text-[11px] font-bold text-tikeo-ink">{{ item.badge.value }}</span>
-              </NuxtLink>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
-      <div class="border-t border-tikeo-border p-4">
-        <NuxtLink to="/" class="group flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-tikeo-gray-text transition-colors hover:text-tikeo-orange">
-          <AppIcon name="arrow-left" class="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1" />
-          {{ t('adminNav.backToSite').replace('← ', '') }}
+      <div class="admin-side flex h-full w-[16.5rem] flex-col overflow-hidden rounded-3xl text-white">
+        <NuxtLink to="/admin" class="group flex items-center gap-3 px-4 pb-4 pt-5">
+          <span class="flex h-11 items-center rounded-2xl bg-white px-3 shadow-lg shadow-black/20 transition-transform duration-300 group-hover:scale-[1.03]">
+            <img src="/logo-babicho.png" alt="Babicho" class="h-7 w-auto" />
+          </span>
+          <span class="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#FFB066] ring-1 ring-white/15">{{ t('adminNav.badge') }}</span>
         </NuxtLink>
-      </div>
+
+        <AdminNavList :groups="navGroups" />
+
+        <div class="space-y-2 p-3">
+          <NuxtLink to="/" class="group flex h-10 items-center gap-2.5 rounded-xl px-3 text-xs font-bold uppercase tracking-wider text-white/60 transition-colors hover:bg-white/10 hover:text-white">
+            <AppIcon name="arrow-left" class="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1" />
+            {{ t('adminNav.backToSite').replace('← ', '') }}
+          </NuxtLink>
+          <div class="flex items-center gap-3 rounded-2xl bg-white/[0.06] p-2.5 ring-1 ring-white/10">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#FF7A00] to-[#FF9A3D] text-sm font-bold text-[#0E2240]">{{ initials }}</span>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-[13px] font-bold">{{ profile?.full_name || user?.email }}</p>
+              <p class="truncate text-[11px] text-white/50">{{ t('adminNav.badge') }}</p>
+            </div>
+            <button type="button" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-tikeo-error hover:text-white" :aria-label="t('adminNav.logout')" :title="t('adminNav.logout')" @click="handleLogout">
+              <AppIcon name="logout" class="h-[18px] w-[18px]" />
+            </button>
+          </div>
+        </div>
       </div>
     </aside>
 
     <!-- ============ Tiroir (mobile) ============ -->
     <Transition name="org-fade">
-      <button v-if="sidebarOpen" type="button" class="fixed inset-0 z-40 bg-tikeo-ink/60 backdrop-blur-sm md:hidden" :aria-label="t('adminNav.closeMenu')" @click="sidebarOpen = false" />
+      <button v-if="sidebarOpen" type="button" class="fixed inset-0 z-40 bg-[#050d1c]/70 backdrop-blur-sm md:hidden" :aria-label="t('adminNav.closeMenu')" @click="sidebarOpen = false" />
     </Transition>
     <Transition
       enter-active-class="transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
       leave-active-class="transition-transform duration-200 ease-in"
-      enter-from-class="-translate-x-full"
-      leave-to-class="-translate-x-full"
+      enter-from-class="-translate-x-[110%]"
+      leave-to-class="-translate-x-[110%]"
     >
-      <aside v-if="sidebarOpen" class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col bg-tikeo-surface shadow-2xl md:hidden">
-        <div class="relative flex items-center justify-between border-b border-tikeo-border px-5 py-4">
-          <span class="absolute inset-x-0 top-0 h-1 bg-tikeo-brand" aria-hidden="true" />
-          <img src="/logo-babicho.png" alt="Babicho" class="h-9 w-auto" />
-          <button type="button" class="org-icon-btn !h-9 !w-9" :aria-label="t('adminNav.closeMenu')" @click="sidebarOpen = false"><AppIcon name="close" class="h-5 w-5" /></button>
+      <aside v-if="sidebarOpen" class="admin-side fixed inset-y-3 left-3 z-50 flex w-80 max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-3xl text-white shadow-2xl md:hidden">
+        <div class="flex items-center justify-between px-4 pb-3 pt-4">
+          <span class="flex h-10 items-center rounded-2xl bg-white px-3">
+            <img src="/logo-babicho.png" alt="Babicho" class="h-6 w-auto" />
+          </span>
+          <button type="button" class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white transition-colors active:bg-white/20" :aria-label="t('adminNav.closeMenu')" @click="sidebarOpen = false"><AppIcon name="close" class="h-5 w-5" /></button>
         </div>
-        <div class="flex items-center gap-3 border-b border-tikeo-border bg-tikeo-surface-alt px-5 py-4">
-          <span class="flex h-11 w-11 shrink-0 items-center justify-center bg-tikeo-ink text-sm font-bold text-white dark:bg-[#FF7A00] dark:text-tikeo-ink">{{ initials }}</span>
+        <div class="mx-3 mb-3 flex items-center gap-3 rounded-2xl bg-white/[0.06] p-3 ring-1 ring-white/10">
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#FF7A00] to-[#FF9A3D] text-sm font-bold text-[#0E2240]">{{ initials }}</span>
           <div class="min-w-0">
-            <p class="truncate text-sm font-bold text-tikeo-black">{{ profile?.full_name || user?.email }}</p>
-            <p class="truncate text-xs text-tikeo-gray-text">{{ t('adminNav.badge') }}</p>
+            <p class="truncate text-sm font-bold">{{ profile?.full_name || user?.email }}</p>
+            <p class="truncate text-xs text-white/50">{{ t('adminNav.badge') }}</p>
           </div>
         </div>
-        <nav class="flex-1 overflow-y-auto px-3 py-4">
-          <div v-for="group in navGroups" :key="group.label" class="mb-5">
-            <p class="mb-2 flex items-center gap-2 px-2 text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text">
-              <span class="h-[3px] w-4 bg-[#FF7A00]" aria-hidden="true" />{{ group.label }}
-            </p>
-            <ul class="space-y-1">
-              <li v-for="item in group.items" :key="item.to">
-                <NuxtLink
-                  :to="item.to"
-                  class="flex h-12 items-center gap-3 border px-3 text-[15px] font-semibold transition-colors"
-                  :class="isActive(item.to) ? 'border-tikeo-ink bg-tikeo-ink text-white dark:border-[#FF7A00] dark:bg-[#FF7A00] dark:text-tikeo-ink' : 'border-transparent text-tikeo-black active:bg-tikeo-surface-alt'"
-                >
-                  <AppIcon :name="item.icon" class="h-5 w-5 shrink-0" />
-                  <span class="flex-1 truncate">{{ item.label }}</span>
-                  <span v-if="item.badge && item.badge.value > 0" class="flex h-5 min-w-5 items-center justify-center bg-[#FF7A00] px-1.5 text-[11px] font-bold text-tikeo-ink">{{ item.badge.value }}</span>
-                </NuxtLink>
-              </li>
-            </ul>
-          </div>
-        </nav>
-        <div class="space-y-1 border-t border-tikeo-border p-3">
-          <NuxtLink to="/" class="drawer-row !px-3">
-            <span class="drawer-icon"><AppIcon name="home" class="h-5 w-5" /></span>
-            <span class="flex-1">{{ t('adminNav.backToSite').replace('← ', '') }}</span>
+
+        <AdminNavList :groups="navGroups" large />
+
+        <div class="grid grid-cols-2 gap-2 p-3">
+          <NuxtLink to="/" class="flex h-11 items-center justify-center gap-2 rounded-xl bg-white/10 text-sm font-semibold transition-colors active:bg-white/20">
+            <AppIcon name="home" class="h-[18px] w-[18px]" />{{ t('adminNav.backToSite').replace('← ', '') }}
           </NuxtLink>
-          <button type="button" class="drawer-row w-full !px-3 text-left" @click="handleLogout">
-            <span class="drawer-icon !bg-tikeo-error/10 !text-tikeo-error"><AppIcon name="logout" class="h-5 w-5" /></span>
-            <span class="flex-1">{{ t('adminNav.logout') }}</span>
+          <button type="button" class="flex h-11 items-center justify-center gap-2 rounded-xl bg-tikeo-error/20 text-sm font-semibold text-[#FFB4B4] transition-colors active:bg-tikeo-error/40" @click="handleLogout">
+            <AppIcon name="logout" class="h-[18px] w-[18px]" />{{ t('adminNav.logout') }}
           </button>
         </div>
       </aside>
     </Transition>
 
     <!-- ============ Colonne principale ============ -->
-    <div class="flex min-w-0 flex-1 flex-col">
-      <header class="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-tikeo-border bg-tikeo-surface/95 px-4 pb-2.5 pt-3 backdrop-blur md:px-8">
-        <!-- Filet de marque : orange → bleu, comme le logo -->
-        <span class="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-tikeo-brand" aria-hidden="true" />
-        <div class="flex min-w-0 items-center gap-3">
-          <button
-            type="button"
-            class="org-icon-btn hidden md:flex"
-            :aria-label="sidebarCollapsed ? t('adminNav.showSidebar') : t('adminNav.hideSidebar')"
-            :title="(sidebarCollapsed ? t('adminNav.showSidebar') : t('adminNav.hideSidebar')) + ' (Ctrl+B)'"
-            :aria-pressed="sidebarCollapsed"
-            @click="toggleSidebar"
-          >
-            <AppIcon :name="sidebarCollapsed ? 'menu' : 'chevron-left'" class="h-5 w-5" :stroke="2.2" />
-          </button>
-          <button type="button" class="org-icon-btn !border-tikeo-ink !bg-tikeo-ink !text-white md:hidden dark:!border-[#FF7A00] dark:!bg-[#FF7A00] dark:!text-tikeo-ink" :aria-label="t('adminNav.openMenu')" @click="sidebarOpen = true"><AppIcon name="menu" class="h-5 w-5" /></button>
-          <NuxtLink to="/admin" class="flex min-w-0 items-center gap-2" :class="sidebarCollapsed ? '' : 'md:hidden'" aria-label="Babicho">
-            <img src="/logo-babicho.png" alt="Babicho" class="h-9 w-auto" />
-            <span class="hidden bg-tikeo-ink px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white min-[430px]:inline-block dark:bg-[#FF7A00] dark:text-tikeo-ink">{{ t('adminNav.badge') }}</span>
-          </NuxtLink>
-          <p class="hidden truncate font-display text-base font-extrabold tracking-tight text-tikeo-black md:block">{{ t('adminNav.headerTitle') }}</p>
-        </div>
-        <div class="flex items-center gap-2 md:gap-2.5">
-          <span class="hidden max-w-[14rem] truncate text-sm font-semibold text-tikeo-gray-text lg:inline">{{ profile?.full_name || user?.email }}</span>
-          <ThemeToggle compact boxed />
-          <LanguageSwitcher compact boxed />
-          <span class="hidden h-9 w-9 items-center justify-center bg-tikeo-ink text-xs font-bold text-white sm:flex dark:bg-[#FF7A00] dark:text-tikeo-ink">{{ initials }}</span>
-          <button
-            type="button"
-            class="org-icon-btn max-lg:!w-10 lg:!w-auto lg:gap-2 lg:px-3 text-xs font-bold hover:!border-tikeo-error hover:!bg-tikeo-error hover:!text-white"
-            :aria-label="t('adminNav.logout')"
-            @click="handleLogout"
-          >
-            <AppIcon name="logout" class="h-[18px] w-[18px]" />
-            <span class="hidden lg:inline">{{ t('adminNav.logout') }}</span>
-          </button>
+    <div class="relative z-10 flex min-w-0 flex-1 flex-col">
+      <header class="admin-header sticky top-0 z-30 px-3 pt-3 md:px-6 md:pt-4">
+        <div class="flex items-center justify-between gap-3 rounded-2xl border border-tikeo-border bg-tikeo-surface/80 px-2.5 py-2 shadow-[0_8px_30px_-12px_rgba(14,34,64,0.25)] backdrop-blur-xl md:px-3">
+          <div class="flex min-w-0 items-center gap-2.5">
+            <button
+              type="button"
+              class="org-icon-btn hidden md:flex"
+              :aria-label="sidebarCollapsed ? t('adminNav.showSidebar') : t('adminNav.hideSidebar')"
+              :title="(sidebarCollapsed ? t('adminNav.showSidebar') : t('adminNav.hideSidebar')) + ' (Ctrl+B)'"
+              :aria-pressed="sidebarCollapsed"
+              @click="toggleSidebar"
+            >
+              <AppIcon :name="sidebarCollapsed ? 'menu' : 'chevron-left'" class="h-5 w-5" :stroke="2.2" />
+            </button>
+            <button type="button" class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0E2240] text-white shadow-md transition-transform active:scale-95 md:hidden" :aria-label="t('adminNav.openMenu')" @click="sidebarOpen = true"><AppIcon name="menu" class="h-5 w-5" /></button>
+            <NuxtLink to="/admin" class="flex min-w-0 items-center gap-2" :class="sidebarCollapsed ? '' : 'md:hidden'" aria-label="Babicho">
+              <img src="/logo-babicho.png" alt="Babicho" class="h-8 w-auto" />
+            </NuxtLink>
+            <div class="hidden min-w-0 items-center gap-2 text-sm md:flex">
+              <span class="font-semibold text-tikeo-gray-text">{{ t('adminNav.badge') }}</span>
+              <template v-if="heroItem">
+                <AppIcon name="chevron-right" class="h-3.5 w-3.5 shrink-0 text-tikeo-gray-text/60" />
+                <span class="truncate font-display font-extrabold text-tikeo-black">{{ heroItem.label }}</span>
+              </template>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 md:gap-2">
+            <ThemeToggle compact boxed />
+            <LanguageSwitcher compact boxed />
+            <span class="mx-1 hidden h-6 w-px bg-tikeo-border sm:block" aria-hidden="true" />
+            <span class="hidden max-w-[12rem] truncate text-sm font-semibold text-tikeo-black xl:inline">{{ profile?.full_name || user?.email }}</span>
+            <span class="hidden h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#FF7A00] to-[#FF9A3D] text-xs font-bold text-[#0E2240] sm:flex">{{ initials }}</span>
+            <button
+              type="button"
+              class="org-icon-btn max-lg:!w-10 lg:!w-auto lg:gap-2 lg:px-3 text-xs font-bold hover:!border-tikeo-error hover:!bg-tikeo-error hover:!text-white"
+              :aria-label="t('adminNav.logout')"
+              @click="handleLogout"
+            >
+              <AppIcon name="logout" class="h-[18px] w-[18px]" />
+              <span class="hidden lg:inline">{{ t('adminNav.logout') }}</span>
+            </button>
+          </div>
         </div>
       </header>
 
       <!-- Bandeau de page : titre de la rubrique ouverte -->
-      <section v-if="heroItem" :key="heroItem.to" class="relative isolate overflow-hidden bg-tikeo-ink text-white">
-        <div class="org-line absolute inset-x-0 top-0 h-1 bg-tikeo-brand" aria-hidden="true" />
-        <div class="pointer-events-none absolute inset-y-0 left-0 hidden w-3 lg:block" style="background-image: radial-gradient(circle, rgb(243 245 249) 3px, transparent 3.5px); background-size: 12px 18px; background-position: -6px 0" aria-hidden="true" />
-        <div class="pointer-events-none absolute -right-24 -top-24 -z-10 h-64 w-64 rounded-full bg-[#FF7A00]/15 blur-3xl" aria-hidden="true" />
-        <div class="mx-auto max-w-[76rem] px-4 py-6 md:px-8 md:py-8">
-          <p class="org-rise flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-white/60">
-            <span class="h-[3px] w-6 bg-[#FF7A00]" aria-hidden="true" />{{ t('adminNav.badge') }}
-          </p>
-          <p class="org-rise mt-2 flex items-center gap-3 font-display text-[1.6rem] font-extrabold leading-tight tracking-tight sm:text-3xl md:text-4xl" style="--i: 1" role="presentation">
-            <span class="hidden h-11 w-11 shrink-0 items-center justify-center bg-[#FF7A00] text-tikeo-ink sm:flex"><AppIcon :name="heroItem.icon" class="h-6 w-6" :stroke="2" /></span>
-            <span class="min-w-0 break-words">{{ heroItem.label }}</span>
-          </p>
+      <section v-if="heroItem" :key="heroItem.to" class="px-3 pt-4 md:px-6 md:pt-5">
+        <div class="admin-hero org-rise relative isolate mx-auto max-w-[76rem] overflow-hidden rounded-3xl p-5 text-white md:p-8">
+          <div class="pointer-events-none absolute -right-16 -top-20 -z-10 h-64 w-64 rounded-full bg-[#FF7A00]/35 blur-3xl" aria-hidden="true" />
+          <div class="pointer-events-none absolute -bottom-24 left-1/3 -z-10 h-56 w-56 rounded-full bg-[#2D8CFF]/30 blur-3xl" aria-hidden="true" />
+          <div class="admin-hero-dots pointer-events-none absolute inset-0 -z-10" aria-hidden="true" />
+          <div class="flex items-center gap-4 md:gap-5">
+            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/12 text-[#FFB066] ring-1 ring-white/25 backdrop-blur md:h-16 md:w-16">
+              <AppIcon :name="heroItem.icon" class="h-6 w-6 md:h-8 md:w-8" :stroke="1.9" />
+            </span>
+            <div class="min-w-0">
+              <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-white/60 md:text-xs">
+                {{ route.path === '/admin' || route.path === '/admin/' ? t('adminNav.welcome', { name: firstName }) : t('adminNav.badge') }}
+              </p>
+              <p class="mt-1 break-words font-display text-2xl font-extrabold leading-tight tracking-tight md:text-4xl" role="presentation">{{ heroItem.label }}</p>
+            </div>
+          </div>
         </div>
       </section>
 
-      <main class="admin-main flex-1 max-md:pb-24" :class="heroItem ? 'has-hero' : ''">
+      <main class="admin-main flex-1 max-md:pb-28" :class="heroItem ? 'has-hero' : ''">
         <slot />
       </main>
 
       <ConfirmDeleteModal :open="confirmState.open" :title="confirmState.title" :message="confirmState.message" :confirm-label="confirmState.confirmLabel" @confirm="answerConfirm(true)" @cancel="answerConfirm(false)" />
 
-      <footer class="border-t border-tikeo-border bg-tikeo-surface px-4 py-3 text-center text-xs text-tikeo-gray-text max-md:mb-20 md:px-8">
+      <footer class="px-4 pb-4 pt-2 text-center text-xs text-tikeo-gray-text max-md:mb-20 md:px-8">
         © {{ new Date().getFullYear() }} Babicho — {{ t('adminNav.footer') }}
       </footer>
     </div>
 
     <!-- ============ Barre du bas (mobile) ============ -->
-    <DashBottomNav :items="bottomItems" :aria-label="t('adminNav.badge')" @action="sidebarOpen = true" />
+    <DashBottomNav rounded :items="bottomItems" :aria-label="t('adminNav.badge')" @action="sidebarOpen = true" />
   </div>
 </template>

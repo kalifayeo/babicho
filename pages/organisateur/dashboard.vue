@@ -157,12 +157,12 @@ onMounted(load)
           v-for="(link, i) in quickLinks"
           :key="link.to"
           :to="link.to"
-          class="org-rise org-card-hover group flex flex-col items-center justify-center gap-2.5 border bg-tikeo-surface py-5 text-center"
+          class="org-rise org-card-hover group flex flex-col items-center justify-center gap-2.5 rounded-2xl border bg-tikeo-surface py-5 text-center shadow-card"
           :class="link.highlight ? 'border-[#FF7A00]/50' : 'border-tikeo-border'"
           :style="`--i: ${i}`"
         >
           <span
-            class="flex h-11 w-11 items-center justify-center transition-all duration-300 group-hover:scale-110"
+            class="flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3"
             :class="link.highlight ? 'bg-[#FF7A00] text-tikeo-ink' : 'bg-tikeo-surface-alt text-tikeo-black group-hover:bg-tikeo-ink group-hover:text-white dark:group-hover:bg-[#FF7A00] dark:group-hover:text-tikeo-ink'"
           >
             <AppIcon :name="link.icon" class="h-5 w-5" />
@@ -178,10 +178,10 @@ onMounted(load)
 
       <template v-else>
         <!-- Prochain événement -->
-        <div v-if="nextEvent" class="org-rise relative mb-8 flex items-center justify-between gap-4 overflow-hidden border border-[#FF7A00]/40 bg-[#FF7A00]/5 px-4 py-4 md:px-6" style="--i: 3">
+        <div v-if="nextEvent" class="org-rise relative mb-8 flex items-center justify-between gap-4 overflow-hidden rounded-2xl border border-[#FF7A00]/40 bg-[#FF7A00]/5 px-4 py-4 md:px-6" style="--i: 3">
           <span class="absolute inset-y-0 left-0 w-1 bg-[#FF7A00]" aria-hidden="true" />
           <div class="flex min-w-0 items-center gap-4">
-            <span class="hidden h-12 w-12 shrink-0 items-center justify-center bg-tikeo-ink text-white sm:flex dark:bg-[#FF7A00] dark:text-tikeo-ink"><AppIcon name="clock" class="h-6 w-6" /></span>
+            <span class="hidden h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-tikeo-ink text-white sm:flex dark:bg-[#FF7A00] dark:text-tikeo-ink"><AppIcon name="clock" class="h-6 w-6" /></span>
             <div class="min-w-0">
               <p class="text-[11px] font-bold uppercase tracking-wider text-tikeo-orange">{{ t('organizerDashboard.nextEventLabel') }}</p>
               <p class="truncate font-display text-base font-extrabold text-tikeo-black md:text-lg">{{ nextEvent.title }} <span class="font-semibold text-tikeo-gray-text">· {{ formatDate(nextEvent.start_date) }}</span></p>

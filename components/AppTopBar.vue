@@ -9,19 +9,19 @@ function chooseCountry(code: string) {
   countryMenuOpen.value = false
 }
 
-const { socialLinks } = useSiteSettings()
+const { socialLinks, contact } = useSiteSettings()
 const { open: openPresentation } = usePresentationVideo()
 </script>
 
 <template>
-  <div class="hidden bg-tikeo-ink text-white md:block">
+  <div class="hidden border-b border-tikeo-border bg-tikeo-surface-alt text-tikeo-gray-text md:block">
     <div class="mx-auto flex max-w-tikeo-container items-center justify-between px-6 py-2 text-xs">
       <!-- Localisation + langue -->
       <div class="flex items-center gap-3">
         <div class="relative">
           <button
             type="button"
-            class="flex items-center gap-1.5 font-medium text-white/80 transition-colors hover:text-[#FF9A3D]"
+            class="flex items-center gap-1.5 font-medium text-tikeo-gray-text transition-colors hover:text-tikeo-black"
             :aria-expanded="countryMenuOpen"
             aria-haspopup="true"
             @click="countryMenuOpen = !countryMenuOpen"
@@ -60,13 +60,19 @@ const { open: openPresentation } = usePresentationVideo()
           />
         </div>
 
-        <span class="h-3.5 w-px bg-white/20" />
+        <span class="h-3.5 w-px bg-tikeo-border" />
 
-        <span class="inline-flex" data-tour="language"><LanguageSwitcher class="!h-auto [&>button]:h-auto [&>button]:border-0 [&>button]:p-0 [&>button]:font-medium [&>button]:text-white/80 [&>button:hover]:bg-transparent [&>button:hover]:text-[#FF9A3D]" /></span>
+        <span class="inline-flex" data-tour="language"><LanguageSwitcher class="!h-auto [&>button]:h-auto [&>button]:border-0 [&>button]:p-0 [&>button]:font-medium [&>button]:text-tikeo-gray-text [&>button:hover]:bg-transparent [&>button:hover]:text-tikeo-black" /></span>
       </div>
 
       <!-- Réseaux sociaux + contact -->
       <div class="flex items-center gap-4">
+        <template v-if="contact.phone">
+          <a :href="`tel:${contact.phone.replace(/\s+/g, '')}`" class="hidden items-center gap-1.5 font-medium text-tikeo-gray-text transition-colors hover:text-tikeo-black lg:flex">
+            <AppIcon name="phone" class="h-3.5 w-3.5" />{{ contact.phone }}
+          </a>
+          <span class="hidden h-3.5 w-px bg-tikeo-border lg:block" />
+        </template>
         <div class="flex items-center gap-3">
           <a
             v-for="s in socialLinks"
@@ -75,18 +81,18 @@ const { open: openPresentation } = usePresentationVideo()
             target="_blank"
             rel="noopener noreferrer"
             :aria-label="s.name"
-            class="text-white/70 transition-colors hover:text-[#FF9A3D]"
+            class="text-tikeo-gray-text transition-colors hover:text-tikeo-black"
           >
             <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><path :d="s.path" /></svg>
           </a>
         </div>
-        <span class="h-3.5 w-px bg-white/20" />
-        <button type="button" class="flex items-center gap-1.5 font-medium text-white/80 transition-colors hover:text-[#FF9A3D]" @click="openPresentation">
+        <span class="h-3.5 w-px bg-tikeo-border" />
+        <button type="button" class="flex items-center gap-1.5 font-medium text-tikeo-gray-text transition-colors hover:text-tikeo-black" @click="openPresentation">
           <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 001.5.86l10.5-6.5a1 1 0 000-1.72L9.5 4.64A1 1 0 008 5.5z" /></svg>
           {{ t('presentationVideo.button') }}
         </button>
-        <span class="h-3.5 w-px bg-white/20" />
-        <NuxtLink to="/contact" class="flex items-center gap-1.5 font-medium text-white/80 transition-colors hover:text-[#FF9A3D]">
+        <span class="h-3.5 w-px bg-tikeo-border" />
+        <NuxtLink to="/contact" class="flex items-center gap-1.5 font-medium text-tikeo-gray-text transition-colors hover:text-tikeo-black">
           <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
             <path stroke-linecap="round" stroke-linejoin="round" d="M18 10c0-3.3-2.7-6-6-6s-6 2.7-6 6v3l-1.2 2.4A1 1 0 005.7 17H8m8 0a2 2 0 11-4 0m4 0H8" />
           </svg>
