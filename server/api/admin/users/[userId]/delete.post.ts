@@ -111,7 +111,8 @@ export default defineEventHandler(async (event) => {
     action: 'ADMIN_USER_DELETED',
     entity_type: 'profiles',
     entity_id: targetUserId,
-    metadata: { previousEmail },
+    // Conservé pour la page « Historique des comptes » : une fois anonymisé, le profil n'a plus ces informations.
+    metadata: { previousEmail, previousName: targetProfile.full_name, previousRole: targetProfile.role },
   })
 
   return { success: true }

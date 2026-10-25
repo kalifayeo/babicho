@@ -4,13 +4,12 @@
  * contenu (titre, texte, image ou icône) est géré par l'admin
  * (/admin/introduction). Aucun emoji : seulement des icônes SVG.
  *
- * Style volontairement sobre : fond neutre, texte lisible, un seul accent
- * (l'orange de la marque, pour la progression) et le bouton principal.
- *
- * Mise en page :
- *  - mobile : carte centrée (marges autour), visuel en haut, texte et boutons
- *    en bas, balayage gauche/droite pour naviguer ;
- *  - desktop : fenêtre en deux volets — visuel à gauche, texte à droite.
+ * Style « carte douce » (inspiré de l'intro de Retrouva) : carte blanche aux
+ * coins très arrondis, barre de progression orange en haut, compteur « 1 / 4 »,
+ * pastille d'icône orange centrée, titre + texte centrés, bouton principal en
+ * pilule orange (avec « Précédent » à côté dès la 2e page) et lien discret
+ * « Passer l'introduction ». Même rendu sur mobile et sur grand écran ; le
+ * balayage gauche/droite et les flèches du clavier fonctionnent.
  */
 import type { OnboardingSlide } from '~/types/database'
 
@@ -24,6 +23,7 @@ const total = computed(() => props.slides.length)
 const current = computed(() => props.slides[index.value])
 const currentIcon = computed(() => resolveIntroIcon(current.value?.icon))
 const isLast = computed(() => index.value === total.value - 1)
+const progress = computed(() => ((index.value + 1) / Math.max(total.value, 1)) * 100)
 
 function next() {
   if (isLast.value) return emit('close')
@@ -41,7 +41,7 @@ function goTo(i: number) {
 }
 
 function onKey(e: KeyboardEvent) {
-  if (e.key === 'ArrowRight' || e.key === 'Enter') next()
+  if (e.key === 'ArrowRight') next()
   else if (e.key === 'ArrowLeft') prev()
   else if (e.key === 'Escape') emit('close')
 }
@@ -85,86 +85,91 @@ onBeforeUnmount(() => {
 <template>
   <Teleport to="body">
     <div
-      class="intro-backdrop fixed inset-0 z-[100] flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm md:p-6"
+      class="intro-backdrop fixed inset-0 z-[100] flex items-center justify-center bg-black/55 p-4 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
       :aria-label="t('engagement.introLabel')"
     >
       <div
-        class="intro-card relative flex max-h-[88dvh] w-full max-w-[380px] flex-col overflow-hidden bg-tikeo-surface shadow-2xl md:h-[min(440px,90vh)] md:max-w-3xl md:flex-row"
+        class="intro-card relative w-full max-w-[440px] overflow-hidden rounded-[28px] bg-tikeo-surface shadow-2xl"
         @touchstart.passive="onTouchStart"
         @touchend.passive="onTouchEnd"
       >
+        <!-- Barre de progression -->
+        <div
+          class="h-2 w-full bg-tikeo-surface-alt"
+          role="progressbar"
+          aria-valuemin="1"
+          :aria-valuemax="total"
+          :aria-valuenow="index + 1"
+          :aria-label="t('engagement.pageOf', { current: index + 1, total })"
+        >
+          <div class="h-full rounded-r-full bg-[#FF7A00] transition-[width] duration-300 ease-out" :style="{ width: `${progress}%` }" />
+        </div>
+
         <!-- Fermer -->
         <button
           type="button"
-          class="absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center text-tikeo-gray-text transition-colors hover:bg-tikeo-surface-alt hover:text-tikeo-black md:right-3 md:top-3"
+          class="absolute right-4 top-6 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-tikeo-surface-alt text-tikeo-gray-text transition-colors hover:bg-tikeo-border hover:text-tikeo-black"
           :aria-label="t('engagement.close')"
           @click="emit('close')"
         >
-          <AppIcon name="close" class="h-5 w-5" :stroke="2" />
+          <AppIcon name="close" class="h-4 w-4" :stroke="2.2" />
         </button>
 
-        <!-- ============ Visuel ============ -->
-        <div class="relative h-[128px] shrink-0 overflow-hidden border-b border-tikeo-border bg-tikeo-surface-alt md:h-auto md:w-[42%] md:border-b-0 md:border-r">
-          <Transition name="intro-fade" mode="out-in">
-            <div :key="current.id" class="absolute inset-0 flex items-center justify-center">
-              <img v-if="current.image_url" :src="current.image_url" :alt="current.title" class="h-full w-full object-cover" />
-              <div v-else class="flex h-[76px] w-[76px] items-center justify-center border border-tikeo-border bg-tikeo-surface text-tikeo-black md:h-32 md:w-32">
-                <AppIcon :name="currentIcon" class="h-9 w-9 md:h-14 md:w-14" :stroke="1.5" />
+        <div class="max-h-[calc(92dvh-8px)] overflow-y-auto px-7 pb-7 pt-9 text-center sm:px-9">
+          <!-- Compteur -->
+          <p class="text-xs font-extrabold tracking-wider text-tikeo-orange-dark">{{ index + 1 }} / {{ total }}</p>
+
+          <!-- Visuel + texte (les trois blocs changent ensemble) -->
+          <Transition :name="direction === 'next' ? 'intro-slide-next' : 'intro-slide-prev'" mode="out-in">
+            <div :key="current.id" class="min-h-[210px]">
+              <div class="mt-5 flex justify-center">
+                <img
+                  v-if="current.image_url"
+                  :src="current.image_url"
+                  :alt="current.title"
+                  class="h-36 w-full max-w-[320px] rounded-2xl object-cover"
+                />
+                <span v-else class="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FF7A00] text-white shadow-[0_8px_20px_-6px_rgba(255,122,0,0.55)]">
+                  <AppIcon :name="currentIcon" class="h-8 w-8" :stroke="1.8" />
+                </span>
               </div>
+              <h2 class="mt-5 font-display text-[22px] font-extrabold leading-tight text-tikeo-black sm:text-2xl">{{ current.title }}</h2>
+              <p v-if="current.description" class="mx-auto mt-2.5 max-w-[340px] whitespace-pre-line text-[15px] leading-relaxed text-tikeo-gray-text">{{ current.description }}</p>
             </div>
           </Transition>
-        </div>
 
-        <!-- ============ Texte + actions ============ -->
-        <div class="flex min-h-0 flex-1 flex-col md:w-[58%]">
-          <div class="min-h-[120px] flex-1 overflow-y-auto px-6 pb-2 pt-6 md:flex md:flex-col md:justify-center md:px-12 md:py-10">
-            <Transition :name="direction === 'next' ? 'intro-slide-next' : 'intro-slide-prev'" mode="out-in">
-              <div :key="current.id">
-                <h2 class="font-display text-[22px] font-bold leading-tight text-tikeo-black md:text-[30px]">{{ current.title }}</h2>
-                <p v-if="current.description" class="mt-3 whitespace-pre-line text-[15px] leading-relaxed text-tikeo-gray-text md:text-base">{{ current.description }}</p>
-              </div>
-            </Transition>
-          </div>
-
-          <div class="px-6 pb-5 pt-3 md:px-12 md:pb-8">
-            <!-- Progression -->
-            <div class="mb-4 flex items-center justify-center md:justify-start" role="tablist">
-              <button
-                v-for="(s, i) in slides"
-                :key="s.id"
-                type="button"
-                role="tab"
-                :aria-selected="i === index"
-                :aria-label="t('engagement.pageOf', { current: i + 1, total })"
-                class="flex h-6 items-center px-[3px] first:pl-0"
-                @click="goTo(i)"
-              >
-                <span class="block h-[3px] transition-all duration-300" :class="i === index ? 'w-7 bg-tikeo-orange' : 'w-3.5 bg-tikeo-border'" />
-              </button>
-            </div>
-
-            <div class="flex items-stretch gap-3">
-              <button
-                v-if="index > 0"
-                type="button"
-                class="flex h-12 w-12 shrink-0 items-center justify-center border border-tikeo-border text-tikeo-black transition-colors hover:border-tikeo-ink dark:hover:border-[#FF7A00]"
-                :aria-label="t('engagement.previous')"
-                :title="t('engagement.previous')"
-                @click="prev"
-              >
-                <AppIcon name="arrow-left" class="h-5 w-5" :stroke="2" />
-              </button>
-              <button ref="primaryEl" type="button" class="btn-ink !h-12 flex-1 !text-[15px]" @click="next">
-                {{ isLast ? t('engagement.start') : t('engagement.next') }}
-              </button>
-            </div>
-            <button v-if="!isLast" type="button" class="mx-auto mt-3 flex text-xs font-semibold text-tikeo-gray-text underline-offset-2 transition-colors hover:text-tikeo-black hover:underline md:mx-0" @click="emit('close')">
-              {{ t('engagement.skipIntro') }}
+          <!-- Actions -->
+          <div class="mt-6 flex items-stretch gap-3">
+            <button
+              v-if="index > 0"
+              type="button"
+              class="flex h-12 flex-1 items-center justify-center rounded-full border-2 border-tikeo-ink px-4 text-[15px] font-bold text-tikeo-black transition-colors hover:bg-tikeo-surface-alt dark:border-white/70"
+              @click="prev"
+            >
+              {{ t('engagement.previous') }}
             </button>
-            <div v-else class="mt-3 h-4" aria-hidden="true" />
+            <button
+              ref="primaryEl"
+              type="button"
+              class="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[#FF7A00] px-4 text-[15px] font-extrabold text-white shadow-[0_8px_20px_-8px_rgba(255,122,0,0.7)] transition-all duration-200 hover:bg-[#F06F00] active:scale-[0.98]"
+              @click="next"
+            >
+              {{ isLast ? t('engagement.start') : t('engagement.next') }}
+              <AppIcon name="arrow-right" class="h-[18px] w-[18px]" :stroke="2.4" />
+            </button>
           </div>
+
+          <button
+            v-if="!isLast"
+            type="button"
+            class="mx-auto mt-4 block text-[13px] font-semibold text-tikeo-gray-text underline-offset-2 transition-colors hover:text-tikeo-black hover:underline"
+            @click="emit('close')"
+          >
+            {{ t('engagement.skipIntro') }}
+          </button>
+          <div v-else class="mt-4 h-5" aria-hidden="true" />
         </div>
       </div>
     </div>
@@ -173,23 +178,20 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .intro-backdrop { animation: intro-fade 0.25s ease both; }
-.intro-card { animation: intro-rise 0.3s ease-out both; }
+.intro-card { animation: intro-rise 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
 @keyframes intro-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes intro-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes intro-rise { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: none; } }
 
-/* Changement de page : simple fondu, le texte glisse très légèrement */
-.intro-fade-enter-active, .intro-fade-leave-active,
+/* Changement de page : fondu + très léger glissement */
 .intro-slide-next-enter-active, .intro-slide-next-leave-active,
 .intro-slide-prev-enter-active, .intro-slide-prev-leave-active {
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
-.intro-fade-enter-from, .intro-fade-leave-to { opacity: 0; }
-.intro-slide-next-enter-from, .intro-slide-prev-leave-to { opacity: 0; transform: translateX(14px); }
-.intro-slide-next-leave-to, .intro-slide-prev-enter-from { opacity: 0; transform: translateX(-14px); }
+.intro-slide-next-enter-from, .intro-slide-prev-leave-to { opacity: 0; transform: translateX(16px); }
+.intro-slide-next-leave-to, .intro-slide-prev-enter-from { opacity: 0; transform: translateX(-16px); }
 
 @media (prefers-reduced-motion: reduce) {
   .intro-backdrop, .intro-card { animation: none; }
-  .intro-fade-enter-active, .intro-fade-leave-active,
   .intro-slide-next-enter-active, .intro-slide-next-leave-active,
   .intro-slide-prev-enter-active, .intro-slide-prev-leave-active { transition: none; }
 }

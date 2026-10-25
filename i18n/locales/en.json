@@ -987,6 +987,7 @@
     "manageUsersDesc": "Roles, account status"
   },
   "adminUsers": {
+    "history": "History",
     "title": "User management",
     "addUser": "+ Add a user",
     "errorLoad": "Unable to load users.",
@@ -1025,6 +1026,30 @@
     "errorDelete": "Could not delete this account right now.",
     "colMemberSince": "Joined on",
     "search": "Search a name or email…"
+  },
+  "accountHistory": {
+    "title": "Account history",
+    "subtitle": "Accounts that were deleted, created, suspended or had their role changed. Deleted accounts no longer appear in the users list.",
+    "back": "Back to users",
+    "refresh": "Refresh",
+    "search": "Search a name, an email…",
+    "filterAll": "All",
+    "filterDeleted": "Deleted",
+    "filterCreated": "Created",
+    "filterSuspensions": "Suspensions",
+    "filterRoles": "Roles",
+    "actionDeleted": "Deleted",
+    "actionCreated": "Created",
+    "actionSuspended": "Suspended",
+    "actionReactivated": "Reactivated",
+    "actionRole": "Role changed",
+    "by": "By {name}",
+    "bySystem": "By the system",
+    "legacyAccount": "Former deleted account",
+    "unknownAccount": "Deleted account",
+    "empty": "No events yet.",
+    "loadMore": "Show more",
+    "errorLoad": "Unable to load the account history."
   },
   "adminOrganizers": {
     "title": "Organizer management",

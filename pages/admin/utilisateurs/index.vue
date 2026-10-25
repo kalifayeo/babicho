@@ -78,9 +78,13 @@ async function load() {
   loading.value = true
   errorMessage.value = ''
   try {
-    const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false })
+    // Les comptes supprimés ne sont plus listés ici (ils ne servaient qu'à
+    // alourdir le tableau) : on les retrouve dans « Historique des comptes ».
+    // Le test sur l'email attrape aussi les anciens comptes anonymisés avant
+    // que le statut « deleted » ne soit posé de façon fiable.
+    const { data, error } = await supabase.from('profiles').select('*').neq('status', 'deleted').order('created_at', { ascending: false })
     if (error) throw error
-    users.value = (data as unknown as Profile[]) ?? []
+    users.value = ((data as unknown as Profile[]) ?? []).filter((u) => !u.email?.startsWith('compte-supprime+'))
   } catch (e: any) {
     errorMessage.value = e?.message || t('adminUsers.errorLoad')
   } finally {
@@ -174,8 +178,8 @@ async function deleteUser(u: Profile) {
       method: 'POST',
       headers: { Authorization: `Bearer ${session.access_token}`, ...(await csrfHeader()) },
     })
-    u.status = 'deleted'
-    u.full_name = 'Compte supprimé'
+    // Le compte disparaît aussitôt de la liste ; sa trace reste dans l'historique.
+    users.value = users.value.filter((x) => x.id !== u.id)
   } catch (e: any) {
     errorMessage.value = e?.data?.statusMessage || e?.message || t('adminUsers.errorDelete')
   } finally {
@@ -247,9 +251,14 @@ async function confirmDeleteAction() {
   <div class="mx-auto max-w-5xl px-4 py-8 md:px-6">
     <div class="mb-6 flex items-center justify-between">
       <h1 class="text-xl font-bold text-tikeo-black">{{ t('adminUsers.title') }}</h1>
-      <button v-if="canCreate" type="button" class="btn-ink !h-10 !px-4 !text-[13px]" :aria-label="t('adminUsers.addUser')" @click="openCreateModal">
-        <AppIcon name="user-plus" class="h-[18px] w-[18px]" /><span class="hidden sm:inline">{{ t('adminUsers.addUser').replace(/^\+\s*/, '') }}</span>
-      </button>
+      <div class="flex items-center gap-2">
+        <NuxtLink to="/admin/utilisateurs/historique" class="acc-btn-ghost !h-10 !px-4 !text-[13px]" :aria-label="t('adminUsers.history')">
+          <AppIcon name="clock" class="h-[18px] w-[18px]" /><span class="hidden sm:inline">{{ t('adminUsers.history') }}</span>
+        </NuxtLink>
+        <button v-if="canCreate" type="button" class="btn-ink !h-10 !px-4 !text-[13px]" :aria-label="t('adminUsers.addUser')" @click="openCreateModal">
+          <AppIcon name="user-plus" class="h-[18px] w-[18px]" /><span class="hidden sm:inline">{{ t('adminUsers.addUser').replace(/^\+\s*/, '') }}</span>
+        </button>
+      </div>
     </div>
 
     <p v-if="errorMessage" class="acc-alert-error mb-4">{{ errorMessage }}</p>

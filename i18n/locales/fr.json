@@ -989,6 +989,7 @@
     "manageUsersDesc": "Rôles, statut des comptes"
   },
   "adminUsers": {
+    "history": "Historique",
     "title": "Gestion des utilisateurs",
     "addUser": "+ Ajouter un utilisateur",
     "errorLoad": "Impossible de charger les utilisateurs.",
@@ -1027,6 +1028,30 @@
     "errorDelete": "Impossible de supprimer ce compte pour le moment.",
     "colMemberSince": "Inscrit le",
     "search": "Rechercher un nom, un email…"
+  },
+  "accountHistory": {
+    "title": "Historique des comptes",
+    "subtitle": "Comptes supprimés, créés, suspendus ou dont le rôle a changé. Les comptes supprimés n'apparaissent plus dans la liste des utilisateurs.",
+    "back": "Retour aux utilisateurs",
+    "refresh": "Actualiser",
+    "search": "Rechercher un nom, un email…",
+    "filterAll": "Tout",
+    "filterDeleted": "Supprimés",
+    "filterCreated": "Créés",
+    "filterSuspensions": "Suspensions",
+    "filterRoles": "Rôles",
+    "actionDeleted": "Supprimé",
+    "actionCreated": "Créé",
+    "actionSuspended": "Suspendu",
+    "actionReactivated": "Réactivé",
+    "actionRole": "Rôle modifié",
+    "by": "Par {name}",
+    "bySystem": "Par le système",
+    "legacyAccount": "Ancien compte supprimé",
+    "unknownAccount": "Compte supprimé",
+    "empty": "Aucun événement pour le moment.",
+    "loadMore": "Voir plus",
+    "errorLoad": "Impossible de charger l'historique des comptes."
   },
   "adminOrganizers": {
     "title": "Gestion des organisateurs",

@@ -987,6 +987,7 @@
     "manageUsersDesc": "Funções, status das contas"
   },
   "adminUsers": {
+    "history": "Histórico",
     "title": "Gestão de usuários",
     "addUser": "+ Adicionar usuário",
     "errorLoad": "Não foi possível carregar os usuários.",
@@ -1025,6 +1026,30 @@
     "errorDelete": "Não foi possível eliminar esta conta no momento.",
     "colMemberSince": "Registado em",
     "search": "Pesquisar um nome ou email…"
+  },
+  "accountHistory": {
+    "title": "Histórico de contas",
+    "subtitle": "Contas eliminadas, criadas, suspensas ou com alteração de função. As contas eliminadas já não aparecem na lista de utilizadores.",
+    "back": "Voltar aos utilizadores",
+    "refresh": "Atualizar",
+    "search": "Pesquisar um nome, um email…",
+    "filterAll": "Tudo",
+    "filterDeleted": "Eliminadas",
+    "filterCreated": "Criadas",
+    "filterSuspensions": "Suspensões",
+    "filterRoles": "Funções",
+    "actionDeleted": "Eliminada",
+    "actionCreated": "Criada",
+    "actionSuspended": "Suspensa",
+    "actionReactivated": "Reativada",
+    "actionRole": "Função alterada",
+    "by": "Por {name}",
+    "bySystem": "Pelo sistema",
+    "legacyAccount": "Antiga conta eliminada",
+    "unknownAccount": "Conta eliminada",
+    "empty": "Ainda não há eventos.",
+    "loadMore": "Ver mais",
+    "errorLoad": "Não foi possível carregar o histórico de contas."
   },
   "adminOrganizers": {
     "title": "Gestão de organizadores",
