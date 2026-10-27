@@ -35,6 +35,7 @@ const CSP = [
   "manifest-src 'self'",
   "frame-ancestors 'self'",
   "base-uri 'self'",
+  "form-action 'self'",
   "object-src 'none'",
   'upgrade-insecure-requests',
 ].join('; ')
@@ -233,6 +234,7 @@ export default defineNuxtConfig({
         'Permissions-Policy': 'camera=(self), microphone=(), geolocation=(), payment=(self)',
         // 1 an + sous-domaines (les sous-domaines organisateurs sont tous en HTTPS). Pas de « preload » : irréversible.
         'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+        'X-Permitted-Cross-Domain-Policies': 'none',
         [IS_PROD ? CSP_HEADER : 'Content-Security-Policy']: IS_PROD ? CSP : CSP_DEV,
       },
     },
@@ -252,5 +254,14 @@ export default defineNuxtConfig({
     // Page de maintenance (voir server/middleware/maintenance.ts) : jamais indexée ni mise en cache.
     '/maintenance': { headers: { 'X-Robots-Tag': 'noindex, nofollow', 'Cache-Control': 'no-store' } },
     '/api/**': { headers: { 'X-Robots-Tag': 'noindex' } },
+    // Réponses privées (commandes, billets, compte, scan, admin, transferts) : jamais mises en cache
+    // par un navigateur partagé, un proxy ou le CDN.
+    '/api/orders/**': { headers: { 'Cache-Control': 'private, no-store' } },
+    '/api/tickets/**': { headers: { 'Cache-Control': 'private, no-store' } },
+    '/api/account/**': { headers: { 'Cache-Control': 'private, no-store' } },
+    '/api/admin/**': { headers: { 'Cache-Control': 'private, no-store' } },
+    '/api/scan/**': { headers: { 'Cache-Control': 'private, no-store' } },
+    '/api/transfers/**': { headers: { 'Cache-Control': 'private, no-store' } },
+    '/api/csrf-token': { headers: { 'Cache-Control': 'private, no-store' } },
   },
 })

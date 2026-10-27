@@ -28,11 +28,7 @@ onMounted(() => {
 // mais cette page ignorait toujours ce paramètre et renvoyait systématiquement
 // vers /mon-espace/tableau-de-bord, même quand l'utilisateur venait d'une
 // page précise (ex: favoris depuis une carte événement).
-const redirectTarget = computed(() => {
-  const target = route.query.redirect
-  if (typeof target === 'string' && target.startsWith('/')) return target
-  return '/mon-espace/tableau-de-bord'
-})
+const redirectTarget = computed(() => safeRedirectPath(route.query.redirect, '/mon-espace/tableau-de-bord'))
 
 const modes = ['password', 'otp'] as const
 const mode = ref<'password' | 'otp'>('password')

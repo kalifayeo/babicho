@@ -17,10 +17,7 @@ const { tiers, fetchTiers } = useCommission()
 const activating = ref(false)
 const checkedExisting = ref(false)
 
-const redirectTarget = computed(() => {
-  const target = route.query.redirect
-  return typeof target === 'string' && target.startsWith('/organisateur') ? target : '/organisateur/evenements/nouveau'
-})
+const redirectTarget = computed(() => safeRedirectPath(route.query.redirect, '/organisateur/evenements/nouveau', '/organisateur'))
 
 const rateRange = computed(() => {
   const rates = tiers.value.map((x) => x.rate)

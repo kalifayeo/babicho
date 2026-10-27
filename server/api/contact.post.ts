@@ -20,7 +20,7 @@ import { verifyTurnstile } from '~/server/utils/turnstile'
  */
 export default defineEventHandler(async (event) => {
   requireCsrf(event)
-  await checkRateLimit(event, { key: 'contact', max: 5, windowMs: 10 * 60 * 1000 })
+  await checkRateLimit(event, { key: 'contact', max: 5, windowMs: 10 * 60 * 1000, failClosed: true })
 
   const body = await readBody<{
     fullName?: string
@@ -45,6 +45,9 @@ export default defineEventHandler(async (event) => {
 
   if (!fullName || !email || !subject || !message) {
     throw createError({ statusCode: 400, statusMessage: 'Tous les champs sont obligatoires.' })
+  }
+  if (fullName.length > 120 || email.length > 254 || subject.length > 200 || message.length > 5000) {
+    throw createError({ statusCode: 400, statusMessage: 'Un des champs est trop long.' })
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw createError({ statusCode: 400, statusMessage: 'Adresse email invalide.' })

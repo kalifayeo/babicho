@@ -1,6 +1,8 @@
 import { requireUser } from '~/server/utils/userAuth'
 import { requireScanAccess } from '~/server/utils/scanAccess'
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 /**
  * GET /api/scan/stats?eventId=… — compteurs d'entrée et derniers scans,
  * affichés en direct sur la page Scanner. Mêmes droits que la validation.
@@ -8,7 +10,7 @@ import { requireScanAccess } from '~/server/utils/scanAccess'
 export default defineEventHandler(async (event) => {
   const { userId } = await requireUser(event)
   const eventId = String(getQuery(event).eventId ?? '')
-  if (!eventId) throw createError({ statusCode: 400, statusMessage: 'INVALID_REQUEST' })
+  if (!UUID_RE.test(eventId)) throw createError({ statusCode: 400, statusMessage: 'INVALID_REQUEST' })
 
   const { admin, ev } = await requireScanAccess(event, userId, eventId)
 

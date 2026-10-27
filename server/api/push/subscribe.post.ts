@@ -19,11 +19,25 @@ export default defineEventHandler(async (event) => {
   const p256dh = typeof body?.keys?.p256dh === 'string' ? body.keys.p256dh : ''
   const authKey = typeof body?.keys?.auth === 'string' ? body.keys.auth : ''
 
-  if (!endpoint.startsWith('https://') || endpoint.length > 2048 || !p256dh || !authKey) {
+  if (!endpoint.startsWith('https://') || endpoint.length > 2048 || !p256dh || !authKey || p256dh.length > 200 || authKey.length > 100) {
+    throw createError({ statusCode: 400, statusMessage: 'INVALID_SUBSCRIPTION', data: { code: 'INVALID_SUBSCRIPTION' } })
+  }
+
+  // Anti-SSRF : le serveur enverra plus tard une requête POST à cette URL (cron/tick).
+  // Seuls les services de push officiels des navigateurs sont acceptés, jamais un hôte
+  // arbitraire choisi par l'utilisateur (ni IP, ni port, ni identifiants dans l'URL).
+  if (!isAllowedPushEndpoint(endpoint)) {
     throw createError({ statusCode: 400, statusMessage: 'INVALID_SUBSCRIPTION', data: { code: 'INVALID_SUBSCRIPTION' } })
   }
 
   const supabaseAdmin = useSupabaseAdmin()
+
+  // Anti-détournement : un endpoint déjà rattaché à un autre compte ne peut pas être « repris »
+  // par l'upsert ci-dessous (sinon on recevrait les notifications d'un autre utilisateur).
+  const { data: existing } = await supabaseAdmin.from('push_subscriptions').select('user_id').eq('endpoint', endpoint).maybeSingle()
+  if (existing && existing.user_id !== userId) {
+    throw createError({ statusCode: 409, statusMessage: 'SUBSCRIPTION_CONFLICT', data: { code: 'SUBSCRIPTION_CONFLICT' } })
+  }
   const { error } = await supabaseAdmin.from('push_subscriptions').upsert(
     {
       user_id: userId,
@@ -43,3 +57,24 @@ export default defineEventHandler(async (event) => {
 
   return { ok: true }
 })
+
+/** Services de push des navigateurs (FCM/Chrome/Edge/Opera, Mozilla, Apple, Windows). */
+const PUSH_HOST_SUFFIXES = [
+  'fcm.googleapis.com',
+  'android.googleapis.com',
+  'push.services.mozilla.com',
+  'push.apple.com',
+  'notify.windows.com',
+]
+
+function isAllowedPushEndpoint(endpoint: string): boolean {
+  let url: URL
+  try {
+    url = new URL(endpoint)
+  } catch {
+    return false
+  }
+  if (url.protocol !== 'https:' || url.username || url.password || (url.port && url.port !== '443')) return false
+  const host = url.hostname.toLowerCase()
+  return PUSH_HOST_SUFFIXES.some((suffix) => host === suffix || host.endsWith(`.${suffix}`))
+}

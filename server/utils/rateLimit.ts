@@ -16,9 +16,15 @@ import type { H3Event } from 'h3'
  * options { key, max, windowMs }, même erreur 429 en cas de dépassement) :
  * seul le stockage du compteur a changé.
  */
-export async function checkRateLimit(event: H3Event, opts: { key: string; max: number; windowMs: number }) {
+export async function checkRateLimit(
+  event: H3Event,
+  // failClosed : si le compteur est indisponible, on REFUSE au lieu de laisser passer
+  // (à réserver aux routes qu'on ne veut jamais voir attaquées sans limite : essais de codes, spam).
+  // subject : identifiant de compte pour limiter aussi PAR UTILISATEUR (en plus de l'IP, contournable).
+  opts: { key: string; max: number; windowMs: number; failClosed?: boolean; subject?: string }
+) {
   const ip = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
-  const bucketKey = `${opts.key}:${ip}`
+  const bucketKey = opts.subject ? `${opts.key}:u:${opts.subject}` : `${opts.key}:${ip}`
   const windowSeconds = Math.max(1, Math.round(opts.windowMs / 1000))
 
   const supabaseAdmin = useSupabaseAdmin()
@@ -34,7 +40,10 @@ export async function checkRateLimit(event: H3Event, opts: { key: string; max: n
     // protection contre les actions sensibles reste CSRF + authentification
     // + les contrôles métier (ex. create_order en base) ; cette limite n'est
     // qu'une couche supplémentaire de confort.
-    console.error('[rateLimit] check_rate_limit indisponible, on laisse passer :', error.message)
+    console.error('[rateLimit] check_rate_limit indisponible :', error.message)
+    if (opts.failClosed) {
+      throw createError({ statusCode: 503, statusMessage: 'Service momentanément indisponible. Réessayez dans un instant.' })
+    }
     return
   }
 

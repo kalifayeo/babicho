@@ -15,7 +15,7 @@ const code = ref('')
 const submitting = ref(false)
 const errorMsg = ref('')
 const codeInvalid = ref(false)
-const redirectTo = computed(() => (typeof route.query.redirect === 'string' ? route.query.redirect : '/admin'))
+const redirectTo = computed(() => safeRedirectPath(route.query.redirect, '/admin', '/admin'))
 
 onMounted(async () => {
   try {

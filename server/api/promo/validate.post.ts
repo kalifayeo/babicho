@@ -16,7 +16,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
  */
 export default defineEventHandler(async (event) => {
   requireCsrf(event)
-  await checkRateLimit(event, { key: 'promo-validate', max: 20, windowMs: 10 * 60 * 1000 })
+  await checkRateLimit(event, { key: 'promo-validate', max: 20, windowMs: 10 * 60 * 1000, failClosed: true })
   await requireUser(event)
 
   const body = await readBody<{ eventId?: unknown; code?: unknown }>(event).catch(() => ({}) as any)

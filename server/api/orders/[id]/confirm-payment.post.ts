@@ -35,9 +35,10 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody<{ provider?: unknown; transactionReference?: unknown }>(event).catch(() => ({}) as any)
-  const provider = typeof body?.provider === 'string' && body.provider.trim() ? body.provider.trim() : 'manual'
+  const rawProvider = typeof body?.provider === 'string' ? body.provider.trim().toLowerCase() : ''
+  const provider = /^[a-z0-9_-]{1,40}$/.test(rawProvider) ? rawProvider : 'manual'
   const transactionReference =
-    typeof body?.transactionReference === 'string' && body.transactionReference.trim() ? body.transactionReference.trim() : null
+    typeof body?.transactionReference === 'string' && body.transactionReference.trim() ? body.transactionReference.trim().slice(0, 100) : null
 
   const supabaseAdmin = useSupabaseAdmin()
 

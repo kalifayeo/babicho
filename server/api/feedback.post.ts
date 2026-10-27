@@ -12,7 +12,7 @@ import { requireUser } from '~/server/utils/userAuth'
  */
 export default defineEventHandler(async (event) => {
   requireCsrf(event)
-  await checkRateLimit(event, { key: 'feedback', max: 4, windowMs: 10 * 60 * 1000 })
+  await checkRateLimit(event, { key: 'feedback', max: 4, windowMs: 10 * 60 * 1000, failClosed: true })
 
   const body = await readBody<{
     rating?: number

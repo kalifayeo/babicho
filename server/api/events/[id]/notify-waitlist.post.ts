@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
   await checkRateLimit(event, { key: 'waitlist-notify', max: 10, windowMs: 60 * 60 * 1000 })
 
   const eventId = getRouterParam(event, 'id')
-  if (!eventId) throw createError({ statusCode: 400, statusMessage: 'INVALID_EVENT' })
+  if (!eventId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventId)) throw createError({ statusCode: 400, statusMessage: 'INVALID_EVENT' })
 
   const supabaseAdmin = useSupabaseAdmin()
 

@@ -15,7 +15,7 @@ export function escapeHtmlText(value: string) {
 function safeUrl(raw: string) {
   // Le texte est déjà échappé (&amp; &quot;…) : on ne touche qu'au schéma.
   const url = raw.trim()
-  if (/^https?:\/\//i.test(url) || (url.startsWith('/') && !url.startsWith('//'))) return url
+  if (/^https?:\/\//i.test(url) || (url.startsWith('/') && !url.startsWith('//') && !url.includes('\\'))) return url
   return ''
 }
 

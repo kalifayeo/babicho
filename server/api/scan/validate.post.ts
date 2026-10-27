@@ -3,6 +3,8 @@ import { requireCsrf } from '~/server/utils/csrf'
 import { checkRateLimit } from '~/server/utils/rateLimit'
 import { requireScanAccess } from '~/server/utils/scanAccess'
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 /**
  * POST /api/scan/validate — contrôle d'accès à l'entrée.
  * Corps : { eventId, code, deviceId? } où `code` est le contenu du QR code
@@ -24,7 +26,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody<{ eventId?: string; code?: string; deviceId?: string }>(event)
   const eventId = String(body?.eventId ?? '')
   const code = String(body?.code ?? '').trim().slice(0, 200)
-  if (!eventId || !code) throw createError({ statusCode: 400, statusMessage: 'INVALID_REQUEST' })
+  if (!UUID_RE.test(eventId) || !code) throw createError({ statusCode: 400, statusMessage: 'INVALID_REQUEST' })
 
   const { admin, ev } = await requireScanAccess(event, userId, eventId)
 
@@ -38,7 +40,7 @@ export default defineEventHandler(async (event) => {
     const res = await admin
       .from('tickets')
       .select('id, event_id, user_id, ticket_number, status, used_at, ticket_type:ticket_types(name)')
-      .ilike('ticket_number', code.replace(/[%_]/g, ''))
+      .ilike('ticket_number', code.replace(/[%_\\,()]/g, ''))
       .maybeSingle()
     ticket = res.data
   }

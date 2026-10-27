@@ -15,7 +15,7 @@ const { listFactors, startEnroll, confirmEnroll, disable, abortEnroll } = useAdm
 const loading = ref(true)
 const factors = ref<AdminMfaFactor[]>([])
 const forced = computed(() => route.query.setup === '1')
-const redirectTo = computed(() => (typeof route.query.redirect === 'string' ? route.query.redirect : '/admin'))
+const redirectTo = computed(() => safeRedirectPath(route.query.redirect, '/admin', '/admin'))
 
 const step = ref<'status' | 'enroll' | 'disable'>('status')
 const pendingFactorId = ref<string | null>(null)

@@ -4,11 +4,7 @@ const { register, verifyOtp } = useAuth()
 const router = useRouter()
 const route = useRoute()
 
-const redirectTarget = computed(() => {
-  const target = route.query.redirect
-  if (typeof target === 'string' && target.startsWith('/')) return target
-  return '/mon-espace/tableau-de-bord'
-})
+const redirectTarget = computed(() => safeRedirectPath(route.query.redirect, '/mon-espace/tableau-de-bord'))
 
 const step = ref<'form' | 'otp'>('form')
 
