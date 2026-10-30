@@ -166,6 +166,8 @@ export interface Order {
   commission_amount?: number
   /** Qui a payé la commission sur cette commande : 'organizer' (déduite) ou 'buyer' (frais de service). */
   commission_payer?: 'organizer' | 'buyer'
+  /** Raison / message facultatif d'une contribution à une cause (migration 0063), affiché publiquement. */
+  contribution_note?: string | null
   /** Fin de la réservation de stock d'une commande « pending » (migration 0017). */
   expires_at?: string | null
   /** Masquée par l'acheteur de son historique (migration 0038). Jamais supprimée en base. */

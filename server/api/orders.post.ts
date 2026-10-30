@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
   const { userId } = await requireUser(event)
 
   // --- Validation du corps -------------------------------------------------
-  const body = await readBody<{ eventId?: unknown; items?: unknown; promoCode?: unknown }>(event)
+  const body = await readBody<{ eventId?: unknown; items?: unknown; promoCode?: unknown; note?: unknown }>(event)
 
   if (typeof body?.eventId !== 'string' || !UUID_RE.test(body.eventId)) {
     throw orderError(400, 'EVENT_NOT_AVAILABLE')
@@ -70,6 +70,14 @@ export default defineEventHandler(async (event) => {
   const promoCode =
     typeof body.promoCode === 'string' && body.promoCode.trim() && body.promoCode.trim().length <= 30
       ? body.promoCode.trim().toUpperCase()
+      : null
+
+  // Raison / message facultatif d'une contribution (causes solidaires uniquement) :
+  // texte brut, 140 caractères max, sans caractères de contrôle. Affiché publiquement
+  // (échappé par Vue) dans la liste des contributions de la cause.
+  const contributionNote =
+    typeof body.note === 'string'
+      ? body.note.replace(/[\u0000-\u001F\u007F]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 140) || null
       : null
 
   const items: Array<{ ticket_type_id: string; quantity: number }> = []
@@ -109,6 +117,16 @@ export default defineEventHandler(async (event) => {
     // Détail technique : dans les logs serveur uniquement, jamais renvoyé au client.
     console.error('[api/orders] échec create_order :', error)
     throw createError({ statusCode: 500, statusMessage: 'ORDER_FAILED', data: { code: 'ORDER_FAILED' } })
+  }
+
+  // Le message n'est enregistré que pour une cause solidaire (jamais pour un billet).
+  if (contributionNote && data?.id) {
+    const { data: ev } = await supabaseAdmin.from('events').select('category:categories(kind)').eq('id', body.eventId).maybeSingle()
+    const cat = Array.isArray(ev?.category) ? ev?.category[0] : ev?.category
+    if (cat?.kind === 'cause') {
+      const { error: noteError } = await supabaseAdmin.from('orders').update({ contribution_note: contributionNote }).eq('id', data.id)
+      if (noteError) console.error('[api/orders] message de contribution non enregistré :', noteError.message) // non bloquant
+    }
   }
 
   return { order: data }

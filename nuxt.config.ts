@@ -130,6 +130,13 @@ export default defineNuxtConfig({
     jekoStoreId: process.env.JEKO_STORE_ID || '',
     // Secret de signature des webhooks (Dashboard Jèko > Paramètres > API & Webhooks).
     jekoWebhookSecret: process.env.JEKO_WEBHOOK_SECRET || '',
+    // SMS transactionnels (confirmation d'achat, rappels) — voir server/utils/sms.ts.
+    // SMS_PROVIDER vide = SMS désactivés. Valeur gérée : "twilio".
+    smsProvider: process.env.SMS_PROVIDER || '',
+    smsFrom: process.env.SMS_FROM || '',
+    twilioAccountSid: process.env.TWILIO_ACCOUNT_SID || '',
+    twilioAuthToken: process.env.TWILIO_AUTH_TOKEN || '',
+    twilioMessagingServiceSid: process.env.TWILIO_MESSAGING_SERVICE_SID || '',
     // Anti-robots (Cloudflare Turnstile) côté serveur : vérifie les jetons
     // produits par TurnstileWidget.vue pour les routes qui ne passent pas
     // par Supabase Auth (ex. /api/contact). Doit être la clé "secrète" du

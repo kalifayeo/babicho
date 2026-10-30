@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto'
 import { sendTransactionalEmail } from '~/server/utils/brevo'
 import { sendPushToSubscription } from '~/server/utils/webPush'
+import { sendSms, isSmsConfigured } from '~/server/utils/sms'
 import { escapeHtml, safeInternalPath } from '~/server/utils/escapeHtml'
 
 /**
@@ -13,7 +14,7 @@ import { escapeHtml, safeInternalPath } from '~/server/utils/escapeHtml'
  *   2. Expire les places de liste d'attente non converties à temps, et les
  *      invitations de transfert de billet dépassées.
  *   3. Génère les rappels d'événement (24 h / 3 h avant, migration 0029).
- *   4. Réclame un lot de notifications à livrer (email et/ou push) et les
+ *   4. Réclame un lot de notifications à livrer (email, push et/ou SMS) et les
  *      envoie ; les abonnements push expirés (410/404) sont supprimés.
  *
  * Chaque étape est indépendante : l'échec de l'une n'empêche pas les autres.
@@ -39,6 +40,7 @@ export default defineEventHandler(async (event) => {
     notificationsClaimed: 0,
     emailsSent: 0,
     pushSent: 0,
+    smsSent: 0,
     errors: [] as string[],
   }
 
@@ -87,16 +89,18 @@ export default defineEventHandler(async (event) => {
       link: string | null
       email_pending: boolean
       push_pending: boolean
+      sms_pending: boolean
     }>
     result.notificationsClaimed = rows.length
 
     for (const row of rows) {
       let emailOk = !row.email_pending
       let pushOk = !row.push_pending
+      let smsOk = !row.sms_pending
 
       const { data: profile } = await supabaseAdmin
         .from('profiles')
-        .select('email, full_name, notify_email')
+        .select('email, full_name, notify_email, notify_sms, phone')
         .eq('user_id', row.user_id)
         .maybeSingle()
 
@@ -143,11 +147,26 @@ export default defineEventHandler(async (event) => {
         }
       }
 
+      if (row.sms_pending) {
+        if (!profile?.phone || profile.notify_sms === false || !isSmsConfigured()) {
+          smsOk = true // pas de numéro, opt-out ou SMS non configurés : rien à retenter
+        } else {
+          try {
+            const res = await sendSms({ to: profile.phone, message: `Babicho : ${row.title}. ${row.message}` })
+            smsOk = true // 'invalid_number' / 'disabled' : inutile de réessayer
+            if (res.status === 'sent') result.smsSent++
+          } catch (e: any) {
+            result.errors.push(`sms ${row.id}: ${e?.message || e}`) // sera retenté au prochain passage
+          }
+        }
+      }
+
       await supabaseAdmin
         .from('notifications')
         .update({
           email_pending: !emailOk,
           push_pending: !pushOk,
+          sms_pending: !smsOk,
           delivered_at: new Date().toISOString(),
           delivery_claimed_at: null,
         })

@@ -14,6 +14,16 @@ const { filters: homeFilters } = useHomeFilters()
 
 // --- Code promo (facultatif, appliqué à la création de la commande) ---------
 const promoCodeInput = ref('')
+// Raison / message facultatif d'une contribution (causes solidaires).
+const contributionNote = ref('')
+const showMobileNote = ref(false)
+// Section « Contributions » repliée par défaut : la liste ne se charge qu'à la 1re ouverture.
+const contribOpen = ref(false)
+const contribEverOpened = ref(false)
+function toggleContrib() {
+  contribOpen.value = !contribOpen.value
+  if (contribOpen.value) contribEverOpened.value = true
+}
 const { checking: promoChecking, preview: promoPreview, check: checkPromo, clear: clearPromo } = usePromoPreview()
 let promoCheckTimer: ReturnType<typeof setTimeout> | null = null
 watch(promoCodeInput, (val) => {
@@ -290,11 +300,13 @@ const sections = computed(() => {
   const list: { id: string; label: string; icon: string }[] = [{ id: 'billets', label: tk('ticketsLabel'), icon: 'ticket' }]
   if (event.value?.description || event.value?.organizerName) list.push({ id: 'apropos', label: t('event.navAbout'), icon: 'info' })
   list.push({ id: 'lieu', label: t('event.navVenue'), icon: 'pin' })
+  if (isCause.value) list.push({ id: 'contributions', label: t('event.navContributions'), icon: 'heart' })
   list.push({ id: 'avis', label: t('event.navReviews'), icon: 'heart' })
   return list
 })
 
 function scrollToSection(id: string) {
+  if (id === 'contributions' && !contribOpen.value) toggleContrib()
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
@@ -346,7 +358,7 @@ async function handleReserve() {
 
   // Seuls l'événement et les quantités partent au serveur : les prix, le stock
   // et le statut sont revalidés en base (voir server/api/orders.post.ts).
-  const order = await createOrder(event.value.id, cartLines.value, promoPreview.value?.valid ? promoCodeInput.value : null)
+  const order = await createOrder(event.value.id, cartLines.value, promoPreview.value?.valid ? promoCodeInput.value : null, isCause.value ? contributionNote.value : null)
   if (order) {
     router.push(`/commande/${order.id}`)
     return
@@ -890,6 +902,26 @@ const stepBtn =
               </div>
             </section>
 
+            <!-- ============ Contributions (causes solidaires) ============ -->
+            <section v-if="isCause" id="contributions" class="scroll-mt-32">
+              <h2 class="m-0">
+                <button
+                  type="button"
+                  :class="[h2Class, 'w-full text-left']"
+                  :aria-expanded="contribOpen"
+                  aria-controls="contributions-panel"
+                  @click="toggleContrib"
+                >
+                  <span class="h-7 w-1.5 shrink-0 bg-[#FF7A00]" aria-hidden="true" />
+                  <span class="min-w-0 flex-1">{{ t('event.contributionsTitle') }}</span>
+                  <AppIcon name="arrow-down" class="h-5 w-5 shrink-0 transition-transform duration-200 motion-reduce:transition-none" :class="contribOpen ? 'rotate-180' : ''" :stroke="2.4" />
+                </button>
+              </h2>
+              <div v-if="contribEverOpened" v-show="contribOpen" id="contributions-panel" class="mt-4">
+                <ContributionsList :slug="event.slug" />
+              </div>
+            </section>
+
             <!-- ============ Avis ============ -->
             <section v-if="hasReviews || (isAuthenticated && canReview)" id="avis" class="scroll-mt-32">
               <h2 :class="h2Class"><span class="h-7 w-1.5 shrink-0 bg-[#FF7A00]" aria-hidden="true" />{{ t('event.reviewsTitle') }}</h2>
@@ -995,6 +1027,19 @@ const stepBtn =
                     </p>
                   </div>
 
+                  <div v-if="isAuthenticated && isCause" class="mt-4">
+                    <label for="contribution-note" class="mb-1 block text-xs font-semibold text-tikeo-gray-text">{{ t('event.contributionNoteLabel') }}</label>
+                    <textarea
+                      id="contribution-note"
+                      v-model="contributionNote"
+                      rows="2"
+                      maxlength="140"
+                      :placeholder="t('event.contributionNotePlaceholder')"
+                      class="input-field resize-none text-sm"
+                    />
+                    <p class="mt-1 text-[11px] text-tikeo-gray-text">{{ t('event.contributionNoteHint', { n: contributionNote.length }) }}</p>
+                  </div>
+
                   <div class="mt-5 flex items-end justify-between border-t border-dashed border-tikeo-border pt-4">
                     <span class="text-sm font-semibold text-tikeo-gray-text">{{ t('event.total') }}</span>
                     <span class="font-display text-3xl font-extrabold leading-none text-tikeo-black">{{ formatPrice(totalPrice) }}</span>
@@ -1069,6 +1114,28 @@ const stepBtn =
               <p v-else-if="promoPreview && !promoPreview.valid" class="mt-1 text-xs text-tikeo-error">
                 {{ te(`event.promoErrors.${promoPreview.error}`) ? t(`event.promoErrors.${promoPreview.error}`) : t('event.promoErrors.PROMO_INVALID') }}
               </p>
+            </div>
+          </div>
+
+          <div v-if="totalQuantity > 0 && isAuthenticated && isCause" class="px-4 pt-2">
+            <button
+              v-if="!showMobileNote && !contributionNote"
+              type="button"
+              class="text-xs font-bold text-[rgb(var(--tikeo-orange-strong))]"
+              @click="showMobileNote = true"
+            >
+              + {{ t('event.contributionNoteLabel') }}
+            </button>
+            <div v-else>
+              <textarea
+                v-model="contributionNote"
+                rows="2"
+                maxlength="140"
+                :aria-label="t('event.contributionNoteLabel')"
+                :placeholder="t('event.contributionNotePlaceholder')"
+                class="input-field resize-none !py-1.5 text-sm"
+              />
+              <p class="mt-0.5 text-[11px] text-tikeo-gray-text">{{ t('event.contributionNoteHint', { n: contributionNote.length }) }}</p>
             </div>
           </div>
 

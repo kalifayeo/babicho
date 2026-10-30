@@ -130,7 +130,7 @@ export function useEventOrder() {
   const errorLimit = ref<number | null>(null)
   const { csrfHeader } = useCsrf()
 
-  async function createOrder(eventId: string, lines: CartLine[], promoCode?: string | null): Promise<CreatedOrder | null> {
+  async function createOrder(eventId: string, lines: CartLine[], promoCode?: string | null, note?: string | null): Promise<CreatedOrder | null> {
     submitting.value = true
     errorCode.value = null
     errorLimit.value = null
@@ -154,6 +154,7 @@ export function useEventOrder() {
           eventId,
           items: lines.map((l) => ({ ticketTypeId: l.ticketTypeId, quantity: l.quantity })),
           promoCode: promoCode?.trim() || undefined,
+          note: note?.trim() || undefined,
         },
       })
       return res.order
