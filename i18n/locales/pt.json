@@ -322,6 +322,9 @@
     "sortPriceDesc": "Preço (decrescente)"
   },
   "event": {
+    "goalCollectedOf": "arrecadados de {goal}",
+    "goalProgressAria": "Progresso da arrecadação",
+    "goalReached": "Objetivo atingido, obrigado a todos! Ainda pode contribuir.",
     "backHome": "Voltar ao início",
     "notFoundTitle": "Evento não encontrado",
     "notFoundDesc": "Este evento não existe ou não está mais publicado.",
@@ -588,6 +591,18 @@
     "cancelled": "Cancelado"
   },
   "eventForm": {
+    "contributionsUnlimited": "Ilimitado",
+    "goalSectionTitle": "Valor pedido (opcional)",
+    "goalSectionDesc": "Se quiser, indique o valor que pretende arrecadar. Pode deixar em branco.",
+    "goalAmountLabel": "Valor pedido",
+    "goalAmountPlaceholder": "Ex.: 500000",
+    "showGoalPublicLabel": "Mostrar o objetivo e o progresso",
+    "showGoalPublicHelp": "Os visitantes veem o valor pedido, o valor já arrecadado e uma barra de progresso.",
+    "showContributionsLabel": "Mostrar a lista de contribuições",
+    "showContributionsHelp": "Os visitantes veem a inicial, o valor, a data e a mensagem de cada contribuição. Você vê sempre todo o detalhe.",
+    "goalSave": "Guardar",
+    "goalSaved": "Guardado ✓",
+    "goalSaveError": "Não foi possível guardar agora.",
     "titlePlaceholder": "Nome do evento",
     "descriptionPlaceholder": "Descrição",
     "coverImagePlaceholder": "URL da imagem / cartaz",
@@ -2060,6 +2075,24 @@
     "categoryMarketing": "Marketing",
     "categoryAdmin": "Administração",
     "categorySettings": "Configurações"
+  },
+  "causeAdmin": {
+    "title": "Detalhe das contribuições",
+    "collected": "Total arrecadado",
+    "goal": "Valor pedido",
+    "noGoal": "Sem objetivo",
+    "remaining": "Falta arrecadar",
+    "contributions": "Contribuições",
+    "average": "Média: {amount}",
+    "progress": "Progresso até ao objetivo",
+    "goalPublicOn": "Objetivo visível publicamente",
+    "goalPublicOff": "Objetivo não mostrado publicamente",
+    "listPublicOn": "Lista pública ativada (nomes ocultos)",
+    "listPublicOff": "Lista pública desativada",
+    "empty": "Ainda não há contribuições pagas.",
+    "colContributor": "Contribuidor",
+    "colDate": "Data e hora",
+    "colAmount": "Valor"
   },
   "ticketStats": {
     "button": "Estatísticas",

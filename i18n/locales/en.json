@@ -322,6 +322,9 @@
     "sortPriceDesc": "Price (descending)"
   },
   "event": {
+    "goalCollectedOf": "raised of {goal}",
+    "goalProgressAria": "Fundraising progress",
+    "goalReached": "Goal reached, thank you all! You can still contribute.",
     "backHome": "Back to home",
     "notFoundTitle": "Event not found",
     "notFoundDesc": "This event doesn't exist or is no longer published.",
@@ -588,6 +591,18 @@
     "cancelled": "Cancelled"
   },
   "eventForm": {
+    "contributionsUnlimited": "Unlimited",
+    "goalSectionTitle": "Amount requested (optional)",
+    "goalSectionDesc": "If you wish, enter the amount you are trying to raise. You can leave it empty.",
+    "goalAmountLabel": "Amount requested",
+    "goalAmountPlaceholder": "E.g. 500000",
+    "showGoalPublicLabel": "Show the goal and progress",
+    "showGoalPublicHelp": "Visitors see the amount requested, the amount already raised and a progress bar.",
+    "showContributionsLabel": "Show the list of contributions",
+    "showContributionsHelp": "Visitors see the initial, amount, date and message of each contribution. You always see the full detail.",
+    "goalSave": "Save",
+    "goalSaved": "Saved ✓",
+    "goalSaveError": "Unable to save right now.",
     "titlePlaceholder": "Event name",
     "descriptionPlaceholder": "Description",
     "coverImagePlaceholder": "Image / poster URL",
@@ -2060,6 +2075,24 @@
     "categoryMarketing": "Marketing",
     "categoryAdmin": "Administration",
     "categorySettings": "Settings"
+  },
+  "causeAdmin": {
+    "title": "Contribution details",
+    "collected": "Total raised",
+    "goal": "Amount requested",
+    "noGoal": "No goal",
+    "remaining": "Left to raise",
+    "contributions": "Contributions",
+    "average": "Average: {amount}",
+    "progress": "Progress towards the goal",
+    "goalPublicOn": "Goal publicly visible",
+    "goalPublicOff": "Goal not shown publicly",
+    "listPublicOn": "Public list enabled (names masked)",
+    "listPublicOff": "Public list disabled",
+    "empty": "No paid contributions yet.",
+    "colContributor": "Contributor",
+    "colDate": "Date and time",
+    "colAmount": "Amount"
   },
   "ticketStats": {
     "button": "Stats",

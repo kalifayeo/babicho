@@ -276,8 +276,8 @@ const statItems = computed(() => [
 
       <!-- Voiles : un dégradé vertical + un halo sombre derrière le texte centré -->
       <div class="pointer-events-none absolute inset-0 transition-opacity duration-500" :class="playing ? 'opacity-0' : 'opacity-100'" aria-hidden="true">
-        <div class="absolute inset-0 bg-gradient-to-b from-tikeo-ink/70 via-tikeo-ink/45 to-tikeo-ink/90" />
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_75%_60%_at_50%_48%,rgba(10,22,44,0.6),transparent)]" />
+        <div class="absolute inset-0 bg-gradient-to-b from-tikeo-ink/80 via-tikeo-ink/60 to-tikeo-ink/95 md:backdrop-blur-[3px]" />
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_65%_at_50%_48%,rgba(10,22,44,0.72),transparent)]" />
       </div>
       <!-- Décor vivant : halos qui dérivent, trame de points, halo qui suit la souris -->
       <div class="pointer-events-none absolute inset-0 overflow-hidden transition-opacity duration-500" :class="playing ? 'opacity-0' : 'opacity-100'" aria-hidden="true">
@@ -302,7 +302,7 @@ const statItems = computed(() => [
       class="relative mx-auto flex w-full max-w-tikeo-container items-center justify-center px-5 pb-24 pt-14 transition-opacity duration-300 md:px-8 md:pb-28 md:pt-20"
       :class="playing ? 'invisible opacity-0' : ''"
     >
-      <div class="flex w-full max-w-3xl flex-col items-center text-center">
+      <div class="flex w-full max-w-4xl flex-col items-center text-center">
         <!-- Repère -->
         <p v-reveal:up="0" class="inline-flex items-center gap-2.5 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-[13px] font-semibold tracking-wide text-white backdrop-blur-md">
           <span class="relative flex h-2 w-2" aria-hidden="true">
@@ -315,7 +315,7 @@ const statItems = computed(() => [
         <!-- Titre -->
         <h1
           v-reveal:title
-          class="mt-6 text-[2.75rem] !font-[800] leading-[1.03] tracking-[-0.035em] text-white drop-shadow-[0_4px_32px_rgba(0,0,0,0.4)] sm:text-6xl lg:text-7xl xl:text-[5.5rem]"
+          class="mt-6 text-[2.75rem] !font-[800] leading-[1.03] tracking-[-0.035em] text-white drop-shadow-[0_4px_32px_rgba(0,0,0,0.4)] sm:text-6xl lg:text-[4.25rem] xl:text-[4.75rem]"
           style="text-wrap: balance"
         >
           <span
@@ -327,7 +327,7 @@ const statItems = computed(() => [
         </h1>
 
         <!-- Sous-titre -->
-        <p v-reveal:up="200" class="mt-5 max-w-xl text-[1.05rem] font-medium leading-relaxed text-white/85 drop-shadow-[0_2px_12px_rgba(0,0,0,0.35)] sm:text-lg md:mt-6 md:text-xl" style="text-wrap: pretty">
+        <p v-reveal:up="200" class="mt-5 max-w-2xl text-[1.05rem] font-medium leading-relaxed text-white/90 drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)] sm:text-lg md:mt-6 md:text-xl" style="text-wrap: pretty">
           {{ heroSubtitle }}
         </p>
 
@@ -424,7 +424,7 @@ const statItems = computed(() => [
       <!-- À gauche : preuves d'usage -->
       <div class="absolute left-8 top-[30%] 2xl:left-14">
         <div v-reveal:right="900">
-          <div class="tk-float flex items-center gap-3 rounded-xl border border-white/15 bg-white/10 py-2.5 pl-2.5 pr-4 text-white shadow-2xl backdrop-blur-md">
+          <div class="tk-float flex items-center gap-3 rounded-xl border border-white/15 bg-tikeo-ink/55 py-2.5 pl-2.5 pr-4 text-white shadow-2xl backdrop-blur-md">
             <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#16A34A] text-white"><AppIcon name="check" class="h-[18px] w-[18px]" :stroke="3" /></span>
             <span class="text-[13px] font-semibold leading-tight">{{ t('appDownload.chipAdded') }}</span>
           </div>
@@ -432,7 +432,7 @@ const statItems = computed(() => [
       </div>
       <div class="absolute left-16 top-[44%] 2xl:left-28">
         <div v-reveal:right="1100">
-          <div class="tk-float-slow flex items-center gap-3 rounded-xl border border-white/15 bg-white/10 py-2.5 pl-2.5 pr-4 text-white shadow-2xl backdrop-blur-md">
+          <div class="tk-float-slow flex items-center gap-3 rounded-xl border border-white/15 bg-tikeo-ink/55 py-2.5 pl-2.5 pr-4 text-white shadow-2xl backdrop-blur-md">
             <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#FF7A00] text-tikeo-ink"><AppIcon name="scan" class="h-[18px] w-[18px]" :stroke="2.4" /></span>
             <span class="text-[13px] font-semibold leading-tight">{{ t('appDownload.chipScanned') }}</span>
           </div>
@@ -440,7 +440,7 @@ const statItems = computed(() => [
       </div>
       <div class="absolute bottom-[22%] left-8 2xl:left-14">
         <div v-reveal:right="1300">
-          <div class="tk-float rounded-xl border border-white/15 bg-white/10 p-3 text-white shadow-2xl backdrop-blur-md">
+          <div class="tk-float rounded-xl border border-white/15 bg-tikeo-ink/55 p-3 text-white shadow-2xl backdrop-blur-md">
             <p class="mb-2 text-xs font-semibold text-white/75">{{ t('trustStats.payWith') }}</p>
             <ul class="flex gap-1.5">
               <li v-for="l in payLogos" :key="l.name">
@@ -456,7 +456,7 @@ const statItems = computed(() => [
         <div v-reveal:left="800">
           <NuxtLink
             :to="`/e/${nextEvent.slug}`"
-            class="tk-float-slow group pointer-events-auto block overflow-hidden rounded-2xl border border-white/20 bg-white/10 text-white shadow-[0_30px_60px_-20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-colors hover:bg-white/15"
+            class="tk-float-slow group pointer-events-auto block overflow-hidden rounded-2xl border border-white/20 bg-tikeo-ink/55 text-white shadow-[0_30px_60px_-20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-colors hover:bg-tikeo-ink/70"
           >
             <div class="relative h-36 overflow-hidden">
               <img :src="nextEvent.coverImage" alt="" loading="lazy" decoding="async" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />

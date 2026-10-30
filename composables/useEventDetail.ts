@@ -5,14 +5,16 @@ function mapDetail(e: any): EventDetailData {
     // Même règle que create_order() en base : seuls les types « active » sont vendables.
     .filter((tt: any) => (tt.status ?? 'active') === 'active')
     .map((tt: any) => {
-      const remaining = tt.quantity != null ? Math.max(0, Number(tt.quantity) - Number(tt.sold_quantity ?? 0)) : null
+      // Palier « illimité » (causes solidaires, voir utils/causes.ts) : aucun compteur de places.
+      const unlimited = tt.quantity != null && Number(tt.quantity) >= UNLIMITED_CONTRIBUTIONS
+      const remaining = tt.quantity != null && !unlimited ? Math.max(0, Number(tt.quantity) - Number(tt.sold_quantity ?? 0)) : null
       return {
         id: tt.id,
         name: tt.name,
         description: tt.description,
         price: Number(tt.price) || 0,
         remaining,
-        quantity: tt.quantity != null ? Number(tt.quantity) : null,
+        quantity: tt.quantity != null && !unlimited ? Number(tt.quantity) : null,
         soldOut: remaining !== null && remaining <= 0,
       }
     })
@@ -42,6 +44,8 @@ function mapDetail(e: any): EventDetailData {
     latitude: e.latitude ?? null,
     longitude: e.longitude ?? null,
     allowTicketTransfers: e.allow_ticket_transfers ?? true,
+    goalAmount: e.goal_amount != null ? Number(e.goal_amount) : null,
+    showContributions: e.show_contributions_public !== false,
     reviewCount: e.review_stats?.review_count ?? 0,
     averageRating: e.review_stats?.average_rating ?? null,
     ticketTypes,

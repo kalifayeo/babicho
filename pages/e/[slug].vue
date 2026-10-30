@@ -300,7 +300,7 @@ const sections = computed(() => {
   const list: { id: string; label: string; icon: string }[] = [{ id: 'billets', label: tk('ticketsLabel'), icon: 'ticket' }]
   if (event.value?.description || event.value?.organizerName) list.push({ id: 'apropos', label: t('event.navAbout'), icon: 'info' })
   list.push({ id: 'lieu', label: t('event.navVenue'), icon: 'pin' })
-  if (isCause.value) list.push({ id: 'contributions', label: t('event.navContributions'), icon: 'heart' })
+  if (isCause.value && event.value?.showContributions !== false) list.push({ id: 'contributions', label: t('event.navContributions'), icon: 'heart' })
   list.push({ id: 'avis', label: t('event.navReviews'), icon: 'heart' })
   return list
 })
@@ -737,6 +737,7 @@ const stepBtn =
           <div class="min-w-0 space-y-10 md:space-y-12">
             <!-- ============ Billets ============ -->
             <section id="billets" class="scroll-mt-32">
+              <CauseGoalProgress v-if="isCause && event.goalAmount" :slug="event.slug" />
               <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
                 <div class="max-w-xl">
                   <h2 :class="h2Class"><span class="h-7 w-1.5 shrink-0 bg-[#FF7A00]" aria-hidden="true" />{{ tk('chooseTickets') }}</h2>
@@ -903,7 +904,7 @@ const stepBtn =
             </section>
 
             <!-- ============ Contributions (causes solidaires) ============ -->
-            <section v-if="isCause" id="contributions" class="scroll-mt-32">
+            <section v-if="isCause && event.showContributions !== false" id="contributions" class="scroll-mt-32">
               <h2 class="m-0">
                 <button
                   type="button"

@@ -322,6 +322,9 @@
     "sortPriceDesc": "Prix (décroissant)"
   },
   "event": {
+    "goalCollectedOf": "collectés sur {goal}",
+    "goalProgressAria": "Progression de la collecte",
+    "goalReached": "Objectif atteint, merci à tous ! Vous pouvez encore contribuer.",
     "backHome": "Retour à l'accueil",
     "notFoundTitle": "Événement introuvable",
     "notFoundDesc": "Cet événement n'existe pas ou n'est plus publié.",
@@ -590,6 +593,18 @@
     "cancelled": "Annulé"
   },
   "eventForm": {
+    "contributionsUnlimited": "Illimité",
+    "goalSectionTitle": "Somme demandée (facultatif)",
+    "goalSectionDesc": "Indiquez, si vous le souhaitez, le montant que vous cherchez à collecter. Vous pouvez laisser vide.",
+    "goalAmountLabel": "Somme demandée",
+    "goalAmountPlaceholder": "Ex. : 500000",
+    "showGoalPublicLabel": "Afficher l'objectif et la progression",
+    "showGoalPublicHelp": "Les visiteurs voient la somme demandée, le montant déjà collecté et une barre de progression.",
+    "showContributionsLabel": "Afficher la liste des contributions",
+    "showContributionsHelp": "Les visiteurs voient l'initiale, le montant, la date et le message de chaque contribution. Vous voyez toujours tout le détail.",
+    "goalSave": "Enregistrer",
+    "goalSaved": "Enregistré ✓",
+    "goalSaveError": "Impossible d'enregistrer pour le moment.",
     "titlePlaceholder": "Nom de l'événement",
     "descriptionPlaceholder": "Description",
     "coverImagePlaceholder": "URL de l'image / affiche",
@@ -2062,6 +2077,24 @@
     "categoryMarketing": "Marketing",
     "categoryAdmin": "Administration",
     "categorySettings": "Paramètres"
+  },
+  "causeAdmin": {
+    "title": "Détail des contributions",
+    "collected": "Total collecté",
+    "goal": "Somme demandée",
+    "noGoal": "Aucun objectif",
+    "remaining": "Reste à collecter",
+    "contributions": "Contributions",
+    "average": "Moyenne : {amount}",
+    "progress": "Progression vers l'objectif",
+    "goalPublicOn": "Objectif visible publiquement",
+    "goalPublicOff": "Objectif non affiché publiquement",
+    "listPublicOn": "Liste publique activée (noms masqués)",
+    "listPublicOff": "Liste publique désactivée",
+    "empty": "Aucune contribution payée pour le moment.",
+    "colContributor": "Contributeur",
+    "colDate": "Date et heure",
+    "colAmount": "Montant"
   },
   "ticketStats": {
     "button": "Statistiques",

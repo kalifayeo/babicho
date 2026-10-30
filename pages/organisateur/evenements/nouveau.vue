@@ -35,7 +35,12 @@ const form = reactive({
   longitude: null as number | null,
   allowTicketTransfers: true,
   feesPayer: 'organizer' as 'organizer' | 'buyer',
+  // Causes solidaires : somme demandée facultative (chaîne vide = pas d'objectif) + affichage public.
+  goalAmount: '' as string | number,
+  showGoalPublic: true,
+  showContributionsPublic: true,
 })
+const isCauseSelected = computed(() => causeCategories.value.some((c) => c.id === form.categoryId))
 
 // --- Lien personnalisé de l'événement (cahier des charges §14-16) ---
 // L'organisateur peut personnaliser le "slug" (himra.babicho.com) au lieu de
@@ -247,7 +252,12 @@ async function publishEvent(publish: boolean) {
         allow_ticket_transfers: form.allowTicketTransfers,
         fees_payer: form.feesPayer,
         status: publish ? 'published' : 'draft',
-        max_tickets_per_buyer: purchaseLimit.value,
+        // Cause solidaire : jamais de limite par personne (on peut donner plusieurs fois).
+        max_tickets_per_buyer: isCauseSelected.value ? null : purchaseLimit.value,
+        // Objectif facultatif : uniquement pour une cause, entier > 0, sinon NULL.
+        goal_amount: isCauseSelected.value && Number(form.goalAmount) >= 1 ? Math.round(Number(form.goalAmount)) : null,
+        show_goal_public: form.showGoalPublic,
+        show_contributions_public: form.showContributionsPublic,
       })
       .select('id')
       .single()
@@ -259,7 +269,8 @@ async function publishEvent(publish: boolean) {
       name: t.name,
       description: t.description.trim() || null,
       price: t.price,
-      quantity: t.quantity,
+      // Cause solidaire : contributions illimitées, même après l'objectif atteint.
+      quantity: isCauseSelected.value ? UNLIMITED_CONTRIBUTIONS : t.quantity,
     }))
     const { error: ticketsError } = await supabase.from('ticket_types').insert(rows)
     if (ticketsError) throw ticketsError
@@ -433,6 +444,34 @@ async function publishEvent(publish: boolean) {
           </div>
         </details>
 
+        <!-- Cause solidaire : somme demandée facultative + réglages d'affichage public -->
+        <section v-if="isCauseSelected" class="flex flex-col gap-4 rounded-3xl border border-tikeo-border bg-tikeo-surface p-5 shadow-card md:p-7">
+          <header>
+            <h2 class="font-display text-lg font-extrabold leading-tight text-tikeo-black">{{ t('eventForm.goalSectionTitle') }}</h2>
+            <p class="text-xs text-tikeo-gray-text md:text-sm">{{ t('eventForm.goalSectionDesc') }}</p>
+          </header>
+          <WizardField v-slot="{ id }" :label="t('eventForm.goalAmountLabel')" optional>
+            <div class="relative">
+              <input :id="id" v-model="form.goalAmount" type="number" inputmode="numeric" min="1" step="1" :placeholder="t('eventForm.goalAmountPlaceholder')" class="input-field pr-16" />
+              <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-tikeo-gray-text">FCFA</span>
+            </div>
+          </WizardField>
+          <div class="flex items-center justify-between gap-4">
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-tikeo-black">{{ t('eventForm.showGoalPublicLabel') }}</p>
+              <p class="text-xs text-tikeo-gray-text">{{ t('eventForm.showGoalPublicHelp') }}</p>
+            </div>
+            <ToggleSwitch v-model="form.showGoalPublic" :aria-label="t('eventForm.showGoalPublicLabel')" />
+          </div>
+          <div class="flex items-center justify-between gap-4">
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-tikeo-black">{{ t('eventForm.showContributionsLabel') }}</p>
+              <p class="text-xs text-tikeo-gray-text">{{ t('eventForm.showContributionsHelp') }}</p>
+            </div>
+            <ToggleSwitch v-model="form.showContributionsPublic" :aria-label="t('eventForm.showContributionsLabel')" />
+          </div>
+        </section>
+
         <button type="submit" class="btn-primary group !h-14 w-full !text-base">
           {{ t('eventForm.continueButton') }}
           <AppIcon name="arrow-right" class="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" :stroke="2.4" />
@@ -472,9 +511,13 @@ async function publishEvent(publish: boolean) {
                     <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-[11px] font-bold text-tikeo-gray-text">{{ t('eventWizard.priceUnit') }}</span>
                   </div>
                 </WizardField>
-                <WizardField v-slot="{ id }" :label="t('eventForm.labelTicketQty')" required>
+                <WizardField v-if="!isCauseSelected" v-slot="{ id }" :label="t('eventForm.labelTicketQty')" required>
                   <input :id="id" v-model.number="tk.quantity" type="number" min="0" inputmode="numeric" :placeholder="t('eventForm.exTicketQty')" class="input-field" />
                 </WizardField>
+                <div v-else>
+                  <p class="mb-1.5 text-[13px] font-bold text-tikeo-black">{{ t('eventForm.labelTicketQty') }}</p>
+                  <p class="flex h-11 items-center rounded-xl border border-tikeo-border bg-tikeo-surface-alt px-3 text-sm font-semibold text-tikeo-gray-text">{{ t('eventForm.contributionsUnlimited') }}</p>
+                </div>
               </div>
               <div class="mt-3 pl-2">
                 <button v-if="!tk.showDesc && !tk.description" type="button" class="flex items-center gap-1.5 text-xs font-bold text-tikeo-orange" @click="tk.showDesc = true">
@@ -492,7 +535,7 @@ async function publishEvent(publish: boolean) {
             <AppIcon name="plus" class="h-[18px] w-[18px]" :stroke="2.4" />{{ t('eventForm.addTicketType') }}
           </button>
 
-          <div class="grid grid-cols-2 gap-3">
+          <div v-if="!isCauseSelected" class="grid grid-cols-2 gap-3">
             <div class="rounded-2xl bg-tikeo-surface-alt p-4">
               <p class="text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text">{{ t('eventWizard.capacity') }}</p>
               <p class="mt-1 font-display text-xl font-extrabold text-tikeo-black md:text-2xl">{{ totalCapacity.toLocaleString('fr-FR') }}</p>
@@ -542,7 +585,7 @@ async function publishEvent(publish: boolean) {
           </div>
           <ul class="divide-y divide-tikeo-border border-t border-tikeo-border">
             <li v-for="(tk, i) in ticketTypes" :key="i" class="flex items-center justify-between gap-3 px-5 py-3 text-sm md:px-6">
-              <span class="flex min-w-0 items-center gap-2.5"><AppIcon name="ticket" class="h-4 w-4 shrink-0 text-tikeo-orange" /><span class="truncate font-bold text-tikeo-black">{{ tk.name }}</span><span class="shrink-0 text-xs text-tikeo-gray-text">× {{ tk.quantity }}</span></span>
+              <span class="flex min-w-0 items-center gap-2.5"><AppIcon name="ticket" class="h-4 w-4 shrink-0 text-tikeo-orange" /><span class="truncate font-bold text-tikeo-black">{{ tk.name }}</span><span v-if="!isCauseSelected" class="shrink-0 text-xs text-tikeo-gray-text">× {{ tk.quantity }}</span></span>
               <span class="shrink-0 font-extrabold text-tikeo-black">{{ Number(tk.price) === 0 ? t('eventWizard.free') : fcfa(Number(tk.price)) }}</span>
             </li>
           </ul>
@@ -574,7 +617,7 @@ async function publishEvent(publish: boolean) {
             </div>
           </fieldset>
 
-          <div role="radiogroup" aria-labelledby="purchase-limit-label">
+          <div v-if="!isCauseSelected" role="radiogroup" aria-labelledby="purchase-limit-label">
             <p id="purchase-limit-label" class="text-[13px] font-bold text-tikeo-black">{{ t('eventForm.purchaseLimitLabel') }}</p>
             <div class="mt-2 flex flex-wrap gap-2">
               <label

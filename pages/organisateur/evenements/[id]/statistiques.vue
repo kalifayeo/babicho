@@ -23,6 +23,7 @@ onMounted(() => load(route.params.id as string))
       </div>
       <p v-else-if="error" class="acc-alert-error">{{ t('ticketStats.loadError') }}</p>
       <div v-else-if="stats" class="org-rise">
+        <CauseContributionsPanel :event-id="stats.event.id" />
         <EventTicketStatsPanel :stats="stats" />
       </div>
     </div>

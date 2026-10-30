@@ -43,13 +43,14 @@ export default defineEventHandler(async (event) => {
   }
 
   const rawLimit = Number.parseInt(String(getQuery(event).limit ?? ''), 10)
-  const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), MAX_LIMIT) : DEFAULT_LIMIT
+  // limit=0 : on ne veut que les totaux (barre de progression), sans la liste.
+  const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 0), MAX_LIMIT) : DEFAULT_LIMIT
 
   const supabaseAdmin = useSupabaseAdmin()
 
   const { data: cause, error: causeError } = await supabaseAdmin
     .from('events')
-    .select('id, category:categories(kind)')
+    .select('id, goal_amount, show_goal_public, show_contributions_public, category:categories(kind)')
     .eq('slug', slug)
     .eq('status', 'published')
     .maybeSingle()
@@ -79,9 +80,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: 'Impossible de charger les contributions.' })
   }
 
+  // Réglages de l'organisateur : objectif et liste publique sont chacun facultatifs.
+  const showGoal = cause.show_goal_public !== false && cause.goal_amount != null
+  const showList = cause.show_contributions_public !== false
+
   const all = orders ?? []
   const totalAmount = all.reduce((sum, o) => sum + Number(o.total || 0), 0)
-  const page = all.slice(0, limit)
+  // Liste masquée par l'organisateur : aucune ligne n'est lue ni renvoyée.
+  const page = showList ? all.slice(0, limit) : []
 
   // Noms : lus uniquement pour la page demandée, masqués avant de quitter le serveur.
   const userIds = [...new Set(page.map((o) => o.user_id))]
@@ -102,9 +108,12 @@ export default defineEventHandler(async (event) => {
   setHeader(event, 'Cache-Control', 'public, s-maxage=15, stale-while-revalidate=30')
 
   return {
-    count: all.length,
-    totalAmount,
-    hasMore: all.length > page.length,
+    // Total et nombre : visibles seulement si l'organisateur affiche l'objectif OU la liste.
+    count: showGoal || showList ? all.length : null,
+    totalAmount: showGoal || showList ? totalAmount : null,
+    goalAmount: showGoal ? Number(cause.goal_amount) : null,
+    showList,
+    hasMore: showList && all.length > page.length,
     items: page.map((o) => ({
       maskedName: maskName(names.get(o.user_id)),
       amount: Number(o.total),

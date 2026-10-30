@@ -12,7 +12,7 @@ import { createClient } from '@supabase/supabase-js'
  */
 const EVENT_DETAIL_SELECT = `id, slug, title, description, city, country, location_name, address,
   start_date, end_date, cover_image, organizer_id, seating_plan_url, max_tickets_per_buyer,
-  latitude, longitude, allow_ticket_transfers,
+  latitude, longitude, allow_ticket_transfers, goal_amount, show_goal_public, show_contributions_public,
   category:categories(name, kind),
   organizer:organizers(name, logo_url, description, status),
   ticket_types(id, name, description, price, quantity, sold_quantity, status)`
@@ -52,5 +52,11 @@ export default defineEventHandler(async (event) => {
   // Cache court : le stock restant évolue, mais 10 s suffisent à absorber un pic
   // de trafic (partage WhatsApp). La commande revalide toujours le stock en base.
   setHeader(event, 'Cache-Control', 'public, s-maxage=10, stale-while-revalidate=30')
-  return { ...data, review_stats: statsRow || { review_count: 0, average_rating: null } }
+  // L'objectif n'est exposé que si l'organisateur a choisi de l'afficher.
+  const { goal_amount, show_goal_public, ...rest } = data as typeof data & { goal_amount: number | null; show_goal_public: boolean }
+  return {
+    ...rest,
+    goal_amount: show_goal_public !== false ? goal_amount : null,
+    review_stats: statsRow || { review_count: 0, average_rating: null },
+  }
 })

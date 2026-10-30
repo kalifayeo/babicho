@@ -18,6 +18,9 @@ onMounted(() => load(route.params.id as string))
       <div v-for="i in 4" :key="i" class="h-12 animate-pulse border border-tikeo-border bg-tikeo-surface-alt" />
     </div>
     <p v-else-if="error" class="acc-alert-error">{{ t('ticketStats.loadError') }}</p>
-    <EventTicketStatsPanel v-else-if="stats" :stats="stats" />
+    <template v-else-if="stats">
+      <CauseContributionsPanel :event-id="stats.event.id" />
+      <EventTicketStatsPanel :stats="stats" />
+    </template>
   </div>
 </template>

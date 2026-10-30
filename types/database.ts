@@ -116,6 +116,10 @@ export interface EventRecord {
   longitude: number | null
   /** L'organisateur peut désactiver le transfert de billet pour cet événement (migration 0032). */
   allow_ticket_transfers: boolean
+  /** Causes solidaires : somme demandée (facultative) et réglages d'affichage public (migration 0064). */
+  goal_amount?: number | null
+  show_goal_public?: boolean
+  show_contributions_public?: boolean
   created_at: string
   updated_at: string
 }
@@ -439,6 +443,10 @@ export interface EventDetailData {
   latitude?: number | null
   longitude?: number | null
   allowTicketTransfers?: boolean
+  /** Objectif (somme demandée) d'une cause, uniquement si l'organisateur l'affiche publiquement. */
+  goalAmount?: number | null
+  /** Liste publique des contributions activée par l'organisateur (causes). */
+  showContributions?: boolean
   reviewCount?: number
   averageRating?: number | null
   ticketTypes: TicketTypeOption[]

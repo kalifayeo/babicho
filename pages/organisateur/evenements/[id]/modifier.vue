@@ -51,6 +51,38 @@ async function saveFeesPayer() {
   }
 }
 
+// --- Cause solidaire : somme demandée (facultative) + affichage public -------------
+const goalAmount = ref<string | number>('')
+const showGoalPublic = ref(true)
+const showContributionsPublic = ref(true)
+const goalSaving = ref(false)
+const goalSaved = ref(false)
+const goalError = ref('')
+const isCause = computed(() => categories.value.some((c) => c.id === form.categoryId && c.kind === 'cause'))
+async function saveGoalSettings() {
+  if (!event.value) return
+  goalSaving.value = true
+  goalSaved.value = false
+  goalError.value = ''
+  try {
+    const n = Number(goalAmount.value)
+    const { error } = await supabase
+      .from('events')
+      .update({
+        goal_amount: goalAmount.value !== '' && n >= 1 ? Math.round(n) : null,
+        show_goal_public: showGoalPublic.value,
+        show_contributions_public: showContributionsPublic.value,
+      })
+      .eq('id', event.value.id)
+    if (error) throw error
+    goalSaved.value = true
+  } catch {
+    goalError.value = t('eventForm.goalSaveError')
+  } finally {
+    goalSaving.value = false
+  }
+}
+
 const allowTicketTransfers = ref(true)
 const transferSettingSaving = ref(false)
 async function toggleAllowTransfers() {
@@ -129,6 +161,9 @@ async function load() {
     })
     purchaseLimit.value = event.value.max_tickets_per_buyer ?? null
     allowTicketTransfers.value = event.value.allow_ticket_transfers ?? true
+    goalAmount.value = event.value.goal_amount ?? ''
+    showGoalPublic.value = event.value.show_goal_public !== false
+    showContributionsPublic.value = event.value.show_contributions_public !== false
     feesPayer.value = (event.value as any).fees_payer ?? 'organizer'
 
     pendingRequest.value = await fetchPendingRequestForEvent(eventId)
@@ -386,6 +421,34 @@ async function createNewTicketType(draft: EditableTicketTypeFields) {
           <div class="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5"></div>
         </label>
       </div>
+
+      <!-- Cause solidaire : somme demandée + affichage public (modifiable à tout moment) -->
+      <fieldset v-if="isCause" class="mt-4 border border-tikeo-border p-4 text-sm text-tikeo-black" :disabled="goalSaving">
+        <legend class="px-1 text-sm font-semibold">{{ t('eventForm.goalSectionTitle') }}</legend>
+        <p class="mb-3 text-xs text-tikeo-gray-text">{{ t('eventForm.goalSectionDesc') }}</p>
+        <label class="mb-1 block text-xs font-semibold text-tikeo-gray-text" for="goal-amount">{{ t('eventForm.goalAmountLabel') }}</label>
+        <div class="relative mb-4 max-w-xs">
+          <input id="goal-amount" v-model="goalAmount" type="number" inputmode="numeric" min="1" step="1" :placeholder="t('eventForm.goalAmountPlaceholder')" class="input-field pr-16" />
+          <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-tikeo-gray-text">FCFA</span>
+        </div>
+        <div class="mb-3 flex items-center justify-between gap-4">
+          <div class="min-w-0">
+            <p class="font-semibold">{{ t('eventForm.showGoalPublicLabel') }}</p>
+            <p class="text-xs text-tikeo-gray-text">{{ t('eventForm.showGoalPublicHelp') }}</p>
+          </div>
+          <ToggleSwitch v-model="showGoalPublic" :aria-label="t('eventForm.showGoalPublicLabel')" />
+        </div>
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <div class="min-w-0">
+            <p class="font-semibold">{{ t('eventForm.showContributionsLabel') }}</p>
+            <p class="text-xs text-tikeo-gray-text">{{ t('eventForm.showContributionsHelp') }}</p>
+          </div>
+          <ToggleSwitch v-model="showContributionsPublic" :aria-label="t('eventForm.showContributionsLabel')" />
+        </div>
+        <button type="button" class="btn-secondary text-xs" :disabled="goalSaving" @click="saveGoalSettings">{{ t('eventForm.goalSave') }}</button>
+        <span v-if="goalSaved" class="ml-3 text-xs font-semibold text-tikeo-success">{{ t('eventForm.goalSaved') }}</span>
+        <span v-if="goalError" class="ml-3 text-xs font-semibold text-tikeo-error">{{ goalError }}</span>
+      </fieldset>
 
       <!-- Qui paie la commission Babicho (prochaines commandes) -->
       <fieldset class="mt-4 border border-tikeo-border p-4 text-sm text-tikeo-black" :disabled="feesPayerSaving">
