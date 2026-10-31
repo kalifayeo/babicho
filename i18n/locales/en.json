@@ -1003,6 +1003,17 @@
     "siteSettings": "Logo, contact & social"
   },
   "adminDashboard": {
+    "todoTitle": "To do",
+    "todoAllClear": "All caught up, nothing pending. 🎉",
+    "todoOrganizers": "{n} organizer(s) to approve",
+    "todoRequests": "{n} edit request(s)",
+    "todoMessages": "{n} new message(s)",
+    "orders": "Orders (30 d)",
+    "subSignups": "+{n} in 30 days",
+    "subPending": "{n} pending",
+    "subPublished": "{n} published",
+    "subBasket": "Average order: {amount}",
+    "subOrders": "{n} order(s) · average {amount}",
     "title": "Babicho Administration",
     "users": "Users",
     "organizers": "Organizers",

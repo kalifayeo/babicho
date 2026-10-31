@@ -1005,6 +1005,17 @@
     "siteSettings": "Logo, contact & réseaux"
   },
   "adminDashboard": {
+    "todoTitle": "À traiter",
+    "todoAllClear": "Tout est à jour, rien en attente. 🎉",
+    "todoOrganizers": "{n} organisateur(s) à valider",
+    "todoRequests": "{n} demande(s) de modification",
+    "todoMessages": "{n} nouveau(x) message(s)",
+    "orders": "Commandes (30 j)",
+    "subSignups": "+{n} sur 30 jours",
+    "subPending": "{n} en attente",
+    "subPublished": "{n} publiés",
+    "subBasket": "Panier moyen : {amount}",
+    "subOrders": "{n} commande(s) · panier moyen {amount}",
     "title": "Administration Babicho",
     "users": "Utilisateurs",
     "organizers": "Organisateurs",

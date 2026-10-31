@@ -1003,6 +1003,17 @@
     "siteSettings": "Logo, contacto y redes"
   },
   "adminDashboard": {
+    "todoTitle": "Por atender",
+    "todoAllClear": "Todo al día, nada pendiente. 🎉",
+    "todoOrganizers": "{n} organizador(es) por validar",
+    "todoRequests": "{n} solicitud(es) de modificación",
+    "todoMessages": "{n} mensaje(s) nuevo(s)",
+    "orders": "Pedidos (30 d)",
+    "subSignups": "+{n} en 30 días",
+    "subPending": "{n} pendientes",
+    "subPublished": "{n} publicados",
+    "subBasket": "Pedido medio: {amount}",
+    "subOrders": "{n} pedido(s) · media {amount}",
     "title": "Administración Babicho",
     "users": "Usuarios",
     "organizers": "Organizadores",

@@ -1003,6 +1003,17 @@
     "siteSettings": "Logo, contacto e redes"
   },
   "adminDashboard": {
+    "todoTitle": "A tratar",
+    "todoAllClear": "Tudo em dia, nada pendente. 🎉",
+    "todoOrganizers": "{n} organizador(es) a validar",
+    "todoRequests": "{n} pedido(s) de alteração",
+    "todoMessages": "{n} nova(s) mensagem(ns)",
+    "orders": "Encomendas (30 d)",
+    "subSignups": "+{n} em 30 dias",
+    "subPending": "{n} pendentes",
+    "subPublished": "{n} publicados",
+    "subBasket": "Média por encomenda: {amount}",
+    "subOrders": "{n} encomenda(s) · média {amount}",
     "title": "Administração Babicho",
     "users": "Usuários",
     "organizers": "Organizadores",
