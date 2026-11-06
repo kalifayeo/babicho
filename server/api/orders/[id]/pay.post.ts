@@ -12,7 +12,9 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
  * une commande « pending » et renvoie l'URL de paiement à laquelle rediriger
  * l'acheteur (Wave / Orange Money / MTN MoMo / Moov Money / Djamo, cf. §24-26).
  *
- * Corps attendu : { method: 'wave' | 'orange' | 'mtn' | 'moov' | 'djamo', phone?: string }
+ * Corps attendu : { method: 'wave' | 'orange' | 'mtn' | 'moov' | 'djamo', phone?: string, source?: 'app' }
+ *   source = 'app' : paiement lancé depuis l'application mobile ; l'acheteur est ramené sur /retour-app
+ *   (page publique qui rouvre l'application via son lien babicho://) au lieu de la page web de retour.
  *
  * « API direct » Jèko : la page de paiement hébergée par Jèko (saisie du numéro)
  * n'est jamais affichée. Le numéro du payeur est celui de son profil Babicho
@@ -39,7 +41,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'INVALID_ORDER_ID', data: { code: 'INVALID_ORDER_ID' } })
   }
 
-  const body = await readBody<{ method?: unknown; phone?: unknown }>(event).catch(() => ({}) as any)
+  const body = await readBody<{ method?: unknown; phone?: unknown; source?: unknown }>(event).catch(() => ({}) as any)
   const method = body?.method
   if (!isJekoPaymentMethod(method)) {
     throw createError({ statusCode: 400, statusMessage: 'INVALID_PAYMENT_METHOD', data: { code: 'INVALID_PAYMENT_METHOD' } })
@@ -106,7 +108,10 @@ export default defineEventHandler(async (event) => {
   }
 
   const siteOrigin = getSiteOrigin(event)
-  const returnUrl = `${siteOrigin}/commande/${orderId}/retour`
+  // Paiement lancé depuis l'application mobile : le navigateur n'y est pas connecté, on le ramène donc
+  // sur une page publique (sans donnée) qui rouvre l'application ; c'est l'application qui relit la commande.
+  const fromApp = body?.source === 'app'
+  const returnUrl = fromApp ? `${siteOrigin}/retour-app?order=${orderId}` : `${siteOrigin}/commande/${orderId}/retour`
 
   const { redirectUrl, mode } = await createJekoPaymentRequest({
     reference: transactionId,
@@ -114,7 +119,7 @@ export default defineEventHandler(async (event) => {
     currency: order.currency,
     paymentMethod: method,
     successUrl: returnUrl,
-    errorUrl: `${returnUrl}?status=error`,
+    errorUrl: `${returnUrl}${fromApp ? '&' : '?'}status=error`,
     payerPhone,
   })
 
