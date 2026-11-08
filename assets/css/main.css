@@ -899,6 +899,26 @@ html.ui-reduce-motion [data-stagger].rv-in > * { animation: none !important; }
 }
 
 /* Reflet qui traverse un bouton (appel à l'action) */
+/* ---- Carte inclinable en 3D (plugins/reveal.ts : v-tilt) ----
+   Le reflet est un voile radial qui suit la souris (--gx / --gy). La carte est déjà
+   `relative overflow-hidden` : le voile est donc rogné sur ses coins arrondis. */
+.tk-tilt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(420px circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, 0.2), transparent 55%);
+}
+.tk-tilt.tilt-on::after { opacity: 1; }
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  .tk-tilt::after { display: none; }
+}
+html.ui-reduce-motion .tk-tilt::after,
+html.ui-data-saver .tk-tilt::after { display: none; }
+
 @keyframes tk-shine {
   0% { transform: translateX(-130%) skewX(-20deg); }
   60%, 100% { transform: translateX(260%) skewX(-20deg); }

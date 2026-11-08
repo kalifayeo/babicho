@@ -293,6 +293,8 @@ const statItems = computed(() => [
           style="--mx: 70%; --my: 30%; background: radial-gradient(520px circle at var(--mx) var(--my), rgba(255, 138, 26, 0.16), transparent 60%)"
         />
       </div>
+      <!-- Décor 3D : billets électroniques et formes flottantes (chargé à la demande, jamais sur appareil lent) -->
+      <Hero3D class="transition-opacity duration-500" :class="playing ? 'opacity-0' : 'opacity-100'" :paused="playing" />
       <!-- Filet de marque en haut -->
       <div class="pointer-events-none absolute inset-x-0 top-0 h-1 bg-tikeo-brand" aria-hidden="true" />
     </div>

@@ -102,8 +102,9 @@ const progress = computed(() => {
 <template>
   <!-- ===================== AFFICHE (événement mis en avant) ===================== -->
   <article
+    v-tilt
     v-if="isFeature"
-    class="group relative flex min-h-[26rem] shrink-0 flex-col justify-end overflow-hidden rounded-2xl bg-tikeo-ink text-white shadow-card transition-shadow duration-300 hover:shadow-card-hover"
+    class="group relative flex min-h-[26rem] shrink-0 flex-col justify-end overflow-hidden rounded-2xl bg-tikeo-ink text-white shadow-card transition-[transform,box-shadow] duration-300 hover:shadow-card-hover"
   >
     <img
       :src="event.coverImage"
@@ -164,6 +165,7 @@ const progress = computed(() => {
        (orange), aucun texte coupé sur les infos importantes, hauteur alignée
        entre cartes voisines (le bloc prix/bouton reste calé en bas). -->
   <article
+    v-tilt
     v-else
     class="group relative flex shrink-0 flex-col overflow-hidden rounded-2xl border border-tikeo-border bg-tikeo-surface shadow-card transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-card-hover"
     :class="[

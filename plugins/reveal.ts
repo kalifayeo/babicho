@@ -19,6 +19,10 @@
  *  v-magnetic          bouton « aimanté » : suit légèrement le curseur (souris
  *    <button v-magnetic>      uniquement, jamais sur écran tactile)
  *
+ *  v-tilt              carte « 3D » : s'incline en perspective vers le curseur et
+ *    <article v-tilt>         un reflet lumineux suit la souris (souris uniquement).
+ *    <article v-tilt="8">     valeur = inclinaison maximale en degrés (défaut 7).
+ *
  *  Titres « masque » mot par mot : composant <SplitHeading> (effet `split`).
  *
  * IMPORTANT : plugin universel (pas de suffixe .client). Sans directive côté
@@ -318,10 +322,72 @@ const magnetic: Directive<HTMLElement> = {
   },
 }
 
+// --- Inclinaison 3D : la carte pivote vers le curseur, un reflet suit la souris ----------------
+// Écrit `transform` en ligne (avec le même léger soulèvement que le survol Tailwind) et
+// pose --gx / --gy pour le reflet (.tk-tilt::after dans main.css). Un seul rAF par carte.
+const tiltOff = new WeakMap<HTMLElement, () => void>()
+const tilt: Directive<HTMLElement> = {
+  getSSRProps() {
+    return { class: 'tk-tilt' }
+  },
+  created(el) {
+    el.classList.add('tk-tilt')
+  },
+  mounted(el, binding) {
+    if (typeof window === 'undefined' || reducedMotion()) return
+    if (!window.matchMedia?.('(hover: hover) and (pointer: fine)').matches) return
+    const max = typeof binding.value === 'number' ? binding.value : 7
+    let raf = 0
+    let nx = 0
+    let ny = 0
+    let gx = 50
+    let gy = 50
+    const paint = () => {
+      raf = 0
+      el.style.transform = `perspective(900px) rotateX(${(-ny * max).toFixed(2)}deg) rotateY(${(nx * max * 1.25).toFixed(2)}deg) translate3d(0, -4px, 0)`
+      el.style.setProperty('--gx', `${gx.toFixed(1)}%`)
+      el.style.setProperty('--gy', `${gy.toFixed(1)}%`)
+    }
+    const move = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return
+      const r = el.getBoundingClientRect()
+      const x = (e.clientX - r.left) / r.width
+      const y = (e.clientY - r.top) / r.height
+      nx = Math.max(-1, Math.min(1, x * 2 - 1))
+      ny = Math.max(-1, Math.min(1, y * 2 - 1))
+      gx = x * 100
+      gy = y * 100
+      if (!raf) raf = requestAnimationFrame(paint)
+    }
+    const enter = () => el.classList.add('tilt-on')
+    const leave = () => {
+      cancelAnimationFrame(raf)
+      raf = 0
+      el.classList.remove('tilt-on')
+      el.style.transform = ''
+    }
+    el.addEventListener('pointerenter', enter)
+    el.addEventListener('pointermove', move)
+    el.addEventListener('pointerleave', leave)
+    tiltOff.set(el, () => {
+      el.removeEventListener('pointerenter', enter)
+      el.removeEventListener('pointermove', move)
+      el.removeEventListener('pointerleave', leave)
+      cancelAnimationFrame(raf)
+      el.style.transform = ''
+    })
+  },
+  beforeUnmount(el) {
+    tiltOff.get(el)?.()
+    tiltOff.delete(el)
+  },
+}
+
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.directive('reveal', reveal)
   nuxtApp.vueApp.directive('stagger', stagger)
   nuxtApp.vueApp.directive('parallax', parallax)
   nuxtApp.vueApp.directive('scrub', scrubDirective)
   nuxtApp.vueApp.directive('magnetic', magnetic)
+  nuxtApp.vueApp.directive('tilt', tilt)
 })
