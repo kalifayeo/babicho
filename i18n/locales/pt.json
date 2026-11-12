@@ -33,7 +33,18 @@
     "inDays": "Dentro de {n} dias",
     "unread": "{n} por ler",
     "allRead": "Tudo lido",
-    "viewTicket": "Ver bilhete"
+    "viewTicket": "Ver bilhete",
+    "groupPurchases": "Minhas compras",
+    "groupAccount": "Minha conta",
+    "hintDashboard": "Visão geral",
+    "hintTickets": "Bilhetes e códigos QR",
+    "hintOrders": "Histórico de compras",
+    "hintWaitlist": "Vagas em espera",
+    "hintFavorites": "Eventos guardados",
+    "hintNotifications": "Alertas e mensagens",
+    "hintWallet": "O seu dinheiro",
+    "hintProfile": "Os seus dados",
+    "hintSettings": "Segurança e preferências"
   },
   "header": {
     "more": "Mais",
@@ -1238,7 +1249,14 @@
     "upcomingTitle": "Próximos ingressos",
     "noUpcoming": "Nenhum ingresso próximo por enquanto.",
     "recentOrdersTitle": "Últimos pedidos",
-    "noOrders": "Nenhum pedido por enquanto."
+    "noOrders": "Nenhum pedido por enquanto.",
+    "nextEvent": "O seu próximo evento",
+    "nextEventSub": "Tenha o bilhete à mão.",
+    "ticketsSub": "Os seus próximos eventos.",
+    "ordersSub": "As suas últimas compras.",
+    "openTicket": "Abrir o meu bilhete",
+    "discoverTitle": "Pronto para a próxima saída?",
+    "discoverSub": "Encontre um concerto, festival ou espetáculo perto de si."
   },
   "scannerInfo": {
     "title": "O scanner é reservado aos organizadores",
@@ -1832,9 +1850,18 @@
     "posterLabel": "Imagem de pré-visualização (opcional)",
     "posterHint": "Aparece antes de o vídeo carregar. No YouTube a pré-visualização é automática.",
     "videoCard": {
-      "presentation": { "title": "Vídeo de apresentação", "where": "Secção « Do clique ao bilhete » a meio da página inicial, e janela aberta pelo botão « Ver o vídeo » (início e barra superior)." },
-      "ambiance": { "title": "Vídeo de ambiente", "where": "Secção « Viva o momento » a meio da página inicial, antes dos números de confiança. Vazio = secção oculta." },
-      "organizers": { "title": "Vídeo para organizadores", "where": "Secção « Crie, venda, encha a sua sala », mesmo antes do apelo para criar um evento. Vazio = secção oculta." }
+      "presentation": {
+        "title": "Vídeo de apresentação",
+        "where": "Secção « Do clique ao bilhete » a meio da página inicial, e janela aberta pelo botão « Ver o vídeo » (início e barra superior)."
+      },
+      "ambiance": {
+        "title": "Vídeo de ambiente",
+        "where": "Secção « Viva o momento » a meio da página inicial, antes dos números de confiança. Vazio = secção oculta."
+      },
+      "organizers": {
+        "title": "Vídeo para organizadores",
+        "where": "Secção « Crie, venda, encha a sua sala », mesmo antes do apelo para criar um evento. Vazio = secção oculta."
+      }
     },
     "title": "Banner da página inicial",
     "subtitle": "Controle o topo da página inicial: o texto, o botão e o carrossel de imagens do banner.",

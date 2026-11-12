@@ -18,197 +18,99 @@ const payments = [
   { name: 'Carte bancaire', src: '/paiement/carte.png' },
 ]
 
-const trust = computed(() => [
-  { icon: 'shield-check', title: t('footer.trust1Title'), desc: t('footer.trust1Desc') },
-  { icon: 'qr', title: t('footer.trust2Title'), desc: t('footer.trust2Desc') },
-  { icon: 'user-check', title: t('footer.trust3Title'), desc: t('footer.trust3Desc') },
-  { icon: 'headset', title: t('footer.trust4Title'), desc: t('footer.trust4Desc') },
-])
-
 const columns = computed(() => [
   {
     title: t('footer.discover'),
-    icon: 'compass',
     links: [
-      { to: '/evenements', label: t('footer.allEvents'), icon: 'calendar' },
-      { to: '/recherche', label: t('header.search'), icon: 'search' },
-      { to: '/mon-espace/mes-billets', label: t('header.myTickets'), icon: 'ticket' },
-      { to: '/mon-espace/mes-favoris', label: t('header.favorites'), icon: 'heart' },
-      { to: '/comment-ca-marche', label: t('footer.howItWorks'), icon: 'help' },
-      { to: '/application', label: t('footer.getApp'), icon: 'phone' },
+      { to: '/evenements', label: t('footer.allEvents') },
+      { to: '/comment-ca-marche', label: t('footer.howItWorks') },
+      { to: '/application', label: t('footer.getApp') },
+      { to: '/mon-espace/mes-billets', label: t('header.myTickets') },
     ],
   },
   {
     title: t('footer.organizer'),
-    icon: 'briefcase',
     links: [
-      { to: '/organisateur', label: t('footer.becomeOrganizer'), icon: 'users' },
-      { to: '/organisateur/evenements/nouveau', label: t('header.publish'), icon: 'calendar-plus' },
-      { to: '/organisateur/tarifs', label: t('header.pricing'), icon: 'tag' },
+      { to: '/organisateur', label: t('footer.becomeOrganizer') },
+      { to: '/organisateur/evenements/nouveau', label: t('header.publish') },
+      { to: '/organisateur/tarifs', label: t('header.pricing') },
     ],
   },
   {
     title: t('footer.support'),
-    icon: 'headset',
     links: [
-      { to: '/faq', label: t('header.faq'), icon: 'help' },
-      { to: '/contact', label: t('footer.customerService'), icon: 'mail' },
-      { to: '/securite', label: t('footer.security'), icon: 'shield-check' },
-      { to: '/avis', label: t('feedback.footerLink'), icon: 'star' },
-      { to: '/remboursement', label: t('footer.refundPolicy'), icon: 'receipt' },
-      { to: '/mentions-legales', label: t('footer.legal'), icon: 'file-text' },
+      { to: '/faq', label: t('header.faq') },
+      { to: '/contact', label: t('footer.customerService') },
+      { to: '/securite', label: t('footer.security') },
+      { to: '/remboursement', label: t('footer.refundPolicy') },
     ],
   },
   {
     title: t('footer.about'),
-    icon: 'building',
     links: [
-      { to: '/qui-sommes-nous', label: t('header.about'), icon: 'info' },
-      { to: '/blog', label: t('blog.navLabel'), icon: 'newspaper' },
-      { to: '/presse', label: t('press.navLabel'), icon: 'mic' },
-      { to: '/partenaires', label: t('partners.navLabel'), icon: 'handshake' },
-      { to: '/contact', label: t('header.contact2'), icon: 'send' },
-      { to: '/conditions', label: t('footer.terms'), icon: 'clipboard' },
-      { to: '/confidentialite', label: t('footer.privacy'), icon: 'lock' },
-      { to: '/cookies', label: t('footer.cookiesPolicy'), icon: 'settings' },
+      { to: '/qui-sommes-nous', label: t('header.about') },
+      { to: '/blog', label: t('blog.navLabel') },
+      { to: '/partenaires', label: t('partners.navLabel') },
     ],
   },
 ])
 </script>
 
 <template>
-  <footer class="mt-12 border-t border-tikeo-border bg-tikeo-surface text-tikeo-black">
-    <!-- Engagements -->
-    <div class="border-b border-tikeo-border">
-      <ul class="mx-auto grid max-w-tikeo-content grid-cols-2 gap-x-4 gap-y-4 px-4 py-4 md:px-6 lg:grid-cols-4 lg:gap-8 lg:py-4">
-        <li v-for="item in trust" :key="item.title" class="flex items-start gap-3">
-          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-tikeo-border bg-tikeo-surface-alt text-tikeo-black">
-            <AppIcon :name="item.icon" class="h-5 w-5" :stroke="1.7" />
-          </span>
-          <div class="min-w-0">
-            <p class="text-sm font-bold leading-tight text-tikeo-black">{{ item.title }}</p>
-            <p class="mt-0.5 text-xs leading-snug text-tikeo-gray-text">{{ item.desc }}</p>
-          </div>
-        </li>
-      </ul>
-    </div>
-
-    <div class="mx-auto max-w-tikeo-content px-4 pb-24 pt-8 md:px-6 md:pb-4 md:pt-8">
-      <div class="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,2.85fr)] lg:gap-12">
-        <!-- Marque + contact -->
+  <footer class="mt-16 rounded-t-[2rem] bg-tikeo-ink text-white md:rounded-t-[3rem]">
+    <div class="mx-auto max-w-tikeo-content px-4 pb-24 pt-10 md:px-6 md:pb-8 md:pt-14">
+      <div class="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,2fr)] lg:gap-16">
+        <!-- Marque -->
         <div>
-          <NuxtLink to="/" class="inline-block" aria-label="Babicho">
-            <SiteLogo />
-          </NuxtLink>
-          <p class="mt-3 max-w-xs text-sm leading-relaxed text-tikeo-gray-text">{{ t('footer.tagline') }}</p>
+          <NuxtLink to="/" class="inline-block rounded-2xl bg-white px-4 py-2.5" aria-label="Babicho"><SiteLogo /></NuxtLink>
+          <p class="mt-4 max-w-xs text-[15px] leading-relaxed text-white/65">{{ t('footer.tagline') }}</p>
 
-          <ul class="mt-4 space-y-2 text-sm">
-            <li v-if="contact.email">
-              <a :href="`mailto:${contact.email}`" class="group inline-flex items-center gap-2.5 text-tikeo-black transition-colors hover:text-tikeo-orange">
-                <AppIcon name="mail" class="h-4 w-4 shrink-0 text-tikeo-gray-text transition-colors group-hover:text-tikeo-orange" />{{ contact.email }}
-              </a>
-            </li>
-            <li v-if="contact.phone">
-              <a :href="`tel:${contact.phone.replace(/\s+/g, '')}`" class="group inline-flex items-center gap-2.5 text-tikeo-black transition-colors hover:text-tikeo-orange">
-                <AppIcon name="phone" class="h-4 w-4 shrink-0 text-tikeo-gray-text transition-colors group-hover:text-tikeo-orange" />{{ contact.phone }}
-              </a>
-            </li>
-            <li v-if="contact.address" class="flex items-start gap-2.5 text-tikeo-gray-text">
-              <AppIcon name="pin" class="mt-0.5 h-4 w-4 shrink-0" />{{ contact.address }}
-            </li>
-            <li v-if="contact.hours" class="flex items-start gap-2.5 text-tikeo-gray-text">
-              <AppIcon name="clock" class="mt-0.5 h-4 w-4 shrink-0" />{{ contact.hours }}
-            </li>
-          </ul>
+          <div class="mt-5 flex flex-wrap items-center gap-2">
+            <a v-if="contact.email" :href="`mailto:${contact.email}`" class="inline-flex h-10 items-center gap-2 rounded-full border border-white/20 px-4 text-sm font-semibold transition-colors hover:bg-white hover:text-tikeo-ink">
+              <AppIcon name="mail" class="h-4 w-4" />{{ contact.email }}
+            </a>
+            <ul v-if="socialLinks.length" class="flex gap-1.5">
+              <li v-for="s in socialLinks" :key="s.name">
+                <a :href="s.href" target="_blank" rel="noopener noreferrer" :aria-label="s.name" :title="s.name" class="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#FF7A00] hover:bg-[#FF7A00] hover:text-tikeo-ink">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path :d="s.path" /></svg>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="mt-5"><StoreBadges size="sm" /></div>
         </div>
 
         <!-- Liens -->
-        <nav class="grid grid-cols-2 gap-x-6 gap-y-7 sm:grid-cols-4" aria-label="Babicho">
+        <nav class="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4" aria-label="Babicho">
           <div v-for="col in columns" :key="col.title">
-            <h3 class="mb-3 flex items-center gap-2 text-[13px] font-extrabold uppercase tracking-wider text-tikeo-black">
-              <AppIcon :name="col.icon" class="h-4 w-4 text-tikeo-gray-text" :stroke="2" />
-              {{ col.title }}
-            </h3>
-            <ul class="space-y-2 text-[13px] leading-snug">
+            <h3 class="mb-3.5 text-xs font-bold uppercase tracking-[0.14em] text-[#FFB066]">{{ col.title }}</h3>
+            <ul class="space-y-2.5 text-[15px]">
               <li v-for="l in col.links" :key="l.label">
-                <NuxtLink :to="l.to" class="group inline-flex items-start gap-2 text-tikeo-gray-text transition-colors hover:text-tikeo-black">
-                  <AppIcon :name="l.icon" class="mt-px h-[15px] w-[15px] shrink-0 opacity-70 transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-tikeo-orange group-hover:opacity-100" :stroke="1.8" />
-                  <span>{{ l.label }}</span>
-                </NuxtLink>
+                <NuxtLink :to="l.to" class="inline-block text-white/70 transition-all duration-200 hover:translate-x-1 hover:text-white">{{ l.label }}</NuxtLink>
               </li>
             </ul>
           </div>
         </nav>
       </div>
 
-      <!-- Une seule ligne : réseaux · application · paiement -->
-      <div class="mt-7 flex flex-col gap-4 border-t border-tikeo-border pt-5 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-x-8 xl:flex-nowrap">
-        <!-- Suivez-nous -->
-        <div v-if="socialLinks.length" class="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <p class="text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text">{{ t('footer.followUs') }}</p>
-          <ul class="flex flex-wrap gap-1.5">
-            <li v-for="s in socialLinks" :key="s.name">
-              <a
-                :href="s.href"
-                target="_blank"
-                rel="noopener noreferrer"
-                :aria-label="s.name"
-                :title="s.name"
-                class="flex h-9 w-9 items-center justify-center rounded-xl border border-tikeo-border text-tikeo-black transition-all duration-200 hover:-translate-y-0.5 hover:border-tikeo-ink hover:bg-tikeo-ink hover:text-white dark:hover:border-[#FF7A00] dark:hover:bg-[#FF7A00] dark:hover:text-tikeo-ink"
-              >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path :d="s.path" /></svg>
-              </a>
-            </li>
-          </ul>
+      <!-- Barre basse : légal · paiement · langue -->
+      <div class="mt-10 flex flex-col gap-4 border-t border-white/12 pt-6 md:flex-row md:items-center md:justify-between">
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-white/55">
+          <span>© {{ year }} Babicho</span>
+          <NuxtLink to="/mentions-legales" class="transition-colors hover:text-white">{{ t('footer.legal') }}</NuxtLink>
+          <NuxtLink to="/conditions" class="transition-colors hover:text-white">{{ t('footer.terms') }}</NuxtLink>
+          <NuxtLink to="/confidentialite" class="transition-colors hover:text-white">{{ t('footer.privacy') }}</NuxtLink>
+          <button type="button" class="transition-colors hover:text-white" @click="openPreferences">{{ t('footer.cookies') }}</button>
         </div>
-
-        <!-- Téléchargez l'application -->
-        <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <p class="text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text">{{ t('footer.downloadApp') }}</p>
-          <StoreBadges size="sm" />
-        </div>
-
-        <!-- Paiement mobile & carte sécurisés -->
-        <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <p class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text">
-            <AppIcon name="shield-check" class="h-4 w-4" />{{ t('footer.payTitle') }}
-          </p>
-          <ul class="flex flex-wrap gap-1.5">
-            <li v-for="p in payments" :key="p.name">
-              <img :src="p.src" :alt="p.name" :title="p.name" width="36" height="36" loading="lazy" class="h-9 w-9 rounded-lg border border-tikeo-border bg-white object-contain p-1" />
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Barre basse -->
-      <div class="mt-5 flex flex-col gap-3 border-t border-tikeo-border pt-4 md:flex-row md:items-center md:justify-between">
-        <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-tikeo-gray-text">
-          <span>© {{ year }} Babicho. {{ t('footer.rights') }}</span>
-          <NuxtLink to="/confidentialite" class="inline-flex items-center gap-1.5 transition-colors hover:text-tikeo-black"><AppIcon name="lock" class="h-3.5 w-3.5" />{{ t('footer.privacy') }}</NuxtLink>
-          <NuxtLink to="/conditions" class="inline-flex items-center gap-1.5 transition-colors hover:text-tikeo-black"><AppIcon name="clipboard" class="h-3.5 w-3.5" />{{ t('footer.terms') }}</NuxtLink>
-          <NuxtLink to="/plan-du-site" class="inline-flex items-center gap-1.5 transition-colors hover:text-tikeo-black"><AppIcon name="list" class="h-3.5 w-3.5" />{{ t('footer.sitemap') }}</NuxtLink>
-          <button type="button" class="inline-flex items-center gap-1.5 transition-colors hover:text-tikeo-black" @click="openPreferences"><AppIcon name="settings" class="h-3.5 w-3.5" />{{ t('footer.cookies') }}</button>
-        </div>
-
         <div class="flex items-center justify-between gap-4 md:justify-end">
-          <NuxtLink
-            to="/contact"
-            :title="t('footer.contactUs')"
-            class="group inline-flex items-center gap-1.5 text-xs text-tikeo-gray-text transition-colors hover:text-tikeo-black"
-          >
-            <AppIcon name="heart" class="h-3.5 w-3.5 text-tikeo-orange transition-transform duration-200 group-hover:scale-125" />
-            <span>{{ t('footer.madeBy') }}</span>
-            <span class="font-semibold underline decoration-tikeo-border underline-offset-2 group-hover:decoration-tikeo-orange">· {{ t('footer.contactUs') }}</span>
-          </NuxtLink>
-          <div class="flex items-center gap-2">
+          <ul class="flex gap-1.5">
+            <li v-for="p in payments" :key="p.name">
+              <img :src="p.src" :alt="p.name" :title="p.name" width="32" height="32" loading="lazy" class="h-8 w-8 rounded-lg bg-white object-contain p-1" />
+            </li>
+          </ul>
+          <div class="flex items-center gap-2 [&_button]:!border-white/25 [&_button]:!bg-transparent [&_button]:!text-white [&_svg]:!text-white">
             <LanguageSwitcher up />
-            <button
-              type="button"
-              class="flex h-9 w-9 items-center justify-center rounded-xl border border-tikeo-border text-tikeo-black transition-all duration-200 hover:-translate-y-0.5 hover:border-tikeo-ink hover:bg-tikeo-ink hover:text-white dark:hover:border-[#FF7A00] dark:hover:bg-[#FF7A00] dark:hover:text-tikeo-ink"
-              :aria-label="t('footer.backToTop')"
-              @click="scrollTop"
-            >
+            <button type="button" class="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-tikeo-ink" :aria-label="t('footer.backToTop')" @click="scrollTop">
               <AppIcon name="arrow-up" class="h-4 w-4" :stroke="2.4" />
             </button>
           </div>

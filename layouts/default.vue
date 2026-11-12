@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const route = useRoute()
-const isHome = computed(() => route.path === '/')
+const isHome = computed(() => route.path === '/' || route.path.startsWith('/e/'))
 </script>
 
 <template>

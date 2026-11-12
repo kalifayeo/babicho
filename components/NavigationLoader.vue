@@ -119,8 +119,7 @@ onBeforeUnmount(() => {
   <!-- Voile de chargement entre deux pages -->
   <Transition name="navl">
     <div v-if="pending" class="navl fixed inset-0 z-[9000] flex flex-col items-center justify-center gap-5 px-6 text-center" role="alert" aria-live="polite">
-      <img src="/logo-babicho.png" alt="" class="navl__logo h-auto w-[min(180px,48vw)]" width="900" height="320" decoding="async" />
-      <TikeoSpinner :size="34" />
+      <Loader3D :size="56" />
       <div class="min-h-[3.25rem] max-w-xs">
         <p class="text-sm font-bold text-tikeo-black">{{ slow ? t('navLoader.slowTitle') : t('navLoader.loading') }}</p>
         <p v-if="slow" class="mt-1 text-xs leading-relaxed text-tikeo-gray-text">{{ t('navLoader.slowText') }}</p>
@@ -138,13 +137,6 @@ onBeforeUnmount(() => {
   background: rgb(var(--tikeo-surface) / 0.82);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
-}
-.navl__logo {
-  animation: navl-pulse 1.6s ease-in-out infinite;
-}
-@keyframes navl-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(0.97); }
 }
 .navl-enter-active,
 .navl-leave-active {

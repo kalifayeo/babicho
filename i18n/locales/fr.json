@@ -33,7 +33,18 @@
     "inDays": "Dans {n} jours",
     "unread": "{n} non lue(s)",
     "allRead": "Tout est lu",
-    "viewTicket": "Voir le billet"
+    "viewTicket": "Voir le billet",
+    "groupPurchases": "Mes achats",
+    "groupAccount": "Mon compte",
+    "hintDashboard": "Vue d'ensemble",
+    "hintTickets": "Vos billets et QR codes",
+    "hintOrders": "Historique des achats",
+    "hintWaitlist": "Places en attente",
+    "hintFavorites": "Événements gardés",
+    "hintNotifications": "Alertes et messages",
+    "hintWallet": "Votre argent",
+    "hintProfile": "Vos informations",
+    "hintSettings": "Sécurité et préférences"
   },
   "header": {
     "more": "Plus",
@@ -1240,7 +1251,14 @@
     "upcomingTitle": "Prochains billets",
     "noUpcoming": "Aucun billet à venir pour le moment.",
     "recentOrdersTitle": "Dernières commandes",
-    "noOrders": "Aucune commande pour le moment."
+    "noOrders": "Aucune commande pour le moment.",
+    "nextEvent": "Votre prochain événement",
+    "nextEventSub": "Gardez votre billet à portée de main.",
+    "ticketsSub": "Vos événements à venir.",
+    "ordersSub": "Vos derniers achats.",
+    "openTicket": "Ouvrir mon billet",
+    "discoverTitle": "Prêt pour votre prochaine sortie ?",
+    "discoverSub": "Trouvez un concert, un festival ou un spectacle près de chez vous."
   },
   "scannerInfo": {
     "title": "Le scanner est réservé aux organisateurs",
@@ -1834,9 +1852,18 @@
     "posterLabel": "Image d'aperçu (facultatif)",
     "posterHint": "S'affiche avant le chargement de la vidéo. Pour YouTube, l'aperçu est automatique.",
     "videoCard": {
-      "presentation": { "title": "Vidéo de présentation", "where": "Section « Du clic au billet » au milieu de l'accueil, et fenêtre ouverte par le bouton « Voir la vidéo » (accueil et barre du haut)." },
-      "ambiance": { "title": "Vidéo d'ambiance", "where": "Section « Vivez l'instant » au milieu de l'accueil, avant les chiffres de confiance. Vide = section non affichée." },
-      "organizers": { "title": "Vidéo pour les organisateurs", "where": "Section « Créez, vendez, remplissez votre salle », juste avant l'appel à créer un événement. Vide = section non affichée." }
+      "presentation": {
+        "title": "Vidéo de présentation",
+        "where": "Section « Du clic au billet » au milieu de l'accueil, et fenêtre ouverte par le bouton « Voir la vidéo » (accueil et barre du haut)."
+      },
+      "ambiance": {
+        "title": "Vidéo d'ambiance",
+        "where": "Section « Vivez l'instant » au milieu de l'accueil, avant les chiffres de confiance. Vide = section non affichée."
+      },
+      "organizers": {
+        "title": "Vidéo pour les organisateurs",
+        "where": "Section « Créez, vendez, remplissez votre salle », juste avant l'appel à créer un événement. Vide = section non affichée."
+      }
     },
     "title": "Bannière d'accueil",
     "subtitle": "Pilotez le haut de la page d'accueil : le texte, le bouton et le diaporama d'images de la bannière.",

@@ -46,7 +46,7 @@ onMounted(load)
 </script>
 
 <template>
-  <section v-if="events.length" class="mx-auto max-w-tikeo-container px-4 pb-4 pt-12 md:px-6 md:pt-16">
+  <section v-if="events.length" class="mx-auto max-w-tikeo-content px-4 pb-4 pt-12 md:px-6 md:pt-16">
     <div class="mb-5 flex items-end justify-between gap-4">
       <h2 class="font-display text-2xl font-extrabold tracking-tight text-tikeo-black md:text-3xl">{{ t('event.similarTitle') }}</h2>
       <NuxtLink

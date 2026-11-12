@@ -33,7 +33,18 @@
     "inDays": "In {n} days",
     "unread": "{n} unread",
     "allRead": "All caught up",
-    "viewTicket": "View ticket"
+    "viewTicket": "View ticket",
+    "groupPurchases": "My purchases",
+    "groupAccount": "My account",
+    "hintDashboard": "Overview",
+    "hintTickets": "Your tickets and QR codes",
+    "hintOrders": "Purchase history",
+    "hintWaitlist": "Waiting places",
+    "hintFavorites": "Saved events",
+    "hintNotifications": "Alerts and messages",
+    "hintWallet": "Your money",
+    "hintProfile": "Your details",
+    "hintSettings": "Security and preferences"
   },
   "header": {
     "more": "More",
@@ -1238,7 +1249,14 @@
     "upcomingTitle": "Upcoming tickets",
     "noUpcoming": "No upcoming tickets yet.",
     "recentOrdersTitle": "Recent orders",
-    "noOrders": "No orders yet."
+    "noOrders": "No orders yet.",
+    "nextEvent": "Your next event",
+    "nextEventSub": "Keep your ticket at hand.",
+    "ticketsSub": "Your upcoming events.",
+    "ordersSub": "Your latest purchases.",
+    "openTicket": "Open my ticket",
+    "discoverTitle": "Ready for your next outing?",
+    "discoverSub": "Find a concert, festival or show near you."
   },
   "scannerInfo": {
     "title": "The scanner is reserved for organizers",
@@ -1832,9 +1850,18 @@
     "posterLabel": "Preview image (optional)",
     "posterHint": "Shown before the video loads. For YouTube the preview is automatic.",
     "videoCard": {
-      "presentation": { "title": "Presentation video", "where": "The \"From click to ticket\" section in the middle of the home page, and the window opened by the \"Watch the video\" button (home page and top bar)." },
-      "ambiance": { "title": "Ambiance video", "where": "The \"Feel the moment\" section in the middle of the home page, before the trust figures. Empty = section hidden." },
-      "organizers": { "title": "Video for organizers", "where": "The \"Create, sell, fill your venue\" section, right before the create-an-event call to action. Empty = section hidden." }
+      "presentation": {
+        "title": "Presentation video",
+        "where": "The \"From click to ticket\" section in the middle of the home page, and the window opened by the \"Watch the video\" button (home page and top bar)."
+      },
+      "ambiance": {
+        "title": "Ambiance video",
+        "where": "The \"Feel the moment\" section in the middle of the home page, before the trust figures. Empty = section hidden."
+      },
+      "organizers": {
+        "title": "Video for organizers",
+        "where": "The \"Create, sell, fill your venue\" section, right before the create-an-event call to action. Empty = section hidden."
+      }
     },
     "title": "Home banner",
     "subtitle": "Control the top of the home page: the text, the button and the image slideshow of the banner.",

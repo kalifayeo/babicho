@@ -33,7 +33,18 @@
     "inDays": "En {n} días",
     "unread": "{n} sin leer",
     "allRead": "Todo al día",
-    "viewTicket": "Ver entrada"
+    "viewTicket": "Ver entrada",
+    "groupPurchases": "Mis compras",
+    "groupAccount": "Mi cuenta",
+    "hintDashboard": "Resumen",
+    "hintTickets": "Entradas y códigos QR",
+    "hintOrders": "Historial de compras",
+    "hintWaitlist": "Plazas en espera",
+    "hintFavorites": "Eventos guardados",
+    "hintNotifications": "Alertas y mensajes",
+    "hintWallet": "Tu dinero",
+    "hintProfile": "Tus datos",
+    "hintSettings": "Seguridad y preferencias"
   },
   "header": {
     "more": "Más",
@@ -1238,7 +1249,14 @@
     "upcomingTitle": "Próximas entradas",
     "noUpcoming": "Aún no tienes entradas próximas.",
     "recentOrdersTitle": "Últimos pedidos",
-    "noOrders": "Aún no hay pedidos."
+    "noOrders": "Aún no hay pedidos.",
+    "nextEvent": "Tu próximo evento",
+    "nextEventSub": "Ten tu entrada a mano.",
+    "ticketsSub": "Tus próximos eventos.",
+    "ordersSub": "Tus últimas compras.",
+    "openTicket": "Abrir mi entrada",
+    "discoverTitle": "¿Listo para tu próxima salida?",
+    "discoverSub": "Encuentra un concierto, festival o espectáculo cerca de ti."
   },
   "scannerInfo": {
     "title": "El escáner está reservado a los organizadores",
@@ -1832,9 +1850,18 @@
     "posterLabel": "Imagen de vista previa (opcional)",
     "posterHint": "Se muestra antes de cargar el vídeo. En YouTube la vista previa es automática.",
     "videoCard": {
-      "presentation": { "title": "Vídeo de presentación", "where": "Sección « Del clic a la entrada » en medio de la página de inicio, y ventana abierta por el botón « Ver el vídeo » (inicio y barra superior)." },
-      "ambiance": { "title": "Vídeo de ambiente", "where": "Sección « Vive el momento » en medio de la página de inicio, antes de las cifras de confianza. Vacío = sección oculta." },
-      "organizers": { "title": "Vídeo para organizadores", "where": "Sección « Crea, vende y llena tu sala », justo antes de la llamada a crear un evento. Vacío = sección oculta." }
+      "presentation": {
+        "title": "Vídeo de presentación",
+        "where": "Sección « Del clic a la entrada » en medio de la página de inicio, y ventana abierta por el botón « Ver el vídeo » (inicio y barra superior)."
+      },
+      "ambiance": {
+        "title": "Vídeo de ambiente",
+        "where": "Sección « Vive el momento » en medio de la página de inicio, antes de las cifras de confianza. Vacío = sección oculta."
+      },
+      "organizers": {
+        "title": "Vídeo para organizadores",
+        "where": "Sección « Crea, vende y llena tu sala », justo antes de la llamada a crear un evento. Vacío = sección oculta."
+      }
     },
     "title": "Banner de inicio",
     "subtitle": "Controla la parte superior de la página de inicio: el texto, el botón y el carrusel de imágenes del banner.",

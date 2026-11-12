@@ -345,7 +345,7 @@ html.ui-data-saver .tk-deco {
 
   /* ---- Espace « Mon compte » : mêmes briques que l'accueil / page événement ---- */
   .acc-panel {
-    @apply border border-tikeo-border bg-tikeo-surface shadow-card;
+    @apply rounded-[1.5rem] border border-tikeo-border bg-tikeo-surface shadow-card;
   }
   .acc-h2 {
     @apply text-xl font-bold leading-snug text-tikeo-black md:text-2xl;
@@ -355,19 +355,19 @@ html.ui-data-saver .tk-deco {
     @apply text-[13px] font-semibold text-tikeo-gray-text;
   }
   .acc-empty {
-    @apply flex flex-col items-center gap-3 border border-dashed border-tikeo-border bg-tikeo-surface px-6 py-12 text-center;
+    @apply flex flex-col items-center gap-3 rounded-[1.5rem] border border-dashed border-tikeo-border bg-tikeo-surface px-6 py-12 text-center;
   }
   .acc-tag {
-    @apply inline-flex items-center px-2 py-0.5 text-xs font-semibold;
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
   }
   .acc-link {
     @apply text-sm font-semibold text-tikeo-black underline decoration-[#FF7A00] decoration-2 underline-offset-[6px] transition-colors hover:text-tikeo-orange;
   }
   .acc-btn-ghost {
-    @apply inline-flex h-10 items-center justify-center gap-2 border border-tikeo-border bg-tikeo-surface px-4 text-sm font-semibold text-tikeo-black transition-colors duration-200 hover:border-tikeo-ink disabled:cursor-not-allowed disabled:opacity-50 dark:hover:border-[#FF7A00];
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-full border border-tikeo-border bg-tikeo-surface px-4 text-sm font-semibold text-tikeo-black transition-colors duration-200 hover:border-tikeo-ink disabled:cursor-not-allowed disabled:opacity-50 dark:hover:border-[#FF7A00];
   }
   .acc-btn-danger {
-    @apply inline-flex h-10 items-center justify-center gap-2 border border-tikeo-error/40 px-4 text-sm font-semibold text-tikeo-error transition-colors hover:bg-tikeo-error hover:text-white disabled:opacity-50;
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-full border border-tikeo-error/40 px-4 text-sm font-semibold text-tikeo-error transition-colors hover:bg-tikeo-error hover:text-white disabled:opacity-50;
   }
   .acc-alert-error {
     @apply border-l-4 border-tikeo-error bg-tikeo-error/10 px-4 py-2.5 text-sm text-tikeo-error;
