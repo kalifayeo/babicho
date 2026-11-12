@@ -1,0 +1,393 @@
+/**
+ * Animations au scroll de Babicho : trois directives, une seule courbe
+ * (--ease-tikeo) et les mêmes effets sur mobile et ordinateur.
+ *
+ *  v-reveal            un élément qui apparaît quand il entre dans l'écran
+ *    <h2 v-reveal:title>      effets : up (défaut) down left right zoom blur flip pop wipe title rise
+ *    <p v-reveal:up="120">    valeur = délai en ms, ou { delay, duration }
+ *
+ *  v-stagger           les ENFANTS directs apparaissent en cascade
+ *    <ul v-stagger:zoom>      pas entre deux enfants : v-stagger:up="{ step: 90 }"
+ *
+ *  v-parallax          décor qui glisse doucement pendant le scroll
+ *    <div v-parallax="0.12">  (réservé aux éléments décoratifs)
+ *
+ *  v-scrub             expose la progression de l'élément dans l'écran via la
+ *                      variable CSS --sp (0 → 1) : l'animation SUIT le scroll
+ *    <section v-scrub>        ex. transform: translateX(calc(var(--sp) * -30vw))
+ *
+ *  v-magnetic          bouton « aimanté » : suit légèrement le curseur (souris
+ *    <button v-magnetic>      uniquement, jamais sur écran tactile)
+ *
+ *  v-tilt              carte « 3D » : s'incline en perspective vers le curseur et
+ *    <article v-tilt>         un reflet lumineux suit la souris (souris uniquement).
+ *    <article v-tilt="8">     valeur = inclinaison maximale en degrés (défaut 7).
+ *
+ *  Titres « masque » mot par mot : composant <SplitHeading> (effet `split`).
+ *
+ * IMPORTANT : plugin universel (pas de suffixe .client). Sans directive côté
+ * serveur, le rendu SSR plante (« getSSRProps of undefined »). getSSRProps
+ * pose donc les mêmes classes que le client : le HTML serveur est déjà dans
+ * l'état de départ, sans clignotement à l'hydratation.
+ *
+ * Les animations elles-mêmes sont en CSS (assets/css/main.css, section
+ * « Animations au scroll ») : seules `opacity`, `transform`, `filter` et
+ * `clip-path` bougent, donc fluide même sur un téléphone d'entrée de gamme.
+ * « Réduire les animations » (OS ou Paramètres Babicho) = tout s'affiche
+ * immédiatement, sans mouvement.
+ */
+import type { Directive, DirectiveBinding } from 'vue'
+import { crossing, scrub } from '~/utils/scrollScrub'
+
+const EFFECTS = ['up', 'down', 'left', 'right', 'zoom', 'blur', 'flip', 'pop', 'wipe', 'title', 'rise', 'split'] as const
+type Effect = (typeof EFFECTS)[number]
+
+interface RevealOptions {
+  delay?: number
+  duration?: number
+  step?: number
+}
+
+function effectOf(binding: DirectiveBinding): Effect {
+  const arg = binding.arg as Effect | undefined
+  return arg && (EFFECTS as readonly string[]).includes(arg) ? arg : 'up'
+}
+
+function optionsOf(binding: DirectiveBinding): RevealOptions {
+  const v = binding.value
+  if (typeof v === 'number') return { delay: v, step: v }
+  if (v && typeof v === 'object') return v as RevealOptions
+  return {}
+}
+
+function cssVars(o: RevealOptions, isStagger: boolean): string {
+  const parts: string[] = []
+  if (isStagger) {
+    if (o.step != null) parts.push(`--rv-st:${o.step}ms`)
+    if (o.delay != null) parts.push(`--rv-d:${o.delay}ms`)
+  } else if (o.delay != null) {
+    parts.push(`--rv-d:${o.delay}ms`)
+  }
+  if (o.duration != null) parts.push(`--rv-t:${o.duration}ms`)
+  return parts.join(';')
+}
+
+function reducedMotion(): boolean {
+  if (typeof window === 'undefined') return false
+  return (
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true ||
+    document.documentElement.classList.contains('ui-reduce-motion')
+  )
+}
+
+// --- Un seul IntersectionObserver pour toute la page ---------------------
+let io: IntersectionObserver | null = null
+
+function observer(): IntersectionObserver | null {
+  if (io) return io
+  if (typeof IntersectionObserver === 'undefined') return null
+  io = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        const el = entry.target as HTMLElement
+        // Déjà dépassé (rechargement au milieu de la page, saut d'ancre) :
+        // on l'affiche tout de suite, sans rejouer l'animation dans le vide.
+        if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
+          el.classList.add('rv-in', 'rv-now')
+          io!.unobserve(el)
+          continue
+        }
+        if (entry.isIntersecting) {
+          el.classList.add('rv-in')
+          io!.unobserve(el)
+        }
+      }
+    },
+    // L'élément se déclenche quand son bord haut passe dans les 90 % bas de
+    // l'écran : marche pour un petit titre comme pour un grand bloc.
+    { threshold: 0, rootMargin: '0px 0px -10% 0px' }
+  )
+  return io
+}
+
+function start(el: HTMLElement) {
+  if (reducedMotion()) {
+    el.classList.add('rv-in', 'rv-now')
+    return
+  }
+  const o = observer()
+  if (!o) {
+    el.classList.add('rv-in', 'rv-now')
+    return
+  }
+  o.observe(el)
+}
+
+function stop(el: HTMLElement) {
+  io?.unobserve(el)
+}
+
+// --- Parallaxe : un seul écouteur de scroll, un seul rAF -------------------
+interface ParallaxItem {
+  el: HTMLElement
+  speed: number
+  visible: boolean
+}
+const parallaxItems = new Set<ParallaxItem>()
+let parallaxIo: IntersectionObserver | null = null
+let ticking = false
+let listening = false
+
+function paintParallax() {
+  ticking = false
+  const vh = window.innerHeight
+  // Sur mobile le mouvement est réduit de moitié : plus discret, moins coûteux.
+  const k = window.innerWidth < 768 ? 0.5 : 1
+  parallaxItems.forEach((item) => {
+    if (!item.visible) return
+    const r = item.el.parentElement?.getBoundingClientRect() ?? item.el.getBoundingClientRect()
+    const offset = r.top + r.height / 2 - vh / 2
+    item.el.style.transform = `translate3d(0, ${(offset * item.speed * k).toFixed(1)}px, 0)`
+  })
+}
+
+function onScroll() {
+  if (!ticking) {
+    ticking = true
+    requestAnimationFrame(paintParallax)
+  }
+}
+
+function addParallax(item: ParallaxItem) {
+  if (!parallaxIo && typeof IntersectionObserver !== 'undefined') {
+    parallaxIo = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        for (const it of parallaxItems) {
+          if (it.el === e.target) it.visible = e.isIntersecting
+        }
+      }
+      onScroll()
+    })
+  }
+  parallaxItems.add(item)
+  parallaxIo?.observe(item.el.parentElement ?? item.el)
+  if (!listening) {
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll, { passive: true })
+    listening = true
+  }
+  onScroll()
+}
+
+function removeParallax(el: HTMLElement) {
+  for (const it of parallaxItems) {
+    if (it.el === el) {
+      parallaxItems.delete(it)
+      parallaxIo?.unobserve(el.parentElement ?? el)
+    }
+  }
+  if (parallaxItems.size === 0 && listening) {
+    window.removeEventListener('scroll', onScroll)
+    window.removeEventListener('resize', onScroll)
+    listening = false
+  }
+}
+
+// --- Directives -------------------------------------------------------------
+const reveal: Directive<HTMLElement> = {
+  getSSRProps(binding) {
+    const vars = cssVars(optionsOf(binding), false)
+    return { class: `rv rv-${effectOf(binding)}`, ...(vars ? { style: vars } : {}) }
+  },
+  created(el, binding) {
+    el.classList.add('rv', `rv-${effectOf(binding)}`)
+    const vars = cssVars(optionsOf(binding), false)
+    if (vars) el.style.cssText += `;${vars}`
+  },
+  mounted(el) {
+    start(el)
+  },
+  beforeUnmount(el) {
+    stop(el)
+  },
+}
+
+const stagger: Directive<HTMLElement> = {
+  getSSRProps(binding) {
+    const vars = cssVars(optionsOf(binding), true)
+    return { 'data-stagger': effectOf(binding), ...(vars ? { style: vars } : {}) }
+  },
+  created(el, binding) {
+    el.setAttribute('data-stagger', effectOf(binding))
+    const vars = cssVars(optionsOf(binding), true)
+    if (vars) el.style.cssText += `;${vars}`
+  },
+  mounted(el) {
+    start(el)
+  },
+  beforeUnmount(el) {
+    stop(el)
+  },
+}
+
+const parallax: Directive<HTMLElement> = {
+  // Décor uniquement : rien à rendre côté serveur.
+  getSSRProps() {
+    return {}
+  },
+  mounted(el, binding) {
+    if (typeof window === 'undefined' || reducedMotion()) return
+    const speed = typeof binding.value === 'number' ? binding.value : 0.1
+    el.style.willChange = 'transform'
+    addParallax({ el, speed, visible: false })
+  },
+  beforeUnmount(el) {
+    removeParallax(el)
+  },
+}
+
+// --- Scrub : l'animation suit le scroll (variable CSS --sp) --------------------
+const scrubOff = new WeakMap<HTMLElement, () => void>()
+const scrubDirective: Directive<HTMLElement> = {
+  getSSRProps() {
+    return {}
+  },
+  mounted(el) {
+    if (typeof window === 'undefined') return
+    if (reducedMotion()) {
+      el.style.setProperty('--sp', '0.5')
+      return
+    }
+    scrubOff.set(
+      el,
+      scrub(el, (rect, vh) => el.style.setProperty('--sp', crossing(rect, vh).toFixed(3)))
+    )
+  },
+  beforeUnmount(el) {
+    scrubOff.get(el)?.()
+    scrubOff.delete(el)
+  },
+}
+
+// --- Magnétique : le bouton suit doucement le curseur ----------------------------
+// Utilise la propriété CSS `translate` (indépendante de `transform`) : aucun
+// conflit avec les effets de survol / d'appui déjà présents sur les boutons.
+const magnetOff = new WeakMap<HTMLElement, () => void>()
+const magnetic: Directive<HTMLElement> = {
+  getSSRProps() {
+    return {}
+  },
+  mounted(el, binding) {
+    if (typeof window === 'undefined' || reducedMotion()) return
+    if (!window.matchMedia?.('(hover: hover) and (pointer: fine)').matches) return
+    const k = typeof binding.value === 'number' ? binding.value : 0.28
+    let tx = 0
+    let ty = 0
+    let cx = 0
+    let cy = 0
+    let raf = 0
+    const tick = () => {
+      cx += (tx - cx) * 0.18
+      cy += (ty - cy) * 0.18
+      el.style.translate = `${cx.toFixed(2)}px ${cy.toFixed(2)}px`
+      raf = Math.abs(tx - cx) > 0.05 || Math.abs(ty - cy) > 0.05 ? requestAnimationFrame(tick) : 0
+    }
+    const kick = () => {
+      if (!raf) raf = requestAnimationFrame(tick)
+    }
+    const move = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return
+      const r = el.getBoundingClientRect()
+      tx = (e.clientX - (r.left + r.width / 2)) * k
+      ty = (e.clientY - (r.top + r.height / 2)) * k
+      kick()
+    }
+    const leave = () => {
+      tx = 0
+      ty = 0
+      kick()
+    }
+    el.addEventListener('pointermove', move)
+    el.addEventListener('pointerleave', leave)
+    magnetOff.set(el, () => {
+      el.removeEventListener('pointermove', move)
+      el.removeEventListener('pointerleave', leave)
+      cancelAnimationFrame(raf)
+      el.style.translate = ''
+    })
+  },
+  beforeUnmount(el) {
+    magnetOff.get(el)?.()
+    magnetOff.delete(el)
+  },
+}
+
+// --- Inclinaison 3D : la carte pivote vers le curseur, un reflet suit la souris ----------------
+// Écrit `transform` en ligne (avec le même léger soulèvement que le survol Tailwind) et
+// pose --gx / --gy pour le reflet (.tk-tilt::after dans main.css). Un seul rAF par carte.
+const tiltOff = new WeakMap<HTMLElement, () => void>()
+const tilt: Directive<HTMLElement> = {
+  getSSRProps() {
+    return { class: 'tk-tilt' }
+  },
+  created(el) {
+    el.classList.add('tk-tilt')
+  },
+  mounted(el, binding) {
+    if (typeof window === 'undefined' || reducedMotion()) return
+    if (!window.matchMedia?.('(hover: hover) and (pointer: fine)').matches) return
+    const max = typeof binding.value === 'number' ? binding.value : 7
+    let raf = 0
+    let nx = 0
+    let ny = 0
+    let gx = 50
+    let gy = 50
+    const paint = () => {
+      raf = 0
+      el.style.transform = `perspective(900px) rotateX(${(-ny * max).toFixed(2)}deg) rotateY(${(nx * max * 1.25).toFixed(2)}deg) translate3d(0, -4px, 0)`
+      el.style.setProperty('--gx', `${gx.toFixed(1)}%`)
+      el.style.setProperty('--gy', `${gy.toFixed(1)}%`)
+    }
+    const move = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return
+      const r = el.getBoundingClientRect()
+      const x = (e.clientX - r.left) / r.width
+      const y = (e.clientY - r.top) / r.height
+      nx = Math.max(-1, Math.min(1, x * 2 - 1))
+      ny = Math.max(-1, Math.min(1, y * 2 - 1))
+      gx = x * 100
+      gy = y * 100
+      if (!raf) raf = requestAnimationFrame(paint)
+    }
+    const enter = () => el.classList.add('tilt-on')
+    const leave = () => {
+      cancelAnimationFrame(raf)
+      raf = 0
+      el.classList.remove('tilt-on')
+      el.style.transform = ''
+    }
+    el.addEventListener('pointerenter', enter)
+    el.addEventListener('pointermove', move)
+    el.addEventListener('pointerleave', leave)
+    tiltOff.set(el, () => {
+      el.removeEventListener('pointerenter', enter)
+      el.removeEventListener('pointermove', move)
+      el.removeEventListener('pointerleave', leave)
+      cancelAnimationFrame(raf)
+      el.style.transform = ''
+    })
+  },
+  beforeUnmount(el) {
+    tiltOff.get(el)?.()
+    tiltOff.delete(el)
+  },
+}
+
+export default defineNuxtPlugin((nuxtApp) => {
+  nuxtApp.vueApp.directive('reveal', reveal)
+  nuxtApp.vueApp.directive('stagger', stagger)
+  nuxtApp.vueApp.directive('parallax', parallax)
+  nuxtApp.vueApp.directive('scrub', scrubDirective)
+  nuxtApp.vueApp.directive('magnetic', magnetic)
+  nuxtApp.vueApp.directive('tilt', tilt)
+})
