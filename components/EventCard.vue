@@ -160,87 +160,79 @@ const progress = computed(() => {
   </article>
 
   <!-- ===================== CARTE STANDARD (événement ou cotisation) =====================
-       Lecture de haut en bas : visuel (date, catégorie, favori) -> titre -> infos
-       (date, lieu) -> prix + bouton -> organisateur. Une seule couleur d'action
-       (orange), aucun texte coupé sur les infos importantes, hauteur alignée
-       entre cartes voisines (le bloc prix/bouton reste calé en bas). -->
+       Même langage que la maquette : grande photo avec le numéro du jour en gros, pastille de
+       catégorie, favori en verre sombre ; dessous : titre, lieu, date, puis prix et flèche ronde
+       qui devient orange (et pivote) au survol. Favori, abonnement et lien restent inchangés. -->
   <article
     v-tilt
     v-else
-    class="group relative flex shrink-0 flex-col overflow-hidden rounded-2xl border border-tikeo-border bg-tikeo-surface shadow-card transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-card-hover"
+    class="ev-card group relative flex shrink-0 flex-col overflow-hidden rounded-[1.6rem] border border-tikeo-border bg-tikeo-surface shadow-card transition-[transform,box-shadow] duration-500 hover:shadow-card-hover focus-within:ring-2 focus-within:ring-[#FF7A00]/60"
     :class="[
       variant === 'full' || isTile ? 'w-[78vw] max-w-[300px] md:w-full md:max-w-none' : 'w-full',
       isTile ? 'h-full' : '',
     ]"
   >
     <!-- Visuel -->
-    <div class="relative overflow-hidden bg-tikeo-surface-alt" :class="isTile ? 'min-h-[9rem] flex-1' : 'aspect-[16/10]'">
+    <div class="relative overflow-hidden bg-tikeo-ink" :class="isTile ? 'min-h-[9rem] flex-1' : 'aspect-[1.32]'">
       <img
         :src="event.coverImage"
         alt=""
         loading="lazy"
         decoding="async"
-        class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+        class="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.08]"
       />
-      <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/45 to-transparent" aria-hidden="true" />
+      <div class="absolute inset-0 bg-gradient-to-t from-[#0E2240]/90 via-[#0E2240]/20 to-[#0E2240]/10" aria-hidden="true" />
+      <div class="ev-lines pointer-events-none absolute inset-0 opacity-[0.12]" aria-hidden="true" />
 
-      <!-- Date (événement) : pastille calendrier -->
-      <div
-        v-if="!isCause"
-        class="absolute left-3 top-3 flex min-w-[3rem] flex-col items-center rounded-xl bg-white px-2.5 py-1.5 leading-none text-tikeo-ink shadow-md"
-        :title="dateParts.full"
-      >
-        <span class="text-[10px] font-extrabold uppercase tracking-wider text-[#E05F00]">{{ dateParts.month }}</span>
-        <span class="mt-1 font-display text-xl font-extrabold">{{ dateParts.day }}</span>
-      </div>
+      <!-- Catégorie -->
+      <span v-if="event.category" class="absolute left-3.5 top-3.5 flex max-w-[calc(100%-4.5rem)] items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-[12px] font-bold text-tikeo-ink shadow-sm">
+        <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-[#FF7A00]" aria-hidden="true" />
+        <span class="truncate">{{ event.category }}</span>
+      </span>
 
       <!-- Favori + nombre de cœurs -->
       <button
         type="button"
-        class="absolute right-3 top-3 z-[2] flex h-9 min-w-[2.25rem] items-center justify-center gap-1 rounded-full bg-white/95 px-2 text-tikeo-ink shadow-md backdrop-blur transition-transform active:scale-90"
-        :class="likes > 0 ? 'px-2.5' : ''"
+        class="absolute right-3 top-3 z-[2] flex h-10 min-w-[2.5rem] items-center justify-center gap-1 rounded-full bg-[#0E2240]/55 px-2 text-white backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-[#0E2240]/75 active:scale-90"
+        :class="likes > 0 ? 'px-3' : ''"
         :aria-pressed="isFavorite(event.id)"
         :aria-label="`${isFavorite(event.id) ? t('home.removeFavorite') : t('home.addFavorite')} (${likes})`"
         @click.prevent.stop="handleFavoriteClick"
       >
-        <svg class="h-[18px] w-[18px] transition-colors" :class="isFavorite(event.id) ? 'fill-[#EE1C25] text-[#EE1C25]' : 'fill-none hover:text-[#EE1C25]'" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <svg class="h-[18px] w-[18px] transition-colors" :class="isFavorite(event.id) ? 'fill-[#FF5A5F] text-[#FF5A5F]' : 'fill-none'" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7.5-4.6-10-9.1C.5 8.6 2.3 5 6 5c2 0 3.4 1.1 4 2.2C10.6 6.1 12 5 14 5c3.7 0 5.5 3.6 4 6.9-2.5 4.5-10 9.1-10 9.1z" />
         </svg>
         <span v-if="likes > 0" class="text-xs font-bold">{{ likesLabel }}</span>
       </button>
 
-      <!-- Catégorie -->
-      <span v-if="event.category" class="absolute bottom-3 left-3 flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-tikeo-ink shadow-sm">
-        <svg class="h-3.5 w-3.5 shrink-0 text-[#E05F00]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 12V5a2 2 0 012-2h7l9 9-9 9-9-9z" />
-          <circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" />
-        </svg>
-        <span class="truncate">{{ event.category }}</span>
-      </span>
+      <!-- Jour en grand -->
+      <div v-if="!isCause" class="absolute bottom-3 left-4 leading-none text-white" :title="dateParts.full">
+        <span class="block text-[12px] font-bold uppercase tracking-[0.18em] text-white/90">{{ dateParts.month }}</span>
+        <span class="mt-0.5 block font-display text-[3.6rem] font-extrabold leading-[0.9] tracking-[-0.05em]">{{ dateParts.day }}</span>
+      </div>
     </div>
 
     <!-- Contenu -->
-    <div class="flex flex-1 flex-col p-4">
-      <h3 class="font-display text-[17px] font-extrabold leading-snug tracking-tight text-tikeo-black" :class="isTile ? 'line-clamp-2' : 'line-clamp-2 min-h-[2.9rem]'" :title="event.title">
+    <div class="flex flex-1 flex-col px-5 pb-5 pt-4">
+      <h3 class="font-display text-[19px] font-extrabold leading-[1.15] tracking-[-0.02em] text-tikeo-black" :class="isTile ? 'line-clamp-2' : 'line-clamp-2 min-h-[2.8rem]'" :title="event.title">
         <NuxtLink :to="eventUrl" class="after:absolute after:inset-0 after:z-[1] after:content-['']">{{ event.title }}</NuxtLink>
       </h3>
 
-      <!-- Infos pratiques -->
-      <ul class="mt-3 space-y-2 text-[13px] text-tikeo-gray-text">
-        <li v-if="!isCause" class="flex items-start gap-2.5">
-          <svg class="mt-px h-4 w-4 shrink-0 text-[#E05F00]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
-            <rect x="3.5" y="5" width="17" height="15.5" rx="2" /><path stroke-linecap="round" d="M3.5 10h17M8 3v4M16 3v4" />
-          </svg>
-          <span class="font-semibold leading-snug text-tikeo-black">{{ dateLabel }}</span>
-        </li>
-        <li class="flex items-start gap-2.5">
-          <svg class="mt-px h-4 w-4 shrink-0 text-[#E05F00]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+      <ul class="mt-2.5 space-y-1.5 text-[13.5px] text-tikeo-gray-text">
+        <li class="flex items-center gap-2">
+          <svg class="h-4 w-4 shrink-0 text-[#E05F00]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4.5-4-7-7.4-7-10.5A7 7 0 0119 10.5C19 13.6 16.5 17 12 21z" /><circle cx="12" cy="10.5" r="2.2" />
           </svg>
-          <span class="flex min-w-0 flex-1 items-center gap-2 leading-snug">
+          <span class="flex min-w-0 flex-1 items-center gap-2">
             <span class="truncate">{{ isCause ? event.country || event.city : event.city }}<template v-if="!isCause && event.country">, {{ event.country }}</template></span>
             <img v-if="flagUrl" :src="flagUrl" alt="" width="20" height="14" loading="lazy" class="h-3.5 w-5 shrink-0 rounded-[2px] object-cover shadow-[0_0_0_1px_rgba(0,0,0,0.08)]" />
           </span>
+        </li>
+        <li v-if="!isCause" class="flex items-center gap-2">
+          <svg class="h-4 w-4 shrink-0 text-[#E05F00]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+            <rect x="3.5" y="5" width="17" height="15.5" rx="2" /><path stroke-linecap="round" d="M3.5 10h17M8 3v4M16 3v4" />
+          </svg>
+          <span class="truncate">{{ dateLabel }}</span>
         </li>
       </ul>
 
@@ -252,8 +244,8 @@ const progress = computed(() => {
         <span class="text-xs font-bold text-tikeo-black">{{ progress }}%</span>
       </div>
 
-      <!-- Prix + bouton (calés en bas de carte) -->
-      <div class="mt-auto flex items-end justify-between gap-3 pt-4">
+      <!-- Prix + flèche ronde (le lien étendu du titre couvre toute la carte) -->
+      <div class="mt-auto flex items-center justify-between gap-3 pt-4">
         <p class="min-w-0 leading-tight">
           <template v-if="isCause">
             <span class="block text-xs font-medium text-tikeo-gray-text">{{ t('home.raised') }}</span>
@@ -268,32 +260,27 @@ const progress = computed(() => {
             <span class="block truncate font-display text-xl font-extrabold text-tikeo-black">{{ formattedPrice }} <span class="text-sm font-bold">F CFA</span></span>
           </template>
         </p>
-        <!-- Le lien étendu du titre couvre toute la carte : ce bouton n'est que visuel -->
-        <span class="flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#FF7A00] px-5 text-sm font-extrabold text-tikeo-ink shadow-[0_8px_18px_-8px_rgba(255,122,0,0.8)] transition-colors duration-200 group-hover:bg-[#F06F00]">
-          {{ isCause ? t('home.participate') : t('home.buyShort') }}
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" /></svg>
+        <span class="ev-go flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-tikeo-surface-alt text-tikeo-black transition-all duration-500 group-hover:-rotate-45 group-hover:bg-[#FF7A00] group-hover:text-tikeo-ink" :title="isCause ? t('home.participate') : t('home.buyShort')" aria-hidden="true">
+          <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" /></svg>
         </span>
       </div>
 
       <!-- Organisateur + S'abonner -->
-      <div v-if="event.organizerName" class="mt-4 flex items-center gap-2.5 border-t border-tikeo-border pt-3">
-        <img v-if="event.organizerAvatar" :src="event.organizerAvatar" alt="" width="32" height="32" loading="lazy" class="h-8 w-8 shrink-0 rounded-full object-cover" />
-        <span v-else class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-tikeo-ink text-[11px] font-bold text-white dark:bg-white dark:text-tikeo-ink">{{ initials }}</span>
-        <div class="min-w-0 flex-1 leading-tight">
-          <p class="text-[11px] text-tikeo-gray-text">{{ t('home.publishedBy') }}</p>
-          <p class="flex items-center gap-1 text-[13px] font-bold text-tikeo-black">
-            <span class="truncate" :title="event.organizerName">{{ event.organizerName }}</span>
-            <svg v-if="event.verified" class="h-4 w-4 shrink-0 text-[#1E9E5A]" viewBox="0 0 24 24" fill="currentColor" role="img" :aria-label="t('home.verified')">
-              <path d="M12 2l2.4 2.1 3.2-.2 1 3 2.7 1.8-.9 3.1.9 3.1-2.7 1.8-1 3-3.2-.2L12 22l-2.4-2.1-3.2.2-1-3-2.7-1.8.9-3.1-.9-3.1 2.7-1.8 1-3 3.2.2L12 2z" />
-              <path d="M8.5 12.3l2.5 2.5 4.6-4.9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </p>
-        </div>
+      <div v-if="event.organizerName" class="mt-4 flex items-center gap-2.5 border-t border-tikeo-border pt-3.5">
+        <img v-if="event.organizerAvatar" :src="event.organizerAvatar" alt="" width="30" height="30" loading="lazy" class="h-[1.875rem] w-[1.875rem] shrink-0 rounded-full object-cover" />
+        <span v-else class="flex h-[1.875rem] w-[1.875rem] shrink-0 items-center justify-center rounded-full bg-tikeo-ink text-[10px] font-bold text-white dark:bg-white dark:text-tikeo-ink">{{ initials }}</span>
+        <p class="flex min-w-0 flex-1 items-center gap-1 text-[13px] font-bold text-tikeo-black">
+          <span class="truncate" :title="event.organizerName">{{ event.organizerName }}</span>
+          <svg v-if="event.verified" class="h-4 w-4 shrink-0 text-[#1E9E5A]" viewBox="0 0 24 24" fill="currentColor" role="img" :aria-label="t('home.verified')">
+            <path d="M12 2l2.4 2.1 3.2-.2 1 3 2.7 1.8-.9 3.1.9 3.1-2.7 1.8-1 3-3.2-.2L12 22l-2.4-2.1-3.2.2-1-3-2.7-1.8.9-3.1-.9-3.1 2.7-1.8 1-3 3.2.2L12 2z" />
+            <path d="M8.5 12.3l2.5 2.5 4.6-4.9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </p>
         <button
           v-if="event.organizerId"
           type="button"
-          class="relative z-[2] shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-bold transition-colors"
-          :class="isFollowing(event.organizerId) ? 'border-tikeo-border bg-transparent text-tikeo-gray-text hover:border-tikeo-ink hover:text-tikeo-black' : 'border-tikeo-ink text-tikeo-black hover:bg-tikeo-ink hover:text-white dark:border-white/70 dark:hover:bg-white dark:hover:text-tikeo-ink'"
+          class="relative z-[2] shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold transition-colors"
+          :class="isFollowing(event.organizerId) ? 'bg-tikeo-surface-alt text-tikeo-gray-text hover:text-tikeo-black' : 'bg-[#FF7A00]/12 text-[rgb(var(--tikeo-orange-strong))] hover:bg-[#FF7A00] hover:text-tikeo-ink'"
           :aria-pressed="isFollowing(event.organizerId)"
           @click.prevent.stop="handleFollowClick"
         >
@@ -303,3 +290,8 @@ const progress = computed(() => {
     </div>
   </article>
 </template>
+
+<style scoped>
+/* Fines rayures diagonales sur la photo (comme sur la maquette) : discret, donne du relief. */
+.ev-lines { background-image: repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.9) 0 1px, transparent 1px 18px); mix-blend-mode: soft-light; }
+</style>

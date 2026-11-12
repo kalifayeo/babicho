@@ -12,3 +12,16 @@
 - `OrganizerCtaBanner.vue` : carte sombre resserrée, étapes reliées par une ligne, arrivée en cascade, bouton « aimanté ».
 - `AppDownloadSection.vue` : la bande orange pleine largeur devient une carte arrondie.
 - `pages/index.vue` / `CategoriesRow.vue` : titres et cartes d'événements apparaissent en cascade au défilement.
+
+## Animations (version 3)
+- `TrustStats.vue` : mosaïque (bento) à 4 blocs — billet QR scanné par un laser, logos de paiement en orbite autour de « FCFA », ondes du support, chiffres RÉELS (useHomeStats) qui montent ; le bloc chiffres devient un bouton « Explorer » tant qu'ils ne sont pas chargés.
+- `OrganizerCtaBanner.vue` : 3 étapes reliées par une ligne lumineuse qui se remplit pendant le défilement ; maquettes animées (saisie, interrupteurs, graphique + compteur).
+- `CategoriesRow.vue` : pastilles à icône ronde colorée, apparition en cascade, survol animé.
+- `pages/index.vue` : barre de progression sous chaque rangée d'événements (cartes déjà inclinées en 3D via v-tilt dans EventCard).
+- `AppDownloadSection.vue` : la carte apparaît en zoom.
+- Toutes les animations respectent « réduire les animations » (système ou réglage Babicho).
+
+## Version 4 : cartes d'événements alignées sur la maquette
+- `EventCard.vue` (carte standard) : grande photo avec le jour en très grand, pastille de catégorie, favori en verre sombre, titre, lieu, date, prix et flèche ronde qui devient orange au survol. Favori, abonnement, lien, cotisations et drapeau pays sont conservés.
+- `pages/index.vue` : cartes de 292 px (4 par rangée sur 1240 px).
+- `TrustStats.vue` : orbite de paiement entièrement visible, textes sans chevauchement.

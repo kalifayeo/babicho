@@ -21,7 +21,7 @@ const features = computed(() => [
 
 <template>
   <section class="mx-auto max-w-tikeo-content px-4 py-16 md:px-6 md:py-24" aria-labelledby="app-download-title">
-   <div class="relative isolate overflow-hidden rounded-[2rem] bg-[#FF7A00] text-tikeo-ink">
+   <div v-reveal:zoom class="relative isolate overflow-hidden rounded-[2rem] bg-[#FF7A00] text-tikeo-ink md:rounded-[2.25rem]">
     <!-- trame de points, très discrète (glisse lentement) -->
     <div class="tk-deco pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       <div v-parallax="-0.06" class="absolute -inset-x-4 -inset-y-24 opacity-[0.13]" style="background-image: radial-gradient(circle, #0E2240 1.5px, transparent 1.8px); background-size: 22px 22px" />

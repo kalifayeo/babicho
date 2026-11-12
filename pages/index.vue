@@ -117,6 +117,14 @@ const rowRefs = ref<Record<string, HTMLElement | null>>({})
 function setRowRef(key: string, el: unknown) {
   rowRefs.value[key] = (el as HTMLElement) ?? null
 }
+// Avancement du défilement de chaque rangée (0 → 1) : alimente la fine barre sous les cartes.
+const rowProgress = ref<Record<string, number>>({})
+function onRowScroll(key: string) {
+  const el = rowRefs.value[key]
+  if (!el) return
+  const max = el.scrollWidth - el.clientWidth
+  rowProgress.value[key] = max > 0 ? el.scrollLeft / max : 1
+}
 function scrollRow(key: string, dir: 1 | -1) {
   rowRefs.value[key]?.scrollBy({ left: dir * 360, behavior: 'smooth' })
 }
@@ -197,8 +205,11 @@ function seeAll(category: string | null) {
             </div>
           </div>
 
-          <div :ref="(el) => setRowRef(row.key, el)" v-stagger:up="{ step: 70 }" class="no-scrollbar -mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-4 md:mx-0 md:gap-5 md:px-0">
-            <EventCard v-for="event in row.events" :key="event.id" :event="event" variant="full" class="snap-start md:!w-[17.5rem]" />
+          <div :ref="(el) => setRowRef(row.key, el)" v-stagger:up="{ step: 70 }" class="no-scrollbar -mx-4 -mt-3 flex snap-x gap-4 overflow-x-auto px-4 pb-4 pt-3 md:mx-0 md:gap-5 md:px-0" @scroll.passive="onRowScroll(row.key)">
+            <EventCard v-for="event in row.events" :key="event.id" :event="event" variant="full" class="snap-start md:!w-[18.25rem]" />
+          </div>
+          <div v-if="row.events.length > 4" class="mt-2 hidden h-1 w-40 overflow-hidden rounded-full bg-tikeo-border md:block" aria-hidden="true">
+            <i class="block h-full w-1/4 origin-left rounded-full bg-[#FF7A00] transition-transform duration-200" :style="{ transform: `translateX(${(rowProgress[row.key] ?? 0) * 300}%)` }" />
           </div>
         </section>
       </template>
