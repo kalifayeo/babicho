@@ -43,3 +43,8 @@
 - `components/AppFooter.vue` : bandeau d'engagements supprimé, liens sans icônes (4 colonnes courtes), contact réduit, bas de page sur une ligne, fond bleu nuit arrondi.
 - `components/Loader3D.vue` (nouveau) : cube 3D orange/bleu qui tourne et flotte, avec satellite en orbite.
 - `components/NavigationLoader.vue` : le logo Babicho est remplacé par ce loader pendant les changements de page.
+
+## Version 8 : première section (hero) de l'accueil
+- `components/HeroSection.vue` : le hero n'est plus plein écran mais une carte arrondie centrée (largeur du contenu), plus basse et plus compacte ; titre/recherche resserrés.
+- Cadre visuel : arrière-plan flouté + image affichée en entier (plus jamais rognée, comme l'affiche « Paiement simplifié ») ; inclinaison 3D au survol ; la carte « Prochain événement » est sortie de l'image et posée dessous.
+- `components/AppHeader.vue` : la capsule du header est toujours claire (le hero n'est plus sombre derrière). `layouts/default.vue` : l'accueil réserve la place du header.

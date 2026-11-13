@@ -171,7 +171,7 @@ const statItems = computed(() => [
 <template>
   <section
     id="hero-carousel"
-    class="type-scope relative isolate overflow-hidden bg-tikeo-ink text-white"
+    class="type-scope px-3 pt-[4.5rem] sm:px-5 lg:pt-[5rem]"
     role="region"
     aria-roledescription="carousel"
     :aria-label="t('hero.sliderLabel')"
@@ -180,6 +180,7 @@ const statItems = computed(() => [
     @focusin="paused = true"
     @focusout="paused = false"
   >
+   <div class="relative isolate mx-auto max-w-tikeo-content overflow-hidden rounded-[1.75rem] bg-tikeo-ink text-white md:rounded-[2.5rem]">
     <!-- Fond : dégradé calme + deux halos fixes + fine trame. Rien ne bouge, rien ne distrait. -->
     <div class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
       <div class="absolute inset-0 bg-[linear-gradient(180deg,#0E2240_0%,#0B1B35_100%)]" />
@@ -192,7 +193,7 @@ const statItems = computed(() => [
       <div class="absolute inset-x-0 top-0 h-px bg-tikeo-brand opacity-80" />
     </div>
 
-    <div class="mx-auto grid w-full max-w-tikeo-content items-center gap-12 px-5 pb-16 pt-28 sm:pt-32 md:px-8 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-14 lg:pb-24 lg:pt-40 xl:gap-20">
+    <div class="grid w-full items-center gap-8 px-5 py-8 sm:px-8 md:py-10 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-10 lg:px-12 lg:py-12 xl:gap-14">
       <!-- ============ Colonne texte ============ -->
       <div class="min-w-0">
         <p v-reveal:up="0" class="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 text-[13px] font-semibold text-white/90">
@@ -202,7 +203,7 @@ const statItems = computed(() => [
 
         <h1
           v-reveal:title
-          class="mt-6 text-[2.6rem] !font-[800] leading-[1.04] tracking-[-0.035em] text-white sm:text-6xl xl:text-[4.5rem]"
+          class="mt-5 text-[2.3rem] !font-[800] leading-[1.04] tracking-[-0.035em] text-white sm:text-5xl xl:text-[3.5rem]"
           style="text-wrap: balance"
         >
           <span
@@ -213,19 +214,19 @@ const statItems = computed(() => [
           >{{ w }}</span>
         </h1>
 
-        <p v-reveal:up="160" class="mt-5 max-w-xl text-lg leading-relaxed text-white/70 md:text-xl" style="text-wrap: pretty">
+        <p v-reveal:up="160" class="mt-4 max-w-xl text-base leading-relaxed text-white/70 md:text-lg" style="text-wrap: pretty">
           {{ heroSubtitle }}
         </p>
 
         <!-- Recherche rapide -->
-        <div v-reveal:up="260" class="mt-9 max-w-xl rounded-2xl bg-tikeo-surface p-2 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.65)]">
+        <div v-reveal:up="260" class="mt-7 max-w-xl rounded-[1.75rem] bg-tikeo-surface p-1.5 sm:rounded-full shadow-[0_24px_60px_-24px_rgba(0,0,0,0.65)]">
           <div class="flex flex-col gap-2 sm:flex-row">
             <label class="relative block flex-1 text-left">
               <span class="sr-only">{{ t('filters.city') }}</span>
               <AppIcon name="pin" class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#FF7A00]" />
               <select
                 v-model="filters.city"
-                class="h-[3.25rem] w-full cursor-pointer appearance-none rounded-xl border-0 bg-transparent pl-12 pr-10 text-[15px] font-semibold text-tikeo-black transition-colors hover:bg-tikeo-surface-alt focus:bg-tikeo-surface-alt focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF7A00]"
+                class="h-[3.25rem] w-full cursor-pointer appearance-none rounded-2xl sm:rounded-full border-0 bg-transparent pl-12 pr-10 text-[15px] font-semibold text-tikeo-black transition-colors hover:bg-tikeo-surface-alt focus:bg-tikeo-surface-alt focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF7A00]"
               >
                 <option :value="null">{{ t('filters.allCities') }}</option>
                 <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
@@ -236,7 +237,7 @@ const statItems = computed(() => [
             </label>
             <button
               type="button"
-              class="flex h-[3.25rem] items-center justify-center gap-2 rounded-xl bg-[#FF7A00] px-7 text-[15px] font-bold text-tikeo-ink transition-colors hover:bg-[#FF8F26] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF7A00] sm:shrink-0"
+              class="flex h-[3.25rem] items-center justify-center gap-2 rounded-2xl bg-[#FF7A00] px-7 sm:rounded-full text-[15px] font-bold text-tikeo-ink transition-colors hover:bg-[#FF8F26] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF7A00] sm:shrink-0"
               @click="showEvents"
             >
               <AppIcon name="search" class="h-5 w-5" :stroke="2.4" />
@@ -265,7 +266,7 @@ const statItems = computed(() => [
         </div>
 
         <!-- Vidéo + appel organisateur -->
-        <div v-reveal:up="420" class="mt-8 flex flex-wrap items-center gap-x-7 gap-y-3">
+        <div v-reveal:up="420" class="mt-6 flex flex-wrap items-center gap-x-7 gap-y-3">
           <button
             v-if="presentationSource"
             type="button"
@@ -286,7 +287,7 @@ const statItems = computed(() => [
         </div>
 
         <!-- Chiffres clés (réels) + moyens de paiement -->
-        <div v-reveal:up="520" class="mt-10 flex flex-col gap-6 border-t border-white/10 pt-7 sm:flex-row sm:items-center sm:justify-between">
+        <div v-reveal:up="520" class="mt-7 flex flex-col gap-5 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <dl v-if="showStats" class="grid grid-cols-3 gap-6 sm:gap-10">
             <div v-for="item in statItems" :key="item.label">
               <dd class="text-2xl !font-[800] leading-none tracking-tight tabular-nums text-white md:text-3xl"><OrgCountUp :value="item.value" :suffix="item.suffix" :duration="1400" on-view /></dd>
@@ -306,7 +307,7 @@ const statItems = computed(() => [
 
       <!-- ============ Colonne visuel : diaporama / vidéo + prochain événement ============ -->
       <div v-reveal:up="200" class="relative min-w-0">
-        <div class="relative aspect-[16/11] overflow-hidden rounded-[1.75rem] bg-[#0B1B35] shadow-[0_40px_90px_-30px_rgba(0,0,0,0.7)] ring-1 ring-white/15 sm:aspect-[16/10] lg:aspect-[5/6] lg:rounded-[2rem]">
+        <div v-tilt class="hero-frame relative aspect-[4/3] overflow-hidden rounded-[1.75rem] bg-[#0B1B35] shadow-[0_40px_90px_-30px_rgba(0,0,0,0.7)] ring-1 ring-white/15 lg:rounded-[2rem]">
           <div
             v-for="(s, i) in slides"
             :key="`${s.src}-${i}`"
@@ -364,17 +365,19 @@ const statItems = computed(() => [
             <!-- Vidéo du diaporama -->
             <video v-else-if="s.video && i === current" :src="s.src" class="h-full w-full object-cover" muted loop playsinline autoplay preload="metadata" />
 
-            <!-- Image -->
-            <img
-              v-else-if="!s.video"
-              :src="s.src"
-              :alt="t('hero.sliderLabel')"
-              class="h-full w-full object-cover"
-              :class="i === current ? 'hero-kb' : ''"
-              :loading="i === 0 ? 'eager' : 'lazy'"
-              :fetchpriority="i === 0 ? 'high' : 'auto'"
-              decoding="async"
-            />
+            <!-- Image : arrière-plan flouté + image entière (jamais rognée) -->
+            <template v-else-if="!s.video">
+              <img :src="s.src" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full scale-125 object-cover opacity-70 blur-2xl saturate-150" loading="lazy" decoding="async" />
+              <div class="absolute inset-0 bg-tikeo-ink/25" aria-hidden="true" />
+              <img
+                :src="s.src"
+                :alt="t('hero.sliderLabel')"
+                class="absolute inset-0 m-auto h-[88%] w-[88%] rounded-2xl object-contain drop-shadow-[0_18px_30px_rgba(0,0,0,0.45)]"
+                :loading="i === 0 ? 'eager' : 'lazy'"
+                :fetchpriority="i === 0 ? 'high' : 'auto'"
+                decoding="async"
+              />
+            </template>
           </div>
 
           <!-- Léger voile bas pour que la carte et les pastilles restent lisibles -->
@@ -425,37 +428,37 @@ const statItems = computed(() => [
             <AppIcon name="close" class="h-5 w-5" :stroke="2.4" />
           </button>
 
-          <!-- Prochain événement : carte claire posée sur le visuel -->
-          <NuxtLink
-            v-if="nextEvent && nextDate"
-            :to="`/e/${nextEvent.slug}`"
-            class="group absolute inset-x-3 bottom-3 z-10 flex items-center gap-3.5 rounded-2xl bg-tikeo-surface p-2.5 pr-3.5 text-tikeo-black shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] transition-transform duration-300 hover:-translate-y-0.5 sm:inset-x-4 sm:bottom-4 sm:gap-4 sm:p-3"
-            :class="playing ? 'invisible opacity-0' : ''"
-          >
-            <span class="relative block h-16 w-16 shrink-0 overflow-hidden rounded-xl sm:h-[4.5rem] sm:w-[4.5rem]">
-              <img :src="nextEvent.coverImage" alt="" loading="lazy" decoding="async" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-            </span>
-            <span class="min-w-0 flex-1">
-              <span class="mb-1 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-tikeo-orange-strong" style="color: rgb(var(--tikeo-orange-strong))">
-                <span class="h-1.5 w-1.5 rounded-full bg-[#FF7A00]" aria-hidden="true" />{{ t('home.upcoming') }}
-              </span>
-              <span class="block truncate text-[15px] font-bold leading-tight sm:text-base">{{ nextEvent.title }}</span>
-              <span class="mt-0.5 block truncate text-[13px] text-tikeo-gray-text">{{ nextDate.weekday }} {{ nextDate.day }} {{ nextDate.month }} · {{ nextEvent.city }}</span>
-            </span>
-            <span class="hidden shrink-0 text-right sm:block">
-              <span class="block text-[11px] text-tikeo-gray-text">{{ t('home.from') }}</span>
-              <span class="text-[15px] font-bold">
-                <template v-if="nextEvent.priceFrom === 0">{{ t('home.free') }}</template>
-                <template v-else>{{ nextEvent.priceFrom.toLocaleString('fr-FR') }} <span class="text-xs font-semibold text-tikeo-gray-text">FCFA</span></template>
-              </span>
-            </span>
-            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FF7A00] text-tikeo-ink transition-transform group-hover:translate-x-0.5">
-              <AppIcon name="arrow-right" class="h-4 w-4" :stroke="2.4" />
-            </span>
-          </NuxtLink>
         </div>
+          <!-- Prochain événement : carte claire posée sur le visuel -->
+        <NuxtLink
+          v-if="nextEvent && nextDate"
+          :to="`/e/${nextEvent.slug}`"
+          class="group mt-3 flex items-center gap-3.5 rounded-2xl bg-tikeo-surface p-2.5 pr-3.5 text-tikeo-black shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] transition-transform duration-300 hover:-translate-y-0.5 sm:gap-4"
+        >
+          <span class="relative block h-16 w-16 shrink-0 overflow-hidden rounded-xl sm:h-16 sm:w-16">
+            <img :src="nextEvent.coverImage" alt="" loading="lazy" decoding="async" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          </span>
+          <span class="min-w-0 flex-1">
+            <span class="mb-1 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-tikeo-orange-strong" style="color: rgb(var(--tikeo-orange-strong))">
+              <span class="h-1.5 w-1.5 rounded-full bg-[#FF7A00]" aria-hidden="true" />{{ t('home.upcoming') }}
+            </span>
+            <span class="block truncate text-[15px] font-bold leading-tight sm:text-base">{{ nextEvent.title }}</span>
+            <span class="mt-0.5 block truncate text-[13px] text-tikeo-gray-text">{{ nextDate.weekday }} {{ nextDate.day }} {{ nextDate.month }} · {{ nextEvent.city }}</span>
+          </span>
+          <span class="hidden shrink-0 text-right sm:block">
+            <span class="block text-[11px] text-tikeo-gray-text">{{ t('home.from') }}</span>
+            <span class="text-[15px] font-bold">
+              <template v-if="nextEvent.priceFrom === 0">{{ t('home.free') }}</template>
+              <template v-else>{{ nextEvent.priceFrom.toLocaleString('fr-FR') }} <span class="text-xs font-semibold text-tikeo-gray-text">FCFA</span></template>
+            </span>
+          </span>
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FF7A00] text-tikeo-ink transition-transform group-hover:translate-x-0.5">
+            <AppIcon name="arrow-right" class="h-4 w-4" :stroke="2.4" />
+          </span>
+        </NuxtLink>
       </div>
     </div>
+   </div>
   </section>
 </template>
 

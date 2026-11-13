@@ -177,7 +177,8 @@ const isHome = computed(() => route.path === '/')
 // Plein (verre clair/sombre) après quelques pixels ; se range en descendant, revient en remontant.
 const scrolled = ref(false)
 const hidden = ref(false)
-const solid = computed(() => scrolled.value || !isHome.value)
+// Le hero d'accueil est maintenant une carte (pas plein écran) : la capsule est toujours « solide ».
+const solid = computed(() => true || scrolled.value || !isHome.value)
 let lastY = 0
 function handleScroll() {
   const y = window.scrollY
