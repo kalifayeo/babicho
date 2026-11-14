@@ -48,3 +48,21 @@
 - `components/HeroSection.vue` : le hero n'est plus plein écran mais une carte arrondie centrée (largeur du contenu), plus basse et plus compacte ; titre/recherche resserrés.
 - Cadre visuel : arrière-plan flouté + image affichée en entier (plus jamais rognée, comme l'affiche « Paiement simplifié ») ; inclinaison 3D au survol ; la carte « Prochain événement » est sortie de l'image et posée dessous.
 - `components/AppHeader.vue` : la capsule du header est toujours claire (le hero n'est plus sombre derrière). `layouts/default.vue` : l'accueil réserve la place du header.
+
+## Version 9 : hero rapproché du header
+- `components/HeroSection.vue` : suppression du double espacement (le gabarit réserve déjà la place du header) ; la carte est maintenant à ~18 px sous la capsule.
+
+## Version 10 : page Tarifs + Blog
+- `components/PageHero.vue` : bandeau arrondi centré (halo, trame, apparition animée) — repris automatiquement par toutes les pages qui l'utilisent (Tarifs, FAQ, Contact, À propos…).
+- `components/SectionHeading.vue` (props `text` et `center` enfin pris en charge), `components/FaqItem.vue` (bouton rond qui pivote).
+- `pages/organisateur/tarifs/index.vue` : paliers en cartes 3D arrondies (palier actuel en bleu nuit), cartes « qui paie », simulateur avec curseurs + barre de répartition, étapes, bloc « sur mesure » et CTA arrondis.
+- `components/BlogCard.vue`, `pages/blog/index.vue`, `pages/blog/[slug].vue` : cartes arrondies avec pastille de catégorie, filtres en pastilles, recherche arrondie, en-tête d'article en carte.
+
+## Version 11 : FAQ, Qui sommes-nous, Contact
+- `pages/faq/index.vue` : recherche en pilule, catégories en carte latérale arrondie (pastilles sur mobile), accordéons arrondis, bloc « Une question sans réponse ? » lumineux.
+- `pages/qui-sommes-nous/index.vue` : hero en carte arrondie avec photo, chiffres en carte flottante, billet « paiements » incliné en 3D, valeurs et « Pour qui ? » arrondis.
+- `pages/contact/index.vue` : formulaire arrondi (champs, sujets rapides en pastilles, bouton pilule), colonne d'infos en cartes, réseaux en boutons ronds.
+
+## Version 12 : Presse + Partenaires
+- `pages/presse/index.vue` : bandeau `PageHero`, « Babicho en bref » en carte avec chiffres en tuiles, article à la une avec halo et bouton, cartes et kit média arrondis (icônes qui pivotent), bloc contact lumineux.
+- `pages/partenaires/index.vue` : bandeau `PageHero` avec compteur, filtres en pastilles, cartes « à la une » et logos arrondis, avantages en cartes qui se soulèvent.

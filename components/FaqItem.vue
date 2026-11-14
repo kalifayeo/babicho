@@ -22,8 +22,8 @@ defineEmits<{ (e: 'toggle'): void }>()
     >
       <span class="font-display text-[15px] font-bold leading-snug text-tikeo-black md:text-lg">{{ question }}</span>
       <span
-        class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center border transition-colors duration-200"
-        :class="open ? 'border-[#FF7A00] bg-[#FF7A00] text-tikeo-ink' : 'border-tikeo-border text-tikeo-black group-hover:border-tikeo-ink dark:group-hover:border-[#FF7A00]'"
+        class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-all duration-200"
+        :class="open ? 'rotate-180 border-[#FF7A00] bg-[#FF7A00] text-tikeo-ink' : 'border-tikeo-border text-tikeo-black group-hover:border-tikeo-ink dark:group-hover:border-[#FF7A00]'"
       >
         <AppIcon :name="open ? 'minus' : 'plus'" class="h-4 w-4" :stroke="2.6" />
       </span>

@@ -85,9 +85,9 @@ const infoItems = computed(() =>
   <div>
     <PageHero :eyebrow="t('contactPage.eyebrow')" :title="t('contactPage.title')" :subtitle="t('contactPage.intro')" />
 
-    <div class="mx-auto grid max-w-tikeo-container gap-6 px-4 py-8 md:px-6 md:py-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start lg:gap-8">
+    <div class="mx-auto grid max-w-tikeo-content gap-6 px-4 py-8 md:px-6 md:py-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start lg:gap-8">
       <!-- Formulaire -->
-      <section class="border border-tikeo-border bg-tikeo-surface p-5 shadow-card md:p-8">
+      <section v-reveal:up class="rounded-[1.75rem] border border-tikeo-border bg-tikeo-surface p-5 shadow-card md:p-9">
         <h2 class="font-display text-2xl font-extrabold tracking-tight text-tikeo-black">{{ t('contactPage.formTitle') }}</h2>
         <p class="mt-1 text-sm text-tikeo-gray-text">{{ t('contactPage.formIntro') }}</p>
 
@@ -105,11 +105,11 @@ const infoItems = computed(() =>
           <div class="grid gap-5 sm:grid-cols-2">
             <div>
               <label for="c-name" class="acc-label mb-1.5 block">{{ t('contactPage.formName') }}</label>
-              <input id="c-name" v-model="form.fullName" type="text" required autocomplete="name" class="field-input" />
+              <input id="c-name" v-model="form.fullName" type="text" required autocomplete="name" class="field-input !rounded-xl" />
             </div>
             <div>
               <label for="c-email" class="acc-label mb-1.5 block">{{ t('contactPage.formEmail') }}</label>
-              <input id="c-email" v-model="form.email" type="email" required autocomplete="email" class="field-input" />
+              <input id="c-email" v-model="form.email" type="email" required autocomplete="email" class="field-input !rounded-xl" />
             </div>
           </div>
 
@@ -120,7 +120,7 @@ const infoItems = computed(() =>
                 v-for="tp in topics"
                 :key="tp.label"
                 type="button"
-                class="inline-flex h-10 items-center gap-2 border px-3.5 text-sm font-semibold transition-colors duration-200"
+                class="inline-flex h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-all duration-200 active:scale-95"
                 :class="
                   form.subject === tp.label
                     ? 'border-tikeo-ink bg-tikeo-ink text-white dark:border-[#FF7A00] dark:bg-[#FF7A00] dark:text-tikeo-ink'
@@ -136,16 +136,16 @@ const infoItems = computed(() =>
 
           <div>
             <label for="c-subject" class="acc-label mb-1.5 block">{{ t('contactPage.formSubject') }}</label>
-            <input id="c-subject" v-model="form.subject" type="text" required class="field-input" />
+            <input id="c-subject" v-model="form.subject" type="text" required class="field-input !rounded-xl" />
           </div>
           <div>
             <label for="c-message" class="acc-label mb-1.5 block">{{ t('contactPage.formMessage') }}</label>
-            <textarea id="c-message" v-model="form.message" rows="6" required class="field-input !h-auto resize-none py-3"></textarea>
+            <textarea id="c-message" v-model="form.message" rows="6" required class="field-input !h-auto resize-none !rounded-xl py-3"></textarea>
           </div>
 
           <TurnstileWidget ref="widget" @verify="onVerify" @expire="onExpire" />
 
-          <button type="submit" class="btn-brand w-full" :disabled="sending">
+          <button type="submit" class="btn-brand w-full !h-14 !rounded-full" :disabled="sending">
             <TikeoSpinner v-if="sending" :size="18" class="!text-current" />
             {{ sending ? t('contactPage.formSending') : t('contactPage.formSubmit') }}
             <AppIcon v-if="!sending" name="arrow-right" class="h-4 w-4" :stroke="2.4" />
@@ -154,8 +154,8 @@ const infoItems = computed(() =>
       </section>
 
       <!-- Colonne d'infos -->
-      <aside class="space-y-6">
-        <section class="border border-tikeo-border bg-tikeo-surface shadow-card">
+      <aside v-stagger:up="{ step: 100 }" class="space-y-6">
+        <section class="overflow-hidden rounded-[1.75rem] border border-tikeo-border bg-tikeo-surface shadow-card">
           <h2 class="border-b border-tikeo-border px-5 py-3.5 text-[11px] font-bold uppercase tracking-wider text-tikeo-gray-text md:px-6">
             {{ t('contactPage.infoTitle') }}
           </h2>
@@ -168,7 +168,7 @@ const infoItems = computed(() =>
                 :class="item.href ? 'hover:bg-tikeo-surface-alt' : ''"
               >
                 <span
-                  class="flex h-11 w-11 shrink-0 items-center justify-center bg-tikeo-ink text-white transition-colors duration-200 dark:bg-[#FF7A00] dark:text-tikeo-ink"
+                  class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-tikeo-ink text-white transition-all duration-200 group-hover:scale-105 dark:bg-[#FF7A00] dark:text-tikeo-ink"
                   :class="item.href ? 'group-hover:bg-[#FF7A00] group-hover:text-tikeo-ink' : ''"
                 >
                   <AppIcon :name="item.icon" class="h-5 w-5" />
@@ -186,20 +186,20 @@ const infoItems = computed(() =>
           </p>
         </section>
 
-        <section class="relative isolate overflow-hidden bg-tikeo-ink p-6 text-white">
-          <div class="absolute inset-x-0 top-0 h-1 bg-tikeo-brand" aria-hidden="true" />
-          <span class="flex h-11 w-11 items-center justify-center bg-[#FF7A00] text-tikeo-ink">
+        <section class="relative isolate overflow-hidden rounded-[1.75rem] bg-tikeo-ink p-6 text-white">
+          <div class="pointer-events-none absolute -right-10 -top-12 -z-10 h-44 w-44 rounded-full bg-[#FF7A00]/35 blur-3xl" aria-hidden="true" />
+          <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF7A00] text-tikeo-ink">
             <AppIcon name="help" class="h-6 w-6" :stroke="2" />
           </span>
           <h2 class="mt-4 font-display text-xl font-extrabold">{{ t('contactPage.faqCardTitle') }}</h2>
           <p class="mt-1 text-sm text-white/75">{{ t('contactPage.faqLinkText') }}</p>
-          <NuxtLink to="/faq" class="btn-brand mt-5 !h-11">
+          <NuxtLink to="/faq" class="btn-brand mt-5 !h-12 !rounded-full !px-6">
             {{ t('contactPage.faqCardButton') }}
             <AppIcon name="arrow-right" class="h-4 w-4" :stroke="2.4" />
           </NuxtLink>
         </section>
 
-        <section v-if="socialLinks.length" class="border border-tikeo-border bg-tikeo-surface p-5 shadow-card md:p-6">
+        <section v-if="socialLinks.length" class="rounded-[1.75rem] border border-tikeo-border bg-tikeo-surface p-5 shadow-card md:p-6">
           <p class="acc-label">{{ t('contactPage.followUs') }}</p>
           <div class="mt-3 flex flex-wrap items-center gap-2">
             <a
@@ -209,7 +209,7 @@ const infoItems = computed(() =>
               target="_blank"
               rel="noopener noreferrer"
               :aria-label="s.name"
-              class="flex h-11 w-11 items-center justify-center border border-tikeo-border text-tikeo-black transition-colors duration-200 hover:border-[#FF7A00] hover:bg-[#FF7A00] hover:text-tikeo-ink"
+              class="flex h-12 w-12 items-center justify-center rounded-full border border-tikeo-border text-tikeo-black transition-all duration-200 hover:-translate-y-0.5 hover:border-[#FF7A00] hover:bg-[#FF7A00] hover:text-tikeo-ink"
             >
               <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path :d="s.path" /></svg>
             </a>

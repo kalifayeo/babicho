@@ -171,7 +171,7 @@ const statItems = computed(() => [
 <template>
   <section
     id="hero-carousel"
-    class="type-scope px-3 pt-[4.5rem] sm:px-5 lg:pt-[5rem]"
+    class="type-scope px-3 sm:px-5"
     role="region"
     aria-roledescription="carousel"
     :aria-label="t('hero.sliderLabel')"

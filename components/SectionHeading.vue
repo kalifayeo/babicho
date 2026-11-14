@@ -4,34 +4,37 @@
  * petit repère « eyebrow » avec filet dégradé, titre, sous-titre et, à droite,
  * un slot pour le lien « Tout voir » ou des onglets. `dark` = version sur fond encre.
  */
-withDefaults(defineProps<{ eyebrow?: string; title: string; subtitle?: string; titleId?: string; dark?: boolean }>(), {
+const props = withDefaults(defineProps<{ eyebrow?: string; title: string; subtitle?: string; text?: string; center?: boolean; titleId?: string; dark?: boolean }>(), {
   eyebrow: '',
   subtitle: '',
+  text: '',
+  center: false,
   titleId: undefined,
   dark: false,
 })
+const sub = computed(() => props.subtitle || props.text)
 </script>
 
 <template>
-  <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
-    <div class="max-w-2xl">
+  <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-3" :class="center ? 'justify-center text-center' : ''">
+    <div class="max-w-2xl" :class="center ? 'mx-auto' : ''">
       <p
         v-if="eyebrow"
-        class="mb-1.5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] md:text-[11px]"
+        class="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em]" :style="center ? 'justify-content:center' : undefined"
         :class="dark ? 'text-[#FF9A3D]' : 'text-[rgb(var(--tikeo-orange-strong))]'"
       >
-        <span class="h-0.5 w-6 bg-tikeo-brand" aria-hidden="true" />{{ eyebrow }}
+        <span class="h-1.5 w-6 rounded-full bg-tikeo-brand" aria-hidden="true" />{{ eyebrow }}
       </p>
       <h2
         :id="titleId"
         v-reveal:title
-        class="font-display text-lg font-extrabold leading-tight tracking-tight md:text-2xl"
+        class="font-display text-2xl font-extrabold leading-tight tracking-[-0.03em] md:text-[2rem]"
         :class="dark ? 'text-white' : 'text-tikeo-black'"
       >
         {{ title }}
       </h2>
-      <p v-if="subtitle" class="mt-1 max-w-xl text-[13px] leading-relaxed md:text-sm" :class="dark ? 'text-white/70' : 'text-tikeo-gray-text'">
-        {{ subtitle }}
+      <p v-if="sub" class="mt-2 max-w-xl text-sm leading-relaxed md:text-base" :class="[center ? 'mx-auto' : '', dark ? 'text-white/70' : 'text-tikeo-gray-text']">
+        {{ sub }}
       </p>
     </div>
     <slot />
