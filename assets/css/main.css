@@ -370,13 +370,13 @@ html.ui-data-saver .tk-deco {
     @apply inline-flex h-10 items-center justify-center gap-2 rounded-full border border-tikeo-error/40 px-4 text-sm font-semibold text-tikeo-error transition-colors hover:bg-tikeo-error hover:text-white disabled:opacity-50;
   }
   .acc-alert-error {
-    @apply border-l-4 border-tikeo-error bg-tikeo-error/10 px-4 py-2.5 text-sm text-tikeo-error;
+    @apply rounded-2xl border border-tikeo-error/30 bg-tikeo-error/10 px-4 py-3 text-sm text-tikeo-error;
   }
   .acc-alert-success {
-    @apply border-l-4 border-tikeo-success bg-tikeo-success/10 px-4 py-2.5 text-sm text-tikeo-success;
+    @apply rounded-2xl border border-tikeo-success/30 bg-tikeo-success/10 px-4 py-3 text-sm text-tikeo-success;
   }
   .acc-alert-info {
-    @apply border-l-4 border-tikeo-blue bg-tikeo-blue/10 px-4 py-2.5 text-sm text-tikeo-blue;
+    @apply rounded-2xl border border-tikeo-blue/30 bg-tikeo-blue/10 px-4 py-3 text-sm text-tikeo-blue;
   }
   /* Champs des pages d'authentification et de paiement */
   .field-input {
@@ -402,7 +402,7 @@ html.ui-data-saver .tk-deco {
 
   /* ---- Espace organisateur : mêmes briques que le site visiteur ---- */
   .org-panel {
-    @apply border border-tikeo-border bg-tikeo-surface shadow-card;
+    @apply rounded-[1.5rem] border border-tikeo-border bg-tikeo-surface shadow-card;
   }
   .org-card-hover {
     transition: transform 0.3s var(--ease-tikeo), box-shadow 0.3s var(--ease-tikeo), border-color 0.2s ease;
@@ -414,7 +414,7 @@ html.ui-data-saver .tk-deco {
   }
   /* Bouton-icône carré (Modifier, Dupliquer, Statistiques…) avec infobulle */
   .org-icon-btn {
-    @apply relative inline-flex h-10 w-10 items-center justify-center border border-tikeo-border bg-tikeo-surface text-tikeo-black disabled:cursor-not-allowed disabled:opacity-50;
+    @apply relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-tikeo-border bg-tikeo-surface text-tikeo-black disabled:cursor-not-allowed disabled:opacity-50;
     transition: transform 0.2s var(--ease-tikeo), background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   }
   .org-icon-btn:hover:not(:disabled) {
@@ -455,7 +455,7 @@ html.ui-data-saver .tk-deco {
   }
   /* Pastille de statut */
   .org-status {
-    @apply inline-flex items-center gap-1.5 px-2 py-1 text-[11px] font-bold uppercase tracking-wide;
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide;
   }
   .org-status::before {
     content: '';
@@ -465,7 +465,7 @@ html.ui-data-saver .tk-deco {
     animation: org-pulse 1.8s ease-out infinite;
   }
   .org-skeleton {
-    @apply border border-tikeo-border bg-tikeo-surface-alt;
+    @apply rounded-2xl border border-tikeo-border bg-tikeo-surface-alt;
     background-image: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.55) 50%, transparent 70%);
     background-size: 220% 100%;
     animation: org-shimmer 1.4s linear infinite;
@@ -695,8 +695,8 @@ html.ui-data-saver .tk-deco {
 .admin-toolbar { @apply mb-5 flex flex-col gap-3 sm:flex-row sm:items-center; }
 .admin-search { @apply relative min-w-0 flex-1; }
 .admin-search > svg { @apply pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-tikeo-gray-text; }
-.admin-search > input { @apply h-11 w-full border border-tikeo-border bg-tikeo-surface pl-10 pr-3 text-sm text-tikeo-black placeholder:text-tikeo-gray-text/60 focus:border-[#FF7A00] focus:outline-none; }
-.admin-chip { @apply inline-flex h-9 items-center gap-1.5 border border-tikeo-border bg-tikeo-surface px-3 text-xs font-bold text-tikeo-black transition-colors hover:border-tikeo-ink dark:hover:border-[#FF7A00]; }
+.admin-search > input { @apply h-11 w-full rounded-full border border-tikeo-border bg-tikeo-surface pl-10 pr-3 text-sm text-tikeo-black placeholder:text-tikeo-gray-text/60 focus:border-[#FF7A00] focus:outline-none; }
+.admin-chip { @apply inline-flex h-9 items-center gap-1.5 rounded-full border border-tikeo-border bg-tikeo-surface px-3 text-xs font-bold text-tikeo-black transition-colors hover:border-tikeo-ink dark:hover:border-[#FF7A00]; }
 .admin-chip.is-active { @apply border-tikeo-ink bg-tikeo-ink text-white dark:border-[#FF7A00] dark:bg-[#FF7A00] dark:text-tikeo-ink; }
 
 /* ==================================================================
@@ -1410,4 +1410,22 @@ html.ui-data-saver .sv__play-ring { animation: none; }
   background: rgb(var(--tikeo-surface-alt));
   color: rgb(var(--tikeo-text-primary));
   border-color: #ff7a00;
+}
+
+/* ---- Espaces organisateur / admin : boutons et champs arrondis (même langage que le site visiteur) ---- */
+.org-main .btn-ink,
+.org-main .btn-brand,
+.org-main .btn-primary,
+.admin-main .btn-ink,
+.admin-main .btn-brand,
+.admin-main .btn-primary {
+  border-radius: 9999px;
+}
+.org-main .input-field,
+.admin-main .input-field {
+  border-radius: 1rem;
+}
+.org-main select.input-field,
+.admin-main select.input-field {
+  border-radius: 9999px;
 }

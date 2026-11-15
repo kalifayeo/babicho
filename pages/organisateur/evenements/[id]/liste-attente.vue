@@ -89,21 +89,21 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleString(undefined, { dateS
     </p>
 
     <div v-if="!loading" class="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-      <div class="border border-tikeo-border bg-tikeo-surface p-3">
+      <div class="border border-tikeo-border bg-tikeo-surface p-3 rounded-2xl">
         <p class="text-xs text-tikeo-gray-text">{{ t('waitlistAdmin.peopleCount') }}</p>
         <p class="mt-1 text-xl font-bold text-tikeo-black">{{ entries.length }}</p>
       </div>
-      <div class="border border-tikeo-border bg-tikeo-surface p-3">
+      <div class="border border-tikeo-border bg-tikeo-surface p-3 rounded-2xl">
         <p class="text-xs text-tikeo-gray-text">{{ t('waitlistAdmin.ticketsWanted') }}</p>
         <p class="mt-1 text-xl font-bold text-tikeo-black">{{ totalWanted }}</p>
       </div>
     </div>
 
     <div v-if="loading" class="space-y-2">
-      <div v-for="i in 4" :key="i" class="h-12 animate-pulse border border-tikeo-border bg-tikeo-surface-alt" />
+      <div v-for="i in 4" :key="i" class="h-12 animate-pulse border border-tikeo-border bg-tikeo-surface-alt rounded-2xl" />
     </div>
-    <p v-else-if="!entries.length" class="border border-tikeo-border bg-tikeo-surface p-6 text-center text-sm text-tikeo-gray-text">{{ t('waitlistAdmin.empty') }}</p>
-    <ul v-else class="divide-y divide-tikeo-border border border-tikeo-border bg-tikeo-surface">
+    <p v-else-if="!entries.length" class="border border-tikeo-border bg-tikeo-surface p-6 text-center text-sm text-tikeo-gray-text rounded-2xl">{{ t('waitlistAdmin.empty') }}</p>
+    <ul v-else class="divide-y divide-tikeo-border border border-tikeo-border bg-tikeo-surface rounded-2xl">
       <li v-for="e in entries" :key="e.id" class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
         <div class="min-w-0">
           <p class="truncate font-medium text-tikeo-black">{{ e.email }}</p>

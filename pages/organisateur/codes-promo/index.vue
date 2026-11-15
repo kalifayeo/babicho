@@ -142,7 +142,7 @@ async function handleToggle(id: string, eventId: string, currentStatus: string) 
         </section>
 
         <div v-if="!events.length" class="acc-empty org-pop">
-          <span class="flex h-14 w-14 items-center justify-center bg-tikeo-surface-alt text-tikeo-gray-text"><AppIcon name="tag" class="h-7 w-7" /></span>
+          <span class="flex h-14 w-14 items-center justify-center bg-tikeo-surface-alt text-tikeo-gray-text rounded-2xl"><AppIcon name="tag" class="h-7 w-7" /></span>
           <p class="text-sm text-tikeo-gray-text">{{ t('promoCodes.empty') }}</p>
         </div>
       </template>
@@ -152,7 +152,7 @@ async function handleToggle(id: string, eventId: string, currentStatus: string) 
     <Teleport to="body">
       <Transition name="org-fade">
         <div v-if="showCreate" class="fixed inset-0 z-[120] flex items-end justify-center bg-tikeo-ink/60 p-4 backdrop-blur-sm sm:items-center" @click.self="showCreate = false">
-          <form class="org-pop w-full max-w-md border border-tikeo-border bg-tikeo-surface shadow-2xl" @submit.prevent="handleCreate">
+          <form class="org-pop w-full max-w-md border border-tikeo-border bg-tikeo-surface shadow-2xl rounded-2xl" @submit.prevent="handleCreate">
             <div class="relative flex items-center justify-between border-b border-tikeo-border px-5 py-4">
               <span class="absolute inset-x-0 top-0 h-1 bg-tikeo-brand" aria-hidden="true" />
               <h2 class="acc-h2 !text-lg">{{ t('promoCodes.createButton') }}</h2>

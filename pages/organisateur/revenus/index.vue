@@ -122,11 +122,11 @@ onMounted(load)
         <div v-for="i in 3" :key="i" class="org-skeleton h-[72px]" />
       </div>
       <div v-else-if="perEvent.length === 0" class="acc-empty org-pop">
-        <span class="flex h-14 w-14 items-center justify-center bg-tikeo-surface-alt text-tikeo-gray-text"><AppIcon name="wallet" class="h-7 w-7" /></span>
+        <span class="flex h-14 w-14 items-center justify-center bg-tikeo-surface-alt text-tikeo-gray-text rounded-2xl"><AppIcon name="wallet" class="h-7 w-7" /></span>
         <p class="text-sm text-tikeo-gray-text">{{ t('organizerRevenue.noSales') }}</p>
       </div>
       <ul v-else class="space-y-2.5">
-        <li v-for="(row, i) in perEvent" :key="row.event.id" class="org-rise org-card-hover relative overflow-hidden border border-tikeo-border bg-tikeo-surface" :style="`--i: ${i}`">
+        <li v-for="(row, i) in perEvent" :key="row.event.id" class="org-rise org-card-hover relative overflow-hidden border border-tikeo-border bg-tikeo-surface rounded-2xl" :style="`--i: ${i}`">
           <div class="flex items-center gap-4 p-4">
             <span class="flex h-11 w-11 shrink-0 items-center justify-center font-display text-lg font-extrabold" :class="i === 0 ? 'bg-[#FF7A00] text-tikeo-ink' : 'bg-tikeo-surface-alt text-tikeo-black'">{{ i + 1 }}</span>
             <div class="min-w-0 flex-1">

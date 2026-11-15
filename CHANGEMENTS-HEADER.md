@@ -91,3 +91,20 @@
 - `pages/admin/evenements/index.vue` : colonne miniature, badge « Sans image » / « Image cassée », filtre « Images à corriger (n) », bouton « Vérifier les images » (contrôle automatique des événements publiés à l'ouverture).
 - `pages/admin/a-la-une/index.vue` : avertissement rouge si l'événement épinglé (ou proposé dans le sélecteur) n'a pas d'affiche.
 - i18n fr/en/es/pt : clés `adminEvents.colImage/imageMissing/imageBroken/imageOk/imagesToFix/checkImages/checking`, `adminFeatured.noCoverWarn`.
+
+## Version 17 — Côté visiteur
+
+- `pages/e/[slug].vue` : compte à rebours + badge « plus que X billets » (EventCountdown), bouton WhatsApp rond, bouton « Ajouter au calendrier » (Google Agenda / .ics) dans le hero.
+- `components/EventCountdown.vue` : style arrondi aligné sur le design.
+- `pages/evenements/index.vue` : recherche libre (titre, ville, quartier/lieu, adresse, organisateur, catégorie ; sans accents) + tri (date, prix croissant/décroissant, popularité).
+- `utils/eventCard.ts`, `types/database.ts` : `locationName` et `address` ajoutés aux cartes.
+- `pages/commande/[id]/retour.vue` : écran « Paiement en attente de validation » (Wave/Orange), temps d'attente, bouton « Relancer la vérification » (aussi après délai dépassé).
+- `pages/mon-espace/mes-billets/index.vue` : message « vos billets restent disponibles hors connexion ».
+- i18n fr/en/es/pt : `event.shareWhatsapp`, `filters.searchPlace/sortBy/sort*`, `buyerTickets.offlineHint`.
+
+## Version 18 — Espace organisateur (style + alertes)
+
+- `assets/css/main.css` : briques partagées arrondies (`org-panel`, `org-icon-btn` rond, `org-status` pilule, `org-skeleton`, alertes `acc-alert-*`, recherche/puces admin) ; boutons `btn-ink/btn-brand/btn-primary` en pilule et champs arrondis **uniquement** dans `.org-main` et `.admin-main` (le reste du site est inchangé). L'admin en profite aussi.
+- `pages/organisateur/dashboard.vue` : bloc « À surveiller » (billet « presque épuisé » ≤ 10 % ou ≤ 5 places, événement publié sans affiche, publié sans billet) avec lien d'action ; tuiles et rangées arrondies.
+- `pages/organisateur/evenements/index.vue`, `revenus/index.vue`, `codes-promo/index.vue`, `[id]/liste-attente.vue`, `components/EventTicketStatsPanel.vue` : cartes, pastilles et icônes arrondies.
+- i18n fr/en/es/pt : `organizerDashboard.watchTitle/alertNoTickets/alertNoCover/alertLowStock/alertFix/alertStats`.

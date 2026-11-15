@@ -65,23 +65,23 @@ const pct = (n: number, total: number) => (total ? Math.min(Math.round((n / tota
 
     <!-- Cartes de synthèse -->
     <div class="grid grid-cols-2 gap-3 md:grid-cols-5">
-      <div class="border border-tikeo-border p-3">
+      <div class="border border-tikeo-border p-3 rounded-2xl">
         <p class="text-xs text-tikeo-gray-text">{{ t('ticketStats.total') }}</p>
         <p class="mt-1 text-xl font-bold text-tikeo-black">{{ fmt(stats.totals.quantity) }}</p>
       </div>
-      <div class="border border-tikeo-border p-3">
+      <div class="border border-tikeo-border p-3 rounded-2xl">
         <p class="text-xs text-tikeo-gray-text">{{ t('ticketStats.sold') }}</p>
         <p class="mt-1 text-xl font-bold text-tikeo-success">{{ fmt(stats.totals.sold) }}</p>
       </div>
-      <div class="border border-tikeo-border p-3">
+      <div class="border border-tikeo-border p-3 rounded-2xl">
         <p class="text-xs text-tikeo-gray-text">{{ t('ticketStats.reserved') }}</p>
         <p class="mt-1 text-xl font-bold text-tikeo-orange">{{ fmt(stats.totals.reserved) }}</p>
       </div>
-      <div class="border border-tikeo-border p-3">
+      <div class="border border-tikeo-border p-3 rounded-2xl">
         <p class="text-xs text-tikeo-gray-text">{{ t('ticketStats.remaining') }}</p>
         <p class="mt-1 text-xl font-bold text-tikeo-black">{{ fmt(stats.totals.remaining) }}</p>
       </div>
-      <div class="col-span-2 border border-tikeo-border p-3 md:col-span-1">
+      <div class="col-span-2 border border-tikeo-border p-3 md:col-span-1 rounded-2xl">
         <p class="text-xs text-tikeo-gray-text">{{ t('ticketStats.revenue') }}</p>
         <p class="mt-1 text-xl font-bold text-tikeo-black">{{ fmt(stats.totals.revenue) }} <span class="text-xs font-normal">FCFA</span></p>
       </div>
@@ -108,7 +108,7 @@ const pct = (n: number, total: number) => (total ? Math.min(Math.round((n / tota
     </p>
 
     <!-- Détail par type de billet -->
-    <div class="overflow-x-auto border border-tikeo-border">
+    <div class="overflow-x-auto border border-tikeo-border rounded-2xl">
       <table class="w-full min-w-[560px] text-left text-sm">
         <thead class="bg-tikeo-surface-alt text-xs text-tikeo-gray-text">
           <tr>
@@ -144,8 +144,8 @@ const pct = (n: number, total: number) => (total ? Math.min(Math.round((n / tota
     <!-- Évolution des ventes -->
     <div>
       <h3 class="mb-2 text-sm font-bold text-tikeo-black">{{ t('ticketStats.evolution') }}</h3>
-      <p v-if="!chart" class="border border-tikeo-border p-6 text-center text-sm text-tikeo-gray-text">{{ t('ticketStats.noSales') }}</p>
-      <div v-else class="border border-tikeo-border p-3">
+      <p v-if="!chart" class="border border-tikeo-border p-6 text-center text-sm text-tikeo-gray-text rounded-2xl">{{ t('ticketStats.noSales') }}</p>
+      <div v-else class="border border-tikeo-border p-3 rounded-2xl">
         <svg :viewBox="`0 0 ${W} ${H}`" class="h-auto w-full" role="img" :aria-label="t('ticketStats.evolution')">
           <g v-for="tk in chart.ticks" :key="tk.v">
             <line :x1="PAD.l" :x2="W - PAD.r" :y1="tk.y" :y2="tk.y" stroke="currentColor" stroke-opacity="0.12" />

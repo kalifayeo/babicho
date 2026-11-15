@@ -11,6 +11,7 @@ const loading = ref(true)
 const errorMessage = ref('')
 const events = ref<EventRecord[]>([])
 const orders = ref<Order[]>([])
+const ticketTypes = ref<{ id: string; event_id: string; name: string; quantity: number; sold_quantity: number }[]>([])
 
 const statusLabels = computed<Record<string, string>>(() => ({
   draft: t('eventStatus.draft'),
@@ -66,6 +67,30 @@ const quickLinks = computed(() => [
   { to: '/organisateur/revenus', label: t('organizerDashboard.quickRevenue'), icon: 'wallet' },
 ])
 
+// ── À surveiller : ce qui mérite une action de l'organisateur ───────────────
+interface WatchItem { key: string; tone: 'warn' | 'error'; icon: string; text: string; to: string; cta: string }
+const watchItems = computed<WatchItem[]>(() => {
+  const list: WatchItem[] = []
+  const live = events.value.filter((e) => e.status === 'published' && !isEventPast(e.start_date, e.end_date))
+  for (const e of live) {
+    const types = ticketTypes.value.filter((tt) => tt.event_id === e.id)
+    if (!types.length) {
+      list.push({ key: `nt-${e.id}`, tone: 'error', icon: 'ticket', text: t('organizerDashboard.alertNoTickets', { event: e.title }), to: `/organisateur/evenements/${e.id}/modifier`, cta: t('organizerDashboard.alertFix') })
+    }
+    if (!e.cover_image) {
+      list.push({ key: `nc-${e.id}`, tone: 'warn', icon: 'image', text: t('organizerDashboard.alertNoCover', { event: e.title }), to: `/organisateur/evenements/${e.id}/modifier`, cta: t('organizerDashboard.alertFix') })
+    }
+    for (const tt of types) {
+      if (tt.quantity >= UNLIMITED_CONTRIBUTIONS) continue
+      const left = Math.max(tt.quantity - (tt.sold_quantity ?? 0), 0)
+      if (left > 0 && left <= Math.max(5, Math.ceil(tt.quantity * 0.1))) {
+        list.push({ key: `ls-${tt.id}`, tone: 'warn', icon: 'alert', text: t('organizerDashboard.alertLowStock', { event: e.title, type: tt.name, n: left }, left), to: `/organisateur/evenements/${e.id}/statistiques`, cta: t('organizerDashboard.alertStats') })
+      }
+    }
+  }
+  return list.slice(0, 6)
+})
+
 function formatFcfa(amount: number) {
   return `${Math.round(amount).toLocaleString('fr-FR')} FCFA`
 }
@@ -99,6 +124,13 @@ async function load() {
         .in('event_id', eventIds)
       if (ordersError) throw ordersError
       orders.value = (ordersData as unknown as Order[]) ?? []
+
+      // Billets : sert aux alertes « stock presque épuisé » (non bloquant si ça échoue).
+      const { data: ttData } = await supabase
+        .from('ticket_types')
+        .select('id, event_id, name, quantity, sold_quantity')
+        .in('event_id', eventIds)
+      ticketTypes.value = (ttData as any[]) ?? []
     }
   } catch (e: any) {
     errorMessage.value = e?.message || t('organizerDashboard.loadError')
@@ -127,7 +159,7 @@ onMounted(load)
       <!-- Chiffres clés dans le hero -->
       <template #stats>
         <div v-if="loading" class="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <div v-for="i in 4" :key="i" class="h-24 animate-pulse border border-white/10 bg-white/5" />
+          <div v-for="i in 4" :key="i" class="h-24 animate-pulse rounded-2xl border border-white/10 bg-white/5" />
         </div>
         <div v-else class="grid grid-cols-2 gap-3 md:grid-cols-4">
           <div v-for="(stat, i) in [
@@ -135,7 +167,7 @@ onMounted(load)
             { label: t('organizerDashboard.statPublished'), value: counts.published, icon: 'trending', tone: 'text-[#4ADE80]' },
             { label: t('organizerDashboard.statDraft'), value: counts.draft, icon: 'edit', tone: 'text-white' },
             { label: t('organizerDashboard.statRevenue'), value: counts.revenue, icon: 'wallet', tone: 'text-[#FF9A3D]', money: true },
-          ]" :key="stat.label" class="org-pop group border border-white/15 bg-white/5 p-4 backdrop-blur-sm transition-colors duration-300 hover:border-[#FF7A00]/70 hover:bg-white/10" :style="`--i: ${i + 2}`">
+          ]" :key="stat.label" class="org-pop group rounded-2xl border border-white/15 bg-white/5 p-4 backdrop-blur-sm transition-colors duration-300 hover:border-[#FF7A00]/70 hover:bg-white/10" :style="`--i: ${i + 2}`">
             <div class="flex items-center justify-between">
               <p class="text-[11px] font-bold uppercase tracking-wider text-white/60">{{ stat.label }}</p>
               <AppIcon :name="stat.icon" class="h-4 w-4 text-white/40 transition-all duration-300 group-hover:scale-125 group-hover:text-[#FF7A00]" />
@@ -196,6 +228,18 @@ onMounted(load)
           </div>
         </div>
 
+        <!-- À surveiller -->
+        <section v-if="watchItems.length" class="org-rise mb-8" style="--i: 3" :aria-label="t('organizerDashboard.watchTitle')">
+          <h2 class="acc-h2 mb-3">{{ t('organizerDashboard.watchTitle') }}</h2>
+          <ul class="space-y-2">
+            <li v-for="w in watchItems" :key="w.key" class="flex flex-wrap items-center gap-3 rounded-2xl border px-4 py-3" :class="w.tone === 'error' ? 'border-tikeo-error/30 bg-tikeo-error/10' : 'border-[#FF7A00]/40 bg-[#FF7A00]/10'">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" :class="w.tone === 'error' ? 'bg-tikeo-error text-white' : 'bg-[#FF7A00] text-tikeo-ink'"><AppIcon :name="w.icon" class="h-[18px] w-[18px]" /></span>
+              <p class="min-w-0 flex-1 text-sm font-semibold text-tikeo-black">{{ w.text }}</p>
+              <NuxtLink :to="w.to" class="acc-link shrink-0 text-[13px]">{{ w.cta }}</NuxtLink>
+            </li>
+          </ul>
+        </section>
+
         <!-- Événements récents -->
         <div class="mb-4 flex items-center justify-between">
           <h2 class="acc-h2">{{ t('organizerDashboard.recentEventsTitle') }}</h2>
@@ -203,7 +247,7 @@ onMounted(load)
         </div>
 
         <div v-if="events.length === 0" class="acc-empty org-pop">
-          <span class="flex h-14 w-14 items-center justify-center bg-tikeo-surface-alt text-tikeo-gray-text"><AppIcon name="calendar-plus" class="h-7 w-7" /></span>
+          <span class="flex h-14 w-14 items-center justify-center bg-tikeo-surface-alt text-tikeo-gray-text rounded-2xl"><AppIcon name="calendar-plus" class="h-7 w-7" /></span>
           <p class="text-sm text-tikeo-gray-text">{{ t('organizerDashboard.noEvents') }}</p>
           <NuxtLink to="/organisateur/evenements/nouveau" class="btn-ink">{{ t('organizerDashboard.createOne') }}</NuxtLink>
         </div>
@@ -211,11 +255,11 @@ onMounted(load)
           <li v-for="(event, i) in recentEvents" :key="event.id" class="org-rise" :style="`--i: ${i + 4}`">
             <NuxtLink
               to="/organisateur/evenements"
-              class="org-card-hover group flex items-stretch border border-tikeo-border bg-tikeo-surface"
+              class="org-card-hover group flex items-stretch border border-tikeo-border bg-tikeo-surface rounded-2xl"
               :class="isEventPast(event.start_date, event.end_date) ? 'opacity-80' : ''"
             >
               <!-- Talon de date -->
-              <div class="relative flex w-16 shrink-0 flex-col items-center justify-center border-r border-dashed border-tikeo-border bg-tikeo-surface-alt py-3 md:w-20">
+              <div class="relative flex w-16 shrink-0 flex-col items-center justify-center rounded-l-2xl border-r border-dashed border-tikeo-border bg-tikeo-surface-alt py-3 md:w-20">
                 <span class="font-display text-2xl font-extrabold leading-none text-tikeo-black md:text-3xl">{{ dayOf(event.start_date) }}</span>
                 <span class="mt-1 text-[11px] font-bold uppercase tracking-wider text-tikeo-orange">{{ monthOf(event.start_date) }}</span>
               </div>

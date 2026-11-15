@@ -250,7 +250,7 @@ onBeforeUnmount(() => {
               @click="tab = item.value"
             >
               {{ item.label }}
-              <span class="flex h-5 min-w-5 items-center justify-center px-1.5 text-[11px] font-bold" :class="tab === item.value ? 'bg-[#FF7A00] text-tikeo-ink' : 'bg-tikeo-surface-alt text-tikeo-gray-text'">{{ item.count }}</span>
+              <span class="flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold" :class="tab === item.value ? 'bg-[#FF7A00] text-tikeo-ink' : 'bg-tikeo-surface-alt text-tikeo-gray-text'">{{ item.count }}</span>
             </button>
           </div>
           <div class="relative sm:w-72">
@@ -273,13 +273,13 @@ onBeforeUnmount(() => {
       </template>
 
       <div v-else class="acc-empty org-pop">
-        <span class="flex h-16 w-16 items-center justify-center bg-tikeo-surface-alt text-tikeo-gray-text"><AppIcon name="calendar-plus" class="h-8 w-8" /></span>
+        <span class="flex h-16 w-16 items-center justify-center bg-tikeo-surface-alt text-tikeo-gray-text rounded-2xl"><AppIcon name="calendar-plus" class="h-8 w-8" /></span>
         <p class="text-sm text-tikeo-gray-text">{{ t('organizerEvents.emptyState') }}</p>
         <NuxtLink to="/organisateur/evenements/nouveau" class="btn-ink">{{ t('organizerEvents.createFirst') }}</NuxtLink>
       </div>
 
       <div v-if="!loading && events.length > 0 && visibleEvents.length === 0" class="acc-empty org-pop">
-        <span class="flex h-14 w-14 items-center justify-center bg-tikeo-surface-alt text-tikeo-gray-text"><AppIcon name="inbox" class="h-7 w-7" /></span>
+        <span class="flex h-14 w-14 items-center justify-center bg-tikeo-surface-alt text-tikeo-gray-text rounded-2xl"><AppIcon name="inbox" class="h-7 w-7" /></span>
         <p class="text-sm text-tikeo-gray-text">{{ emptyTabMessage }}</p>
       </div>
 
@@ -287,12 +287,12 @@ onBeforeUnmount(() => {
         <li
           v-for="event in visibleEvents"
           :key="event.id"
-          class="org-card-hover group flex flex-col border border-tikeo-border bg-tikeo-surface sm:flex-row"
+          class="org-card-hover group flex flex-col border border-tikeo-border bg-tikeo-surface sm:flex-row rounded-2xl"
           :class="isPast(event) ? 'bg-tikeo-surface-alt/60' : ''"
         >
           <!-- Affiche + talon de date -->
           <div class="relative flex shrink-0 sm:w-56">
-            <div class="relative h-32 w-full overflow-hidden bg-tikeo-ink sm:h-auto sm:min-h-[8.5rem]">
+            <div class="relative h-32 w-full overflow-hidden rounded-t-2xl bg-tikeo-ink sm:h-auto sm:min-h-[8.5rem] sm:rounded-l-2xl sm:rounded-tr-none">
               <img
                 v-if="event.cover_image"
                 :src="event.cover_image" data-img-fallback
@@ -303,7 +303,7 @@ onBeforeUnmount(() => {
               />
               <div v-else class="flex h-full w-full items-center justify-center text-white/30"><AppIcon name="ticket" class="h-10 w-10" /></div>
               <div class="absolute inset-0 bg-gradient-to-t from-tikeo-ink/70 via-transparent to-transparent" aria-hidden="true" />
-              <div class="absolute left-3 top-3 flex flex-col items-center bg-white px-2.5 py-1.5 text-tikeo-ink shadow-card">
+              <div class="absolute left-3 top-3 flex flex-col items-center rounded-xl bg-white px-2.5 py-1.5 text-tikeo-ink shadow-card">
                 <span class="font-display text-xl font-extrabold leading-none">{{ dayOf(event.start_date) }}</span>
                 <span class="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-[#B05400]">{{ monthOf(event.start_date) }}</span>
               </div>
