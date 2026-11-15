@@ -756,6 +756,8 @@
     "requiredError": "Le nom et la date de début sont obligatoires.",
     "slugRequiredError": "Choisissez un lien pour votre événement.",
     "slugTakenError": "Ce lien est déjà utilisé, choisissez-en un autre.",
+    "coverRequiredError": "Ajoutez une affiche avant de publier : les événements sans image attirent beaucoup moins de monde.",
+    "coverMissingHint": "Ajoutez une affiche pour publier (étape 1)",
     "atLeastOneTicketError": "Ajoutez au moins un type de billet avec un nom.",
     "loginRequiredError": "Connectez-vous pour publier un événement.",
     "organizerFetchError": "Impossible de récupérer l'espace organisateur.",
@@ -1118,6 +1120,13 @@
     "standardRate": "Commission par paliers"
   },
   "adminEvents": {
+    "colImage": "Image",
+    "imageMissing": "Sans image",
+    "imageBroken": "Image cassée",
+    "imageOk": "Image OK",
+    "imagesToFix": "Images à corriger",
+    "checkImages": "Vérifier les images",
+    "checking": "Vérification… {n}",
     "title": "Gestion des événements",
     "errorLoad": "Impossible de charger les événements (vérifiez que la migration 0004_admin_policies.sql a bien été appliquée et que votre profil a le rôle 'admin').",
     "empty": "Aucun événement n'a encore été créé sur la plateforme.",
@@ -1225,6 +1234,9 @@
     "dateToday": "Ce soir",
     "dateWeekend": "Ce week-end",
     "dateWeek": "Cette semaine",
+    "priceFree": "Gratuit",
+    "priceUnder": "≤ {n} F",
+    "priceAll": "Tous",
     "dateMonth": "Ce mois-ci"
   },
   "orderStatus": {
@@ -2848,6 +2860,7 @@
     }
   },
   "adminFeatured": {
+    "noCoverWarn": "Pas d'affiche (ou image cassée) : l'image de secours sera affichée à la une. Demandez à l'organisateur d'en ajouter une.",
     "title": "Événements à la une",
     "subtitle": "Le bandeau de l’accueil se remplit automatiquement avec les 3 prochains événements publiés. Épinglez un événement ici pour le faire passer en premier.",
     "viewHome": "Voir l’accueil",

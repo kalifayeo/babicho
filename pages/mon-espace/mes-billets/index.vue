@@ -296,7 +296,7 @@ const statusClasses: Record<string, string> = {
               <span class="w-1.5 shrink-0 bg-[#FF7A00]" aria-hidden="true" />
               <div class="flex min-w-0 flex-1 items-center gap-3 p-3 md:gap-4 md:p-4">
                 <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden bg-tikeo-ink md:h-20 md:w-20">
-                  <img v-if="group.event?.cover_image" :src="group.event.cover_image" :alt="group.event?.title" loading="lazy" decoding="async" class="h-full w-full object-cover" />
+                  <img v-if="group.event?.cover_image" :src="group.event.cover_image" data-img-fallback :alt="group.event?.title" loading="lazy" decoding="async" class="h-full w-full object-cover" />
                   <span v-else class="font-display text-xs font-extrabold text-white">Babicho</span>
                 </div>
 
@@ -398,7 +398,7 @@ const statusClasses: Record<string, string> = {
       <div v-if="selectedTicket" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-tikeo-ink/70 p-4 backdrop-blur-[2px]" @click.self="closeTicket">
         <div class="my-auto w-full max-w-sm overflow-hidden bg-tikeo-surface shadow-2xl">
           <div class="relative h-36 w-full bg-tikeo-ink">
-            <img v-if="selectedTicket.event?.cover_image" :src="selectedTicket.event.cover_image" :alt="selectedTicket.event?.title" class="h-full w-full object-cover" />
+            <img v-if="selectedTicket.event?.cover_image" :src="selectedTicket.event.cover_image" data-img-fallback :alt="selectedTicket.event?.title" class="h-full w-full object-cover" />
             <span v-else class="flex h-full w-full items-center justify-center font-display text-lg font-extrabold tracking-wide text-white">Babicho</span>
             <div class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" aria-hidden="true" />
             <div class="absolute inset-x-0 top-0 h-1 bg-tikeo-brand" aria-hidden="true" />

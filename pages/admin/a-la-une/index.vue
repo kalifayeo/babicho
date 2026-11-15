@@ -36,6 +36,7 @@ async function run(id: string, fn: () => Promise<unknown>, ok?: string) {
 
 const rows = computed(() => api.sorted.value.map((r) => ({ ...r, card: r.event ? mapEventRow(r.event) : null })))
 const dateText = (iso: string) => new Date(iso).toLocaleDateString(locale.value, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
+const noCover = (c: EventCardData | null) => !!c && (!c.coverImage || c.coverImage === COVER_FALLBACK)
 const isPast = (c: EventCardData | null) => !!c && isEventPast(c.startDate, c.endDate, Date.now())
 
 // --- Sélecteur d'événement --------------------------------------------------
@@ -109,7 +110,7 @@ async function remove(id: string, title: string) {
     <ol v-else class="space-y-3">
       <li v-for="(r, i) in rows" :key="r.id" class="org-panel org-card-hover flex flex-col gap-3 p-4 sm:flex-row sm:items-center" :class="r.status === 'inactive' || !r.card || isPast(r.card) ? 'opacity-70' : ''">
         <span class="flex h-8 w-8 shrink-0 items-center justify-center bg-tikeo-ink font-display text-sm font-extrabold text-white dark:bg-[#FF7A00] dark:text-tikeo-ink">{{ i + 1 }}</span>
-        <img v-if="r.card" :src="r.card.coverImage" alt="" class="h-20 w-32 shrink-0 object-cover" />
+        <img v-if="r.card" :src="r.card.coverImage" data-img-fallback alt="" class="h-20 w-32 shrink-0 object-cover" />
         <span v-else class="flex h-20 w-32 shrink-0 items-center justify-center bg-tikeo-surface-alt text-tikeo-gray-text"><AppIcon name="alert" class="h-7 w-7" /></span>
 
         <div class="min-w-0 flex-1">
@@ -119,6 +120,7 @@ async function remove(id: string, title: string) {
               {{ !r.card ? t('adminFeatured.stateUnpublished') : isPast(r.card) ? t('adminFeatured.statePast') : r.status === 'active' ? t('adminFeatured.stateLive') : t('adminFeatured.stateHidden') }}
             </StatusPill>
           </div>
+          <p v-if="noCover(r.card)" class="mt-1 flex items-center gap-1.5 text-xs font-semibold text-red-600"><AppIcon name="alert" class="h-3.5 w-3.5" />{{ t('adminFeatured.noCoverWarn') }}</p>
           <p v-if="r.card" class="mt-0.5 text-xs text-tikeo-gray-text">{{ dateText(r.card.startDate) }}<template v-if="r.card.city"> · {{ r.card.city }}</template></p>
 
           <form v-if="badgeDraft?.id === r.id" class="mt-2 flex max-w-sm gap-2" @submit.prevent="saveBadge">
@@ -155,10 +157,11 @@ async function remove(id: string, title: string) {
       <AdminEmpty v-else-if="!pickerResults.length" icon="calendar" :text="t('adminFeatured.pickEmpty')" />
       <ul v-else class="space-y-2">
         <li v-for="e in pickerResults" :key="e.id" class="flex items-center gap-3 border border-tikeo-border p-2.5">
-          <img :src="e.coverImage" alt="" class="h-14 w-20 shrink-0 object-cover" />
+          <img :src="e.coverImage" data-img-fallback alt="" class="h-14 w-20 shrink-0 object-cover" />
           <div class="min-w-0 flex-1">
             <p class="truncate text-sm font-bold text-tikeo-black">{{ e.title }}</p>
             <p class="truncate text-xs text-tikeo-gray-text">{{ dateText(e.startDate) }}<template v-if="e.city"> · {{ e.city }}</template></p>
+            <p v-if="noCover(e)" class="mt-0.5 flex items-center gap-1 text-[11px] font-semibold text-red-600"><AppIcon name="alert" class="h-3 w-3" />{{ t('adminFeatured.noCoverWarn') }}</p>
           </div>
           <button type="button" class="btn-ink !h-9 !px-3 !text-[12px]" @click="addEvent(e)"><AppIcon name="plus" class="h-4 w-4" :stroke="2.4" />{{ t('adminFeatured.pick') }}</button>
         </li>

@@ -525,7 +525,9 @@
     "venueTitle": "Local e acesso",
     "directions": "Itinerário",
     "reviewsCount": "{n} avaliações",
-    "selectedCount": "{n} bilhete(s)"
+    "selectedCount": "{n} bilhete(s)",
+    "almostGone": "Quase esgotado",
+    "limitedPlaces": "Vagas limitadas"
   },
   "common": {
     "comingSoon": "Esta seção está prevista no roteiro do Babicho e será desenvolvida em uma etapa posterior.",
@@ -754,6 +756,8 @@
     "requiredError": "O nome e a data de início são obrigatórios.",
     "slugRequiredError": "Escolha um link para o seu evento.",
     "slugTakenError": "Este link já está em uso, escolha outro.",
+    "coverRequiredError": "Adicione um cartaz antes de publicar: eventos sem imagem atraem muito menos gente.",
+    "coverMissingHint": "Adicione um cartaz para publicar (passo 1)",
     "atLeastOneTicketError": "Adicione pelo menos um tipo de ingresso com nome.",
     "loginRequiredError": "Faça login para publicar um evento.",
     "organizerFetchError": "Não foi possível obter o espaço organizador.",
@@ -1116,6 +1120,13 @@
     "standardRate": "Comissão por escalões"
   },
   "adminEvents": {
+    "colImage": "Imagem",
+    "imageMissing": "Sem imagem",
+    "imageBroken": "Imagem quebrada",
+    "imageOk": "Imagem OK",
+    "imagesToFix": "Imagens a corrigir",
+    "checkImages": "Verificar imagens",
+    "checking": "Verificando… {n}",
     "title": "Gestão de eventos",
     "errorLoad": "Não foi possível carregar os eventos (verifique se a migração 0004_admin_policies.sql foi aplicada e se seu perfil tem a função 'admin').",
     "empty": "Nenhum evento foi criado na plataforma ainda.",
@@ -1223,6 +1234,9 @@
     "dateToday": "Esta noite",
     "dateWeekend": "Este fim de semana",
     "dateWeek": "Esta semana",
+    "priceFree": "Grátis",
+    "priceUnder": "≤ {n} F",
+    "priceAll": "Todos",
     "dateMonth": "Este mês"
   },
   "orderStatus": {
@@ -2846,6 +2860,7 @@
     }
   },
   "adminFeatured": {
+    "noCoverWarn": "Sem cartaz (ou imagem quebrada): a imagem padrão será exibida na página inicial. Peça ao organizador para adicionar uma.",
     "title": "Eventos em destaque",
     "subtitle": "A faixa da página inicial preenche-se sozinha com os 3 próximos eventos publicados. Fixe um evento aqui para o mostrar primeiro.",
     "viewHome": "Ver a página inicial",

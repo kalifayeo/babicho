@@ -12,6 +12,11 @@ const togglingId = ref<string | null>(null)
 const search = ref('')
 const statusFilter = ref<'all' | EventRecord['status']>('all')
 const pendingCancel = ref<EventRecord | null>(null)
+const { checking, progress, stateOf, checkAll } = useCoverCheck()
+const imageFilter = ref(false) // n'afficher que les événements dont l'affiche est à corriger
+const needsImage = (e: EventRecord) => ['missing', 'broken'].includes(stateOf(e as any))
+const imageLabel = (e: EventRecord) => ({ missing: t('adminEvents.imageMissing'), broken: t('adminEvents.imageBroken'), ok: t('adminEvents.imageOk'), unknown: '' }[stateOf(e as any)])
+const imageTone = (e: EventRecord) => ({ missing: 'error', broken: 'error', ok: 'success', unknown: 'neutral' }[stateOf(e as any)] as string)
 
 const canModerate = computed(() => authStore.isSuperAdmin || authStore.hasPermission('events.update') || authStore.hasPermission('events.validate'))
 
@@ -42,6 +47,7 @@ const filtered = computed(() => {
   const q = search.value.trim().toLowerCase()
   return events.value.filter((e) => {
     if (statusFilter.value !== 'all' && e.status !== statusFilter.value) return false
+    if (imageFilter.value && !needsImage(e)) return false
     if (!q) return true
     return [e.title, e.city, e.location_name].some((v) => (v || '').toString().toLowerCase().includes(q))
   })
@@ -55,6 +61,8 @@ const filterChips = computed(() => [
     count: events.value.filter((e) => e.status === s).length,
   })),
 ])
+
+const imagesToFix = computed(() => events.value.filter(needsImage).length)
 
 function statusTone(status: string) {
   if (status === 'published') return 'success'
@@ -93,7 +101,11 @@ async function confirmCancel() {
   await setStatus(target, 'cancelled')
 }
 
-onMounted(load)
+onMounted(async () => {
+  await load()
+  // Contrôle automatique des affiches des événements publiés (léger : 6 requêtes en parallèle).
+  checkAll(events.value.filter((e) => e.status === 'published'))
+})
 </script>
 
 <template>
@@ -116,6 +128,12 @@ onMounted(load)
           <button v-for="c in filterChips" :key="c.value" type="button" class="admin-chip" :class="statusFilter === c.value ? 'is-active' : ''" @click="statusFilter = c.value as any">
             {{ c.label }} <span class="opacity-60">{{ c.count }}</span>
           </button>
+          <button type="button" class="admin-chip" :class="imageFilter ? 'is-active' : ''" @click="imageFilter = !imageFilter">
+            <AppIcon name="image" class="h-3.5 w-3.5" />{{ t('adminEvents.imagesToFix') }} <span class="opacity-60">{{ imagesToFix }}</span>
+          </button>
+          <button type="button" class="admin-chip" :disabled="checking" @click="checkAll(events)">
+            <AppIcon name="refresh" class="h-3.5 w-3.5" :class="checking ? 'animate-spin' : ''" />{{ checking ? t('adminEvents.checking', { n: progress }) : t('adminEvents.checkImages') }}
+          </button>
         </div>
       </div>
 
@@ -126,7 +144,8 @@ onMounted(load)
         <div class="flex flex-col gap-3 md:hidden">
           <div v-for="event in filtered" :key="event.id" class="org-panel p-3">
             <div class="flex items-start justify-between gap-2">
-              <p class="min-w-0 flex-1 truncate font-semibold text-tikeo-black">{{ event.title }}</p>
+              <img :src="event.cover_image || '/sample-event.jpg'" data-img-fallback alt="" class="h-12 w-16 shrink-0 rounded-lg object-cover" />
+              <p class="min-w-0 flex-1 truncate font-semibold text-tikeo-black">{{ event.title }}<StatusPill v-if="imageLabel(event) && needsImage(event)" :tone="imageTone(event)" class="ml-2">{{ imageLabel(event) }}</StatusPill></p>
               <StatusPill :tone="statusTone(event.status)">{{ statusLabels[event.status] }}</StatusPill>
             </div>
             <p class="mt-1 flex items-center gap-3 text-xs text-tikeo-gray-text">
@@ -148,6 +167,7 @@ onMounted(load)
           <table class="w-full border border-tikeo-border text-left text-sm">
             <thead class="bg-tikeo-surface-alt text-tikeo-gray-text">
               <tr>
+                <th class="w-20 px-3 py-3">{{ t('adminEvents.colImage') }}</th>
                 <th class="px-3 py-3">{{ t('adminEvents.colEvent') }}</th>
                 <th class="px-3 py-3">{{ t('adminEvents.colCity') }}</th>
                 <th class="px-3 py-3">{{ t('adminEvents.colDate') }}</th>
@@ -157,7 +177,13 @@ onMounted(load)
             </thead>
             <tbody class="divide-y divide-tikeo-border">
               <tr v-for="event in filtered" :key="event.id">
-                <td class="px-3 py-3 font-semibold text-tikeo-black">{{ event.title }}</td>
+                <td class="px-3 py-3">
+                  <img :src="event.cover_image || '/sample-event.jpg'" data-img-fallback alt="" class="h-11 w-16 rounded-lg object-cover" :class="needsImage(event) ? 'opacity-60 ring-2 ring-red-500' : ''" />
+                </td>
+                <td class="px-3 py-3 font-semibold text-tikeo-black">
+                  {{ event.title }}
+                  <StatusPill v-if="needsImage(event)" :tone="imageTone(event)" class="ml-2">{{ imageLabel(event) }}</StatusPill>
+                </td>
                 <td class="px-3 py-3 text-tikeo-gray-text">{{ event.city || '—' }}</td>
                 <td class="px-3 py-3 text-tikeo-gray-text">{{ new Date(event.start_date).toLocaleDateString('fr-FR') }}</td>
                 <td class="px-3 py-3"><StatusPill :tone="statusTone(event.status)">{{ statusLabels[event.status] }}</StatusPill></td>

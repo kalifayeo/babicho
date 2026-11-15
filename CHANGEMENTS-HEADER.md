@@ -66,3 +66,28 @@
 ## Version 12 : Presse + Partenaires
 - `pages/presse/index.vue` : bandeau `PageHero`, « Babicho en bref » en carte avec chiffres en tuiles, article à la une avec halo et bouton, cartes et kit média arrondis (icônes qui pivotent), bloc contact lumineux.
 - `pages/partenaires/index.vue` : bandeau `PageHero` avec compteur, filtres en pastilles, cartes « à la une » et logos arrondis, avantages en cartes qui se soulèvent.
+
+## Version 13 — Images d'événements cassées + corrections
+
+- `plugins/img-fallback.client.ts` (NOUVEAU) : si l'image de couverture d'un événement ne charge pas (URL morte, 404…), elle est remplacée automatiquement par `/sample-event.jpg`. Plus de zones bleues vides.
+- Attribut `data-img-fallback` ajouté sur les images de couverture : SearchSuggestions, FeaturedEventsBand, HeroSection, EventCard, admin/a-la-une, mes-billets, tableau-de-bord, organisateur/evenements, commande/[id], e/[slug], transfert/[token].
+- i18n en/es/pt : ajout de `event.almostGone` et `event.limitedPlaces`.
+- `supabase/seed/seed_demo_presentation.sql` : testé sur PostgreSQL 16 (exécutable 2 fois sans erreur).
+
+## Version 14 — Filtres de prix + couverture obligatoire
+
+- `components/FiltersPanel.vue` : raccourcis de prix (Gratuit, ≤ 1 000 F, ≤ 5 000 F, Tous) et curseur au pas de 500 F (avant 5 000 F, inadapté aux billets à 2 F ou 10 F). Utilisé par la sidebar desktop et le tiroir mobile.
+- `pages/organisateur/evenements/nouveau.vue` : publication refusée sans affiche (le brouillon reste possible) ; l'aperçu étape 3 affiche un message si l'affiche manque, et utilise le fallback d'image.
+- i18n fr/en/es/pt : `filters.priceFree/priceUnder/priceAll`, `eventWizard.coverRequiredError/coverMissingHint`.
+
+## Version 15 — Défilement automatique du hero (accueil)
+
+- `components/HeroSection.vue` : le diaporama ne s'arrête plus (1) quand la souris est sur le texte (seul le survol du cadre image met en pause), (2) quand « réduire les animations » est actif (le défilement continue, seuls l'effet Ken Burns et la lecture vidéo auto sont coupés), (3) quand la vidéo de présentation ne démarre pas (on n'attend sa fin que si elle joue réellement, sinon on avance après 9 s).
+- Ajout d'un bouton pause/lecture à côté des pastilles.
+
+## Version 16 — Admin : contrôle des images
+
+- `composables/useCoverCheck.ts` (NOUVEAU) : teste dans le navigateur si l'affiche de chaque événement se charge (6 en parallèle, 8 s max) → états Sans image / Image cassée / OK.
+- `pages/admin/evenements/index.vue` : colonne miniature, badge « Sans image » / « Image cassée », filtre « Images à corriger (n) », bouton « Vérifier les images » (contrôle automatique des événements publiés à l'ouverture).
+- `pages/admin/a-la-une/index.vue` : avertissement rouge si l'événement épinglé (ou proposé dans le sélecteur) n'a pas d'affiche.
+- i18n fr/en/es/pt : clés `adminEvents.colImage/imageMissing/imageBroken/imageOk/imagesToFix/checkImages/checking`, `adminFeatured.noCoverWarn`.

@@ -525,7 +525,9 @@
     "venueTitle": "Venue & access",
     "directions": "Directions",
     "reviewsCount": "{n} reviews",
-    "selectedCount": "{n} ticket(s)"
+    "selectedCount": "{n} ticket(s)",
+    "almostGone": "Almost sold out",
+    "limitedPlaces": "Limited places"
   },
   "common": {
     "comingSoon": "This section is part of the Babicho roadmap and will be built in a later step.",
@@ -754,6 +756,8 @@
     "requiredError": "Name and start date are required.",
     "slugRequiredError": "Choose a link for your event.",
     "slugTakenError": "This link is already taken, choose another one.",
+    "coverRequiredError": "Add a cover image before publishing: events without a picture attract far fewer people.",
+    "coverMissingHint": "Add a cover to publish (step 1)",
     "atLeastOneTicketError": "Add at least one named ticket type.",
     "loginRequiredError": "Log in to publish an event.",
     "organizerFetchError": "Unable to retrieve the organizer space.",
@@ -1116,6 +1120,13 @@
     "standardRate": "Tiered commission"
   },
   "adminEvents": {
+    "colImage": "Image",
+    "imageMissing": "No image",
+    "imageBroken": "Broken image",
+    "imageOk": "Image OK",
+    "imagesToFix": "Images to fix",
+    "checkImages": "Check images",
+    "checking": "Checking… {n}",
     "title": "Event management",
     "errorLoad": "Unable to load events (check that migration 0004_admin_policies.sql has been applied and that your profile has the 'admin' role).",
     "empty": "No events have been created on the platform yet.",
@@ -1223,6 +1234,9 @@
     "dateToday": "Tonight",
     "dateWeekend": "This weekend",
     "dateWeek": "This week",
+    "priceFree": "Free",
+    "priceUnder": "≤ {n} F",
+    "priceAll": "All",
     "dateMonth": "This month"
   },
   "orderStatus": {
@@ -2846,6 +2860,7 @@
     }
   },
   "adminFeatured": {
+    "noCoverWarn": "No cover (or broken image): the placeholder will be shown on the homepage. Ask the organizer to add one.",
     "title": "Featured events",
     "subtitle": "The homepage band fills itself with the next 3 published events. Pin an event here to show it first.",
     "viewHome": "View home page",

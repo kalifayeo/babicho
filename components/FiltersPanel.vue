@@ -8,6 +8,13 @@ const { t } = useI18n()
 const { filters, activeFilterCount, resetFilters } = useHomeFilters()
 const dateOptions = useHomeDateRangeOptions()
 
+const priceChips = computed(() => [
+  { value: 0, label: t('filters.priceFree') },
+  { value: 1000, label: t('filters.priceUnder', { n: '1 000' }) },
+  { value: 5000, label: t('filters.priceUnder', { n: '5 000' }) },
+  { value: HOME_FILTERS_PRICE_MAX, label: t('filters.priceAll') },
+])
+
 const cities = ['Abidjan', 'Bouaké', 'Yamoussoukro', 'Korhogo', 'San-Pédro', 'Man', 'Daloa', 'Gagnoa']
 </script>
 
@@ -46,7 +53,17 @@ const cities = ['Abidjan', 'Bouaké', 'Yamoussoukro', 'Korhogo', 'San-Pédro', '
         <span>0 FCFA</span>
         <span>{{ filters.priceMax >= HOME_FILTERS_PRICE_MAX ? t('filters.noLimit') : `${filters.priceMax.toLocaleString('fr-FR')} FCFA` }}</span>
       </div>
-      <input v-model.number="filters.priceMax" type="range" min="0" :max="HOME_FILTERS_PRICE_MAX" step="5000" class="w-full accent-tikeo-orange" />
+      <input v-model.number="filters.priceMax" type="range" min="0" :max="HOME_FILTERS_PRICE_MAX" step="500" class="w-full accent-tikeo-orange" />
+      <div class="mt-2 flex flex-wrap gap-1.5">
+        <button
+          v-for="chip in priceChips"
+          :key="chip.value"
+          type="button"
+          class="rounded-full border px-3 py-1 text-xs font-bold transition-colors"
+          :class="filters.priceMax === chip.value ? 'border-[#FF7A00] bg-[#FF7A00] text-tikeo-ink' : 'border-tikeo-border bg-tikeo-surface text-tikeo-black hover:border-[#FF7A00]'"
+          @click="filters.priceMax = chip.value"
+        >{{ chip.label }}</button>
+      </div>
     </div>
 
     <button type="button" class="btn-primary w-full" @click="emit('apply')">

@@ -80,6 +80,8 @@ const bgEmbedSrc = computed(() => {
 
 const current = ref(0)
 const paused = ref(false)
+const userPaused = ref(false) // bouton pause/lecture
+const bgPlaying = ref(false) // la vidéo de fond a réellement démarré
 const playing = ref(false) // la vidéo de présentation est en cours de lecture
 const isPresentationSlide = computed(() => !!slides.value[current.value]?.presentation)
 let timer: ReturnType<typeof setTimeout> | null = null
@@ -97,19 +99,21 @@ function stopTimer() {
 function slideDelay() {
   if (!isPresentationSlide.value) return 6000
   const src = presentationSource.value
-  if (src?.kind === 'file' && autoplayBg.value) return 0
+  // On n'attend la fin de la vidéo que si elle joue vraiment ; sinon (autoplay bloqué, chargement lent) on avance.
+  if (src?.kind === 'file' && autoplayBg.value && bgPlaying.value) return 0
   return src?.kind === 'embed' && autoplayBg.value ? 20000 : 9000
 }
 // Défilement automatique, arrêté pendant la lecture avec le son ou au survol.
 function schedule() {
   stopTimer()
-  if (slides.value.length < 2 || reduceMotion.value || paused.value || playing.value) return
+  if (slides.value.length < 2 || userPaused.value || paused.value || playing.value) return
   const delay = slideDelay()
   slideMs.value = delay
   if (!delay) return
   timer = setTimeout(() => go(current.value + 1), delay)
 }
-watch([current, paused, playing, reduceMotion, bgFailed, () => slides.value.length], () => {
+watch(current, () => { bgPlaying.value = false })
+watch([current, paused, userPaused, playing, bgPlaying, reduceMotion, bgFailed, () => slides.value.length], () => {
   if (current.value >= slides.value.length) current.value = 0
   schedule()
 })
@@ -175,8 +179,6 @@ const statItems = computed(() => [
     role="region"
     aria-roledescription="carousel"
     :aria-label="t('hero.sliderLabel')"
-    @mouseenter="paused = true"
-    @mouseleave="paused = false"
     @focusin="paused = true"
     @focusout="paused = false"
   >
@@ -306,7 +308,7 @@ const statItems = computed(() => [
       </div>
 
       <!-- ============ Colonne visuel : diaporama / vidéo + prochain événement ============ -->
-      <div v-reveal:up="200" class="relative min-w-0">
+      <div v-reveal:up="200" class="relative min-w-0" @mouseenter="paused = true" @mouseleave="paused = false">
         <div v-tilt class="hero-frame relative aspect-[4/3] overflow-hidden rounded-[1.75rem] bg-[#0B1B35] shadow-[0_40px_90px_-30px_rgba(0,0,0,0.7)] ring-1 ring-white/15 lg:rounded-[2rem]">
           <div
             v-for="(s, i) in slides"
@@ -340,6 +342,7 @@ const statItems = computed(() => [
                   playsinline
                   :loop="slides.length < 2"
                   preload="auto"
+                  @playing="bgPlaying = true"
                   @ended="onPresentationEnded"
                   @error="bgFailed = true"
                 />
@@ -399,10 +402,20 @@ const statItems = computed(() => [
                   v-if="i === current"
                   :key="`${current}-${slideMs}`"
                   class="absolute inset-y-0 left-0 bg-[#FF7A00]"
-                  :class="slideMs > 0 && !reduceMotion ? 'hero-progress' : 'w-full'"
-                  :style="slideMs > 0 ? { animationDuration: `${slideMs}ms`, animationPlayState: paused ? 'paused' : 'running' } : undefined"
+                  :class="slideMs > 0 ? 'hero-progress' : 'w-full'"
+                  :style="slideMs > 0 ? { animationDuration: `${slideMs}ms`, animationPlayState: paused || userPaused ? 'paused' : 'running' } : undefined"
                 />
               </span>
+            </button>
+            <button
+              type="button"
+              class="ml-1 flex h-7 w-7 items-center justify-center rounded-full text-white/90 hover:bg-white/15"
+              :aria-label="userPaused ? 'Reprendre le défilement' : 'Mettre en pause le défilement'"
+              :aria-pressed="userPaused"
+              @click="userPaused = !userPaused"
+            >
+              <svg v-if="userPaused" viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+              <svg v-else viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" /></svg>
             </button>
           </div>
 
@@ -436,7 +449,7 @@ const statItems = computed(() => [
           class="group mt-3 flex items-center gap-3.5 rounded-2xl bg-tikeo-surface p-2.5 pr-3.5 text-tikeo-black shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] transition-transform duration-300 hover:-translate-y-0.5 sm:gap-4"
         >
           <span class="relative block h-16 w-16 shrink-0 overflow-hidden rounded-xl sm:h-16 sm:w-16">
-            <img :src="nextEvent.coverImage" alt="" loading="lazy" decoding="async" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <img :src="nextEvent.coverImage" data-img-fallback alt="" loading="lazy" decoding="async" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
           </span>
           <span class="min-w-0 flex-1">
             <span class="mb-1 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-tikeo-orange-strong" style="color: rgb(var(--tikeo-orange-strong))">

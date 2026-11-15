@@ -525,7 +525,9 @@
     "venueTitle": "Lugar y acceso",
     "directions": "Cómo llegar",
     "reviewsCount": "{n} opiniones",
-    "selectedCount": "{n} entrada(s)"
+    "selectedCount": "{n} entrada(s)",
+    "almostGone": "Casi agotado",
+    "limitedPlaces": "Plazas limitadas"
   },
   "common": {
     "comingSoon": "Esta sección está prevista en la hoja de ruta de Babicho y se desarrollará en una etapa posterior.",
@@ -754,6 +756,8 @@
     "requiredError": "El nombre y la fecha de inicio son obligatorios.",
     "slugRequiredError": "Elige un enlace para tu evento.",
     "slugTakenError": "Este enlace ya está en uso, elige otro.",
+    "coverRequiredError": "Añade un cartel antes de publicar: los eventos sin imagen atraen mucho menos público.",
+    "coverMissingHint": "Añade un cartel para publicar (paso 1)",
     "atLeastOneTicketError": "Añade al menos un tipo de entrada con nombre.",
     "loginRequiredError": "Inicia sesión para publicar un evento.",
     "organizerFetchError": "No se pudo obtener el espacio organizador.",
@@ -1116,6 +1120,13 @@
     "standardRate": "Comisión por tramos"
   },
   "adminEvents": {
+    "colImage": "Imagen",
+    "imageMissing": "Sin imagen",
+    "imageBroken": "Imagen rota",
+    "imageOk": "Imagen OK",
+    "imagesToFix": "Imágenes por corregir",
+    "checkImages": "Verificar imágenes",
+    "checking": "Verificando… {n}",
     "title": "Gestión de eventos",
     "errorLoad": "No se pudieron cargar los eventos (verifique que la migración 0004_admin_policies.sql se haya aplicado y que su perfil tenga el rol 'admin').",
     "empty": "Todavía no se ha creado ningún evento en la plataforma.",
@@ -1223,6 +1234,9 @@
     "dateToday": "Esta noche",
     "dateWeekend": "Este fin de semana",
     "dateWeek": "Esta semana",
+    "priceFree": "Gratis",
+    "priceUnder": "≤ {n} F",
+    "priceAll": "Todos",
     "dateMonth": "Este mes"
   },
   "orderStatus": {
@@ -2846,6 +2860,7 @@
     }
   },
   "adminFeatured": {
+    "noCoverWarn": "Sin cartel (o imagen rota): se mostrará la imagen por defecto en portada. Pide al organizador que añada una.",
     "title": "Eventos destacados",
     "subtitle": "El banner de inicio se llena solo con los 3 próximos eventos publicados. Fija un evento aquí para mostrarlo primero.",
     "viewHome": "Ver la portada",

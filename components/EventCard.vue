@@ -107,7 +107,7 @@ const progress = computed(() => {
     class="group relative flex min-h-[26rem] shrink-0 flex-col justify-end overflow-hidden rounded-2xl bg-tikeo-ink text-white shadow-card transition-[transform,box-shadow] duration-300 hover:shadow-card-hover"
   >
     <img
-      :src="event.coverImage"
+      :src="event.coverImage" data-img-fallback
       alt=""
       loading="lazy"
       decoding="async"
@@ -175,7 +175,7 @@ const progress = computed(() => {
     <!-- Visuel -->
     <div class="relative overflow-hidden bg-tikeo-ink" :class="isTile ? 'min-h-[9rem] flex-1' : 'aspect-[1.32]'">
       <img
-        :src="event.coverImage"
+        :src="event.coverImage" data-img-fallback
         alt=""
         loading="lazy"
         decoding="async"

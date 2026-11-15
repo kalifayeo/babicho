@@ -282,7 +282,7 @@ async function handleClaimFree() {
           <!-- Carte événement façon billet -->
           <article class="relative bg-tikeo-surface shadow-card">
             <div class="relative h-44 overflow-hidden bg-tikeo-ink md:h-52">
-              <img v-if="order.event?.cover_image" :src="order.event.cover_image" :alt="order.event?.title" class="h-full w-full object-cover" />
+              <img v-if="order.event?.cover_image" :src="order.event.cover_image" data-img-fallback :alt="order.event?.title" class="h-full w-full object-cover" />
               <div v-else class="flex h-full items-center justify-center"><img src="/logo-babicho.png" alt="Babicho" class="h-12 w-auto opacity-90" /></div>
               <div class="absolute inset-0 bg-gradient-to-t from-tikeo-ink/70 via-transparent to-transparent" aria-hidden="true" />
               <span class="absolute inset-x-0 top-0 h-1 bg-tikeo-brand" aria-hidden="true" />

@@ -46,7 +46,7 @@ function formatDate(d: string) {
         </p>
 
         <template v-else>
-          <img v-if="preview.event?.coverImage" :src="preview.event.coverImage" :alt="preview.event.title" class="mb-4 h-32 w-full rounded object-cover" />
+          <img v-if="preview.event?.coverImage" :src="preview.event.coverImage" data-img-fallback :alt="preview.event.title" class="mb-4 h-32 w-full rounded object-cover" />
           <h1 class="mb-1 text-base font-bold text-tikeo-black">{{ t('transferPage.title') }}</h1>
           <p class="mb-4 text-sm text-tikeo-gray-text">
             {{ t('transferPage.from') }} <strong class="text-tikeo-black">{{ preview.senderName }}</strong>

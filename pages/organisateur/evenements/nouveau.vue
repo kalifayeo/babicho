@@ -215,6 +215,10 @@ async function publishEvent(publish: boolean) {
     const organizer = await ensureOrganizer()
     if (!organizer) throw new Error(t('eventWizard.organizerFetchError'))
 
+    if (publish && !form.coverImage) {
+      throw new Error(t('eventWizard.coverRequiredError'))
+    }
+
     if (publish && organizer.status !== 'approved') {
       throw new Error(t('eventWizard.notApprovedError'))
     }
@@ -563,8 +567,8 @@ async function publishEvent(publish: boolean) {
         <!-- Aperçu façon carte d'événement -->
         <section class="overflow-hidden rounded-3xl border border-tikeo-border bg-tikeo-surface shadow-card">
           <div class="relative h-44 w-full md:h-56" :class="form.coverImage ? '' : 'admin-hero'">
-            <img v-if="form.coverImage" :src="form.coverImage" alt="" class="h-full w-full object-cover" />
-            <div v-else class="flex h-full items-center justify-center text-white/30"><AppIcon name="image" class="h-14 w-14" :stroke="1.4" /></div>
+            <img v-if="form.coverImage" :src="form.coverImage" alt="" data-img-fallback class="h-full w-full object-cover" />
+            <div v-else class="flex h-full flex-col items-center justify-center gap-2 px-6 text-center text-white/70"><AppIcon name="image" class="h-12 w-12" :stroke="1.4" /><span class="text-xs font-semibold">{{ t('eventWizard.coverMissingHint') }}</span></div>
             <div class="absolute inset-0 bg-gradient-to-t from-[#0E2240]/80 via-transparent to-transparent" aria-hidden="true" />
             <span class="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#0E2240] backdrop-blur">{{ t('eventWizard.previewTitle') }}</span>
             <p class="absolute inset-x-4 bottom-4 break-words font-display text-xl font-extrabold leading-tight text-white md:text-3xl">{{ form.title }}</p>

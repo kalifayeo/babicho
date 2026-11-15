@@ -112,7 +112,7 @@ function formatDate(d: string) {
           v-tilt
           class="dash-next group relative isolate flex min-h-[15rem] flex-col justify-end overflow-hidden rounded-[1.75rem] bg-tikeo-ink text-white shadow-[0_30px_60px_-28px_rgba(14,34,64,0.65)] md:min-h-[17rem]"
         >
-          <img v-if="nextTicket.event?.cover_image" :src="nextTicket.event.cover_image" alt="" class="absolute inset-0 -z-10 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+          <img v-if="nextTicket.event?.cover_image" :src="nextTicket.event.cover_image" data-img-fallback alt="" class="absolute inset-0 -z-10 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
           <div class="absolute inset-0 -z-10 bg-gradient-to-t from-[#0E2240] via-[#0E2240]/75 to-[#0E2240]/20" aria-hidden="true" />
           <span class="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-[#FF7A00] px-3.5 py-1.5 text-xs font-bold text-tikeo-ink">
             <span class="relative flex h-2 w-2"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-tikeo-ink/50" /><span class="relative inline-flex h-2 w-2 rounded-full bg-tikeo-ink" /></span>

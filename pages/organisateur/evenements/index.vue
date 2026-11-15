@@ -295,7 +295,7 @@ onBeforeUnmount(() => {
             <div class="relative h-32 w-full overflow-hidden bg-tikeo-ink sm:h-auto sm:min-h-[8.5rem]">
               <img
                 v-if="event.cover_image"
-                :src="event.cover_image"
+                :src="event.cover_image" data-img-fallback
                 :alt="event.title"
                 loading="lazy"
                 class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"

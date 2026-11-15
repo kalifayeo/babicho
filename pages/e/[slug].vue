@@ -646,7 +646,7 @@ const stepBtn =
       <section class="evh relative isolate overflow-hidden rounded-b-[2rem] bg-tikeo-ink text-white md:rounded-b-[3rem]">
         <!-- Fond : la couverture de l'événement, très floutée, sous un voile bleu nuit -->
         <div class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
-          <img :src="event.coverImage" alt="" class="absolute inset-0 h-full w-full scale-125 object-cover opacity-50 blur-[70px] saturate-150" />
+          <img :src="event.coverImage" data-img-fallback alt="" class="absolute inset-0 h-full w-full scale-125 object-cover opacity-50 blur-[70px] saturate-150" />
           <div class="absolute inset-0 bg-gradient-to-b from-[#0E2240]/65 via-[#0E2240]/85 to-[#0E2240]" />
           <div class="absolute -left-32 top-24 h-96 w-96 rounded-full bg-[#FF7A00]/20 blur-[110px]" />
         </div>
@@ -678,7 +678,7 @@ const stepBtn =
                   <div class="evh-layer evh-layer-1" aria-hidden="true" />
 
                   <div class="evh-face">
-                    <img :src="event.coverImage" :alt="event.title" fetchpriority="high" decoding="async" class="absolute inset-0 h-full w-full object-cover" />
+                    <img :src="event.coverImage" data-img-fallback :alt="event.title" fetchpriority="high" decoding="async" class="absolute inset-0 h-full w-full object-cover" />
                     <div class="absolute inset-0 bg-gradient-to-t from-[#0E2240]/55 via-transparent to-transparent" aria-hidden="true" />
                     <div class="evh-glare" aria-hidden="true" />
                   </div>

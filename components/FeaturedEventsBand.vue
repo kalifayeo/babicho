@@ -44,7 +44,7 @@ function priceLabel(price: number) {
     <ul ref="track" v-stagger:wipe="{ step: 160 }" class="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:gap-5 md:px-0">
       <li v-for="(it, i) in items" :key="it.id" class="w-[86vw] max-w-[620px] shrink-0 snap-start" :class="items.length === 1 ? 'md:!w-full md:!max-w-none' : 'md:w-[calc(50%-0.625rem)]'">
         <NuxtLink :to="`/e/${it.event.slug}`" class="featured-card group relative block aspect-[4/5] overflow-hidden bg-tikeo-ink text-white sm:aspect-[16/11] md:aspect-[16/9]">
-          <img :src="it.event.coverImage" :alt="it.event.title" :loading="i < 2 ? 'eager' : 'lazy'" decoding="async" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
+          <img :src="it.event.coverImage" data-img-fallback :alt="it.event.title" :loading="i < 2 ? 'eager' : 'lazy'" decoding="async" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
           <div class="absolute inset-0 bg-gradient-to-t from-tikeo-ink via-tikeo-ink/75 via-40% to-transparent" aria-hidden="true" />
           <div class="absolute inset-x-0 top-0 h-1 bg-tikeo-brand" aria-hidden="true" />
 

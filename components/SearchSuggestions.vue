@@ -25,7 +25,7 @@ function suggestionDate(iso: string) {
         class="flex w-full items-center gap-3 px-3.5 py-2.5 text-left transition-colors hover:bg-tikeo-gray-light"
         @click="emit('select', s.slug)"
       >
-        <img :src="s.coverImage" alt="" width="44" height="44" loading="lazy" decoding="async" class="h-11 w-11 shrink-0 object-cover" />
+        <img :src="s.coverImage" data-img-fallback alt="" width="44" height="44" loading="lazy" decoding="async" class="h-11 w-11 shrink-0 object-cover" />
         <span class="min-w-0 flex-1">
           <span class="block truncate text-sm font-semibold text-tikeo-black">{{ s.title }}</span>
           <span class="block truncate text-xs text-tikeo-gray-text">{{ suggestionDate(s.startDate) }} · {{ s.city }}<span v-if="s.organizerName"> · {{ s.organizerName }}</span></span>
